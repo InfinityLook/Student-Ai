@@ -2,9 +2,10 @@
 
 import React, { useState } from "react";
 import { useStore } from "@/store/useStore";
+import { getLevelInfo } from "@/lib/gamification";
 import NotificationSystem from "@/components/NotificationSystem";
+import LevelBadge from "@/components/LevelBadge";
 
-// Importy všech modulů
 import ProfileModule from "@/components/modules/ProfileModule";
 import ShopModule from "@/components/modules/ShopModule";
 import FileSystemModule from "@/components/modules/FileSystemModule";
@@ -13,11 +14,12 @@ import AITestModule from "@/components/modules/AITestModule";
 import AISolver from "@/components/modules/AISolver";
 
 export default function DashboardShell() {
-  const { activeModule, setActiveModule, credits } = useStore();
+  const { activeModule, setActiveModule, credits, totalCreditsEarned } = useStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { level } = getLevelInfo(totalCreditsEarned);
 
   const menuItems = [
-    { id: "profile", label: "Profil & Přehled", icon: "🏠" },
+    { id: "profile", label: "Přehled", icon: "🏠" },
     { id: "shop", label: "Obchod & Kredity", icon: "🛒" },
     { id: "files", label: "Předměty & Složky", icon: "📚" },
     { id: "flashcards", label: "Kartičky", icon: "📇" },
@@ -27,16 +29,17 @@ export default function DashboardShell() {
   ];
 
   return (
-    <div className="flex h-screen bg-zinc-100 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 overflow-hidden">
-      {/* Sidebar pro PC */}
-      <aside className="hidden md:flex flex-col w-64 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 p-4">
-        <div className="flex items-center justify-between mb-8 px-2">
-          <h1 className="font-bold text-xl bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">
-            School IDE
-          </h1>
-          <span className="text-xs px-2.5 py-1 bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300 rounded-full font-semibold">
-            {credits} 🪙
-          </span>
+    <div className="flex h-screen bg-base text-ink overflow-hidden font-sans">
+      <aside className="hidden md:flex flex-col w-64 bg-surface border-r border-edge p-4">
+        <div className="flex items-center gap-3 mb-8 px-2">
+          <LevelBadge size={44} />
+          <div className="min-w-0">
+            <h1 className="font-display font-bold text-lg text-ink leading-tight">Student AI</h1>
+            <div className="flex items-center gap-1 text-xs font-mono font-semibold text-gold">
+              <span>{credits}</span>
+              <span>🪙</span>
+            </div>
+          </div>
         </div>
 
         <nav className="space-y-1 flex-1 overflow-y-auto">
@@ -44,10 +47,10 @@ export default function DashboardShell() {
             <button
               key={item.id}
               onClick={() => setActiveModule(item.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all border-l-2 ${
                 activeModule === item.id
-                  ? "bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400"
-                  : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
+                  ? "bg-surface-hover border-gold text-ink"
+                  : "border-transparent text-muted hover:bg-surface-hover hover:text-ink"
               }`}
             >
               <span>{item.icon}</span>
@@ -55,31 +58,31 @@ export default function DashboardShell() {
             </button>
           ))}
         </nav>
+
+        <div className="px-3 py-2 text-[11px] font-mono text-muted">Level {level} student</div>
       </aside>
 
-      {/* Hlavní obsahová část */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Mobilní header */}
-        <header className="md:hidden flex items-center justify-between bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 p-4">
-          <h1 className="font-bold text-lg bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">
-            School IDE
-          </h1>
-          <div className="flex items-center gap-3">
-            <span className="text-xs px-2.5 py-1 bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300 rounded-full font-semibold">
+        <header className="md:hidden flex items-center justify-between bg-surface border-b border-edge p-4">
+          <div className="flex items-center gap-3 min-w-0">
+            <LevelBadge size={36} />
+            <h1 className="font-display font-bold text-base text-ink truncate">Student AI</h1>
+          </div>
+          <div className="flex items-center gap-3 shrink-0">
+            <span className="flex items-center gap-1 text-xs font-mono font-semibold px-2.5 py-1.5 bg-base border border-edge text-gold rounded-full">
               {credits} 🪙
             </span>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
+              className="p-2 rounded-lg bg-base border border-edge text-ink"
             >
               ☰
             </button>
           </div>
         </header>
 
-        {/* Mobilní rozbalovací menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 p-4 space-y-1 shadow-lg z-20 max-h-80 overflow-y-auto">
+          <div className="md:hidden bg-surface border-b border-edge p-4 space-y-1 shadow-lg z-20 max-h-80 overflow-y-auto">
             {menuItems.map((item) => (
               <button
                 key={item.id}
@@ -88,9 +91,7 @@ export default function DashboardShell() {
                   setMobileMenuOpen(false);
                 }}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium ${
-                  activeModule === item.id
-                    ? "bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400"
-                    : "text-zinc-600 dark:text-zinc-400"
+                  activeModule === item.id ? "bg-surface-hover text-ink" : "text-muted"
                 }`}
               >
                 <span>{item.icon}</span>
@@ -100,7 +101,6 @@ export default function DashboardShell() {
           </div>
         )}
 
-        {/* Dynamický render aktivního modulu */}
         <main className="flex-1 overflow-y-auto p-6 md:p-8">
           {activeModule === "profile" && <ProfileModule />}
           {activeModule === "shop" && <ShopModule />}
@@ -110,16 +110,16 @@ export default function DashboardShell() {
           {activeModule === "solver" && <AISolver />}
           {activeModule === "settings" && (
             <div className="max-w-4xl mx-auto space-y-6">
-              <div className="bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm">
-                <h2 className="text-2xl font-bold mb-2 text-zinc-900 dark:text-white">⚙️ Nastavení aplikací</h2>
-                <p className="text-zinc-500 text-sm mb-6">Konfigurace předvoleb a výběr AI modelů.</p>
+              <div className="bg-surface p-6 rounded-2xl border border-edge shadow-sm">
+                <h2 className="text-2xl font-display font-bold mb-2 text-ink">⚙️ Nastavení aplikací</h2>
+                <p className="text-muted text-sm mb-6">Konfigurace předvoleb a výběr AI modelů.</p>
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 rounded-xl border border-zinc-200 dark:border-zinc-800">
+                  <div className="flex items-center justify-between p-4 rounded-xl border border-edge">
                     <div>
-                      <div className="font-semibold text-zinc-900 dark:text-white">Výchozí AI Model</div>
-                      <div className="text-xs text-zinc-500">Gemini 1.5 Pro (Doporučeno pro komplexní úkoly)</div>
+                      <div className="font-semibold text-ink">Výchozí AI Model</div>
+                      <div className="text-xs text-muted">Gemini 1.5 Pro (Doporučeno pro komplexní úkoly)</div>
                     </div>
-                    <span className="text-xs px-3 py-1 bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300 rounded-lg font-semibold">Aktivní</span>
+                    <span className="text-xs px-3 py-1 bg-violet/10 text-violet rounded-lg font-semibold">Aktivní</span>
                   </div>
                 </div>
               </div>
@@ -131,4 +131,4 @@ export default function DashboardShell() {
       <NotificationSystem />
     </div>
   );
-        }
+}
