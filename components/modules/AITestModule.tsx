@@ -11,7 +11,7 @@ interface Question {
 }
 
 export default function AITestModule() {
-  const { addNotification, credits, subCredits } = useStore();
+  const { addNotification, credits, deductCredits } = useStore();
   const [topic, setTopic] = useState("");
   const [generating, setGenerating] = useState(false);
   
@@ -35,7 +35,7 @@ export default function AITestModule() {
     
     // Simulace AI generování testu a odečtení kreditů
     setTimeout(() => {
-      subCredits(10);
+      deductCredits(10);
       setTest([
         {
           id: 1,
