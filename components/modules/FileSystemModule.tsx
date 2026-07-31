@@ -32,7 +32,7 @@ export default function FileSystemModule() {
     }
 
     const newItem: Item = {
-      id: Math.random().toString(36.substring(2, 9)),
+      id: Math.random().toString(36).substring(2, 9),
       name: newItemName.trim(),
       type,
       parentId: currentFolder,
