@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { persist } from "middleware"; // nebo standardní import z "zustand/middleware"
+import { persist } from "zustand/middleware";
 
 interface Notification {
   id: string;
