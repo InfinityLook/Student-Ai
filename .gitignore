@@ -1,0 +1,14 @@
+# See https://nextjs.org/docs/app/building-your-application/deploying/production-check#git-ignored-files
+/node_modules
+/.next/
+/out/
+/build
+
+.DS_Store
+*.pem
+
+# Local env files
+.env*.local
+
+# Vercel
+.vercel
