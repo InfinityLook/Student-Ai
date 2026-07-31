@@ -9,7 +9,7 @@ interface Message {
 }
 
 export default function AISolver() {
-  const { addNotification, credits, subCredits } = useStore();
+  const { addNotification, credits, deductCredits } = useStore();
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
@@ -36,7 +36,7 @@ export default function AISolver() {
     setLoading(true);
 
     setTimeout(() => {
-      subCredits(5);
+      deductCredits(5);
       setMessages((prev) => [
         ...prev,
         {
