@@ -10,8 +10,9 @@ interface Notification {
 interface AppState {
   activeModule: string;
   setActiveModule: (module: string) => void;
-  
+
   credits: number;
+  totalCreditsEarned: number;
   addCredits: (amount: number) => void;
   deductCredits: (amount: number) => void;
 
@@ -26,8 +27,13 @@ export const useStore = create<AppState>()(
       activeModule: "profile",
       setActiveModule: (module) => set({ activeModule: module }),
 
-      credits: 50, // Startovací kredity
-      addCredits: (amount) => set((state) => ({ credits: state.credits + amount })),
+      credits: 50,
+      totalCreditsEarned: 50,
+      addCredits: (amount) =>
+        set((state) => ({
+          credits: state.credits + amount,
+          totalCreditsEarned: state.totalCreditsEarned + amount,
+        })),
       deductCredits: (amount) => set((state) => ({ credits: Math.max(0, state.credits - amount) })),
 
       notifications: [],
