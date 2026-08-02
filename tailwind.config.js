@@ -8,7 +8,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        base: "#12101C",
+        cavanas: "#12101C",
         surface: "#1C1830",
         "surface-hover": "#241F3D",
         edge: "#332C54",
