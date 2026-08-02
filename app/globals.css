@@ -8,7 +8,7 @@ body {
 }
 
 body {
-  @apply bg-base text-ink font-sans;
+  @apply bg-canvas text-ink font-sans;
 }
 
 ::selection {
