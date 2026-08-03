@@ -1,11 +1,26 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { FOCUS_SESSION_REWARD } from "@/lib/gamification";
+import { FOCUS_SESSION_REWARD, FLASHCARD_REVIEW_REWARD } from "@/lib/gamification";
+import {
+  ReviewQuality,
+  createInitialSpacedRepetitionState,
+  scheduleNextReview,
+} from "@/lib/spacedRepetition";
 
 interface Notification {
   id: string;
   message: string;
   type: "success" | "error" | "info";
+}
+
+interface Flashcard {
+  id: string;
+  question: string;
+  answer: string;
+  interval: number;
+  repetitions: number;
+  easeFactor: number;
+  dueDate: string;
 }
 
 interface AppState {
@@ -19,6 +34,10 @@ interface AppState {
 
   focusSessionsCompleted: number;
   completeFocusSession: () => void;
+
+  flashcards: Flashcard[];
+  addFlashcard: (question: string, answer: string) => void;
+  reviewFlashcard: (id: string, quality: ReviewQuality) => void;
 
   notifications: Notification[];
   addNotification: (message: string, type?: "success" | "error" | "info") => void;
@@ -46,6 +65,41 @@ export const useStore = create<AppState>()(
           focusSessionsCompleted: state.focusSessionsCompleted + 1,
           credits: state.credits + FOCUS_SESSION_REWARD,
           totalCreditsEarned: state.totalCreditsEarned + FOCUS_SESSION_REWARD,
+        })),
+
+      flashcards: [
+        {
+          id: "1",
+          question: "Co je to rekurze v programování?",
+          answer: "Funkce, která volá sama sebe.",
+          ...createInitialSpacedRepetitionState(),
+        },
+        {
+          id: "2",
+          question: "Co vyjadřuje derivace funkce?",
+          answer: "Okamžitou změnu hodnoty funkce (směrnici tečny).",
+          ...createInitialSpacedRepetitionState(),
+        },
+      ],
+      addFlashcard: (question, answer) =>
+        set((state) => ({
+          flashcards: [
+            ...state.flashcards,
+            {
+              id: Math.random().toString(36).substring(2, 9),
+              question,
+              answer,
+              ...createInitialSpacedRepetitionState(),
+            },
+          ],
+        })),
+      reviewFlashcard: (id, quality) =>
+        set((state) => ({
+          flashcards: state.flashcards.map((card) =>
+            card.id === id ? { ...card, ...scheduleNextReview(card, quality) } : card
+          ),
+          credits: state.credits + FLASHCARD_REVIEW_REWARD,
+          totalCreditsEarned: state.totalCreditsEarned + FLASHCARD_REVIEW_REWARD,
         })),
 
       notifications: [],
