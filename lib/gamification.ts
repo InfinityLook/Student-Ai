@@ -1,4 +1,5 @@
 export const XP_PER_LEVEL = 100;
+export const FOCUS_SESSION_REWARD = 15;
 
 export interface LevelInfo {
   level: number;
