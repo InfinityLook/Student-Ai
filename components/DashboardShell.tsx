@@ -29,7 +29,7 @@ export default function DashboardShell() {
   ];
 
   return (
-    <div className="flex h-screen bg-base text-ink overflow-hidden font-sans">
+    <div className="flex h-screen bg-canvas text-ink overflow-hidden font-sans">
       <aside className="hidden md:flex flex-col w-64 bg-surface border-r border-edge p-4">
         <div className="flex items-center gap-3 mb-8 px-2">
           <LevelBadge size={44} />
@@ -69,12 +69,12 @@ export default function DashboardShell() {
             <h1 className="font-display font-bold text-base text-ink truncate">Student AI</h1>
           </div>
           <div className="flex items-center gap-3 shrink-0">
-            <span className="flex items-center gap-1 text-xs font-mono font-semibold px-2.5 py-1.5 bg-base border border-edge text-gold rounded-full">
+            <span className="flex items-center gap-1 text-xs font-mono font-semibold px-2.5 py-1.5 bg-canvas border border-edge text-gold rounded-full">
               {credits} 🪙
             </span>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg bg-base border border-edge text-ink"
+              className="p-2 rounded-lg bg-canvas border border-edge text-ink"
             >
               ☰
             </button>
