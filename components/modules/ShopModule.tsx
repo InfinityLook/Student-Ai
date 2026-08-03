@@ -3,110 +3,145 @@
 import React, { useState } from "react";
 import { useStore } from "@/store/useStore";
 
-export default function ShopModule() {
-  const { credits, addCredits, addNotification } = useStore();
-  const [watchingAd, setWatchingAd] = useState(false);
-  const [countdown, setCountdown] = useState(5);
+interface Item {
+  id: string;
+  name: string;
+  type: "folder" | "file";
+  parentId: string | null;
+}
 
-  const handleWatchAd = () => {
-    if (watchingAd) return;
-    setWatchingAd(true);
-    setCountdown(5);
+export default function FileSystemModule() {
+  const { addNotification } = useStore();
+  const [currentFolder, setCurrentFolder] = useState<string | null>(null);
+  const [items, setItems] = useState<Item[]>([
+    { id: "1", name: "Matematika", type: "folder", parentId: null },
+    { id: "2", name: "Programování", type: "folder", parentId: null },
+    { id: "3", name: "Integrály - poznámky.md", type: "file", parentId: "1" },
+  ]);
 
-    const timer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          setWatchingAd(false);
-          addCredits(10);
-          addNotification("Úspěšně jsi sledoval reklamu! Získáváš 10 kreditů 🪙", "success");
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+  const [newItemName, setNewItemName] = useState("");
+  const [isCreatingType, setIsCreatingType] = useState<"folder" | "file" | null>(null);
+
+  const currentItems = items.filter((item) => item.parentId === currentFolder);
+
+  const handleCreate = (type: "folder" | "file") => {
+    if (!newItemName.trim()) {
+      addNotification("Zadej název položky!", "error");
+      return;
+    }
+
+    const newItem: Item = {
+      id: Math.random().toString(36).substring(2, 9),
+      name: newItemName.trim(),
+      type,
+      parentId: currentFolder,
+    };
+
+    setItems([...items, newItem]);
+    setNewItemName("");
+    setIsCreatingType(null);
+    addNotification(`Úspěšně vytvořeno: ${newItem.name}`, "success");
   };
 
-  const handleBuyCredits = (amount: number, price: string) => {
-    addCredits(amount);
-    addNotification(`Úspěšně zakoupen balíček za ${price}! Připsáno ${amount} kreditů.`, "success");
+  const handleDelete = (id: string) => {
+    setItems(items.filter((item) => item.id !== id && item.parentId !== id));
+    addNotification("Položka byla smazána.", "info");
   };
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <div className="bg-surface p-6 rounded-2xl border border-edge shadow-sm flex items-center justify-between">
+      <div className="bg-surface p-6 rounded-2xl border border-edge shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-display font-bold text-ink">🛒 Obchod & Ekonomika</h2>
-          <p className="text-muted text-sm mt-1">Doplň si kredity pro pokročilé AI funkce.</p>
+          <h2 className="text-2xl font-display font-bold text-ink">📚 Předměty & Složky</h2>
+          <p className="text-muted text-sm mt-1">Hierarchické úložiště tvých studijních materiálů.</p>
         </div>
-        <div className="text-right">
-          <div className="text-xs text-muted">Aktuální stav</div>
-          <div className="text-xl font-mono font-bold text-gold">{credits} 🪙</div>
+
+        <div className="flex items-center gap-2">
+          {currentFolder && (
+            <button
+              onClick={() => setCurrentFolder(null)}
+              className="px-3 py-2 bg-surface-hover hover:bg-edge text-ink rounded-xl text-sm font-medium transition-colors border border-edge"
+            >
+              ← Zpět domů
+            </button>
+          )}
+          <button
+            onClick={() => setIsCreatingType("folder")}
+            className="px-3 py-2 bg-violet/10 text-violet hover:bg-violet/20 rounded-xl text-sm font-medium transition-colors"
+          >
+            + Nová složka
+          </button>
+          <button
+            onClick={() => setIsCreatingType("file")}
+            className="px-3 py-2 bg-violet hover:brightness-110 text-ink rounded-xl text-sm font-medium transition-all shadow-lg shadow-violet/20"
+          >
+            + Nový soubor
+          </button>
         </div>
       </div>
 
-      <div className="bg-mint/10 border border-mint/30 p-6 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div>
-          <h3 className="text-lg font-display font-semibold text-mint">🎁 Získej kredity zdarma</h3>
-          <p className="text-ink/80 text-sm mt-1">
-            Podívej se na krátkou partnerskou reklamu (5 sekund) a získej 10 kreditů zdarma.
-          </p>
-        </div>
-        <button
-          onClick={handleWatchAd}
-          disabled={watchingAd}
-          className="px-5 py-3 bg-mint hover:brightness-110 text-canvas font-semibold rounded-xl text-sm transition-all shadow-lg shadow-mint/20 disabled:opacity-50 whitespace-nowrap"
-        >
-          {watchingAd ? `Sleduji reklamu... (${countdown}s)` : "Sledovat reklamu (+10 🪙)"}
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-surface p-6 rounded-2xl border border-edge shadow-sm flex flex-col justify-between">
-          <div>
-            <div className="text-lg font-display font-bold text-ink">Startovní balíček</div>
-            <div className="text-3xl font-mono font-extrabold text-gold my-2">50 🪙</div>
-            <p className="text-muted text-sm">Ideální pro občasné využití AI Solveru.</p>
-          </div>
+      {isCreatingType && (
+        <div className="bg-surface p-4 rounded-2xl border border-violet shadow-sm flex items-center gap-3">
+          <input
+            type="text"
+            value={newItemName}
+            onChange={(e) => setNewItemName(e.target.value)}
+            placeholder={isCreatingType === "folder" ? "Název složky..." : "Název souboru..."}
+            className="flex-1 p-2.5 rounded-xl border border-edge bg-canvas text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-violet text-sm"
+            autoFocus
+          />
           <button
-            onClick={() => handleBuyCredits(50, "49 Kč")}
-            className="mt-6 w-full py-2.5 bg-surface-hover hover:bg-gold/10 hover:text-gold text-ink font-semibold rounded-xl text-sm transition-colors border border-edge"
+            onClick={() => handleCreate(isCreatingType)}
+            className="px-4 py-2.5 bg-violet hover:brightness-110 text-ink font-medium rounded-xl text-sm transition-all"
           >
-            Koupit za 49 Kč
+            Vytvořit
+          </button>
+          <button
+            onClick={() => {
+              setIsCreatingType(null);
+              setNewItemName("");
+            }}
+            className="px-4 py-2.5 bg-surface-hover text-ink font-medium rounded-xl text-sm transition-colors border border-edge"
+          >
+            Zrušit
           </button>
         </div>
+      )}
 
-        <div className="bg-surface p-6 rounded-2xl border-2 border-gold shadow-sm flex flex-col justify-between relative overflow-hidden">
-          <div className="absolute top-0 right-0 bg-gold text-canvas text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase tracking-wider">
-            Nejpopulárnější
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        {currentItems.length === 0 ? (
+          <div className="col-span-full text-center py-12 text-muted text-sm">
+            Tato složka je prázdná. Vytvoř novou složku nebo soubor nahoře.
           </div>
-          <div>
-            <div className="text-lg font-display font-bold text-ink">Semestrální balíček</div>
-            <div className="text-3xl font-mono font-extrabold text-gold my-2">150 🪙</div>
-            <p className="text-muted text-sm">Pro každodenní studium a generování prací.</p>
-          </div>
-          <button
-            onClick={() => handleBuyCredits(150, "129 Kč")}
-            className="mt-6 w-full py-2.5 bg-gold hover:brightness-110 text-canvas font-semibold rounded-xl text-sm transition-all shadow-lg shadow-gold/20"
-          >
-            Koupit za 129 Kč
-          </button>
-        </div>
-
-        <div className="bg-surface p-6 rounded-2xl border border-edge shadow-sm flex flex-col justify-between">
-          <div>
-            <div className="text-lg font-display font-bold text-ink">Akademický PRO</div>
-            <div className="text-3xl font-mono font-extrabold text-gold my-2">400 🪙</div>
-            <p className="text-muted text-sm">Neomezené možnosti a nejlepší AI modely.</p>
-          </div>
-          <button
-            onClick={() => handleBuyCredits(400, "299 Kč")}
-            className="mt-6 w-full py-2.5 bg-surface-hover hover:bg-gold/10 hover:text-gold text-ink font-semibold rounded-xl text-sm transition-colors border border-edge"
-          >
-            Koupit za 299 Kč
-          </button>
-        </div>
+        ) : (
+          currentItems.map((item) => (
+            <div
+              key={item.id}
+              onClick={() => {
+                if (item.type === "folder") setCurrentFolder(item.id);
+              }}
+              className={`bg-surface p-4 rounded-2xl border border-edge shadow-sm flex items-center justify-between group transition-all ${
+                item.type === "folder" ? "cursor-pointer hover:border-violet" : ""
+              }`}
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <span className="text-2xl">{item.type === "folder" ? "📁" : "📄"}</span>
+                <span className="font-semibold text-ink truncate text-sm">{item.name}</span>
+              </div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDelete(item.id);
+                }}
+                className="opacity-0 group-hover:opacity-100 p-1.5 text-muted hover:text-coral transition-opacity"
+                title="Smazat"
+              >
+                🗑️
+              </button>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
-}
+                                             }
