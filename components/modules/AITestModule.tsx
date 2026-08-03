@@ -14,7 +14,7 @@ export default function AITestModule() {
   const { addNotification, credits, deductCredits } = useStore();
   const [topic, setTopic] = useState("");
   const [generating, setGenerating] = useState(false);
-  
+
   const [test, setTest] = useState<Question[] | null>(null);
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [submitted, setSubmitted] = useState(false);
@@ -32,8 +32,7 @@ export default function AITestModule() {
     }
 
     setGenerating(true);
-    
-    // Simulace AI generování testu a odečtení kreditů
+
     setTimeout(() => {
       deductCredits(10);
       setTest([
@@ -77,19 +76,17 @@ export default function AITestModule() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Hlavička */}
-      <div className="bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="bg-surface p-6 rounded-2xl border border-edge shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">📝 AI Test Generator</h2>
-          <p className="text-zinc-500 text-sm mt-1">Vygeneruj si cvičné kvízy na míru z libovolného tématu.</p>
+          <h2 className="text-2xl font-display font-bold text-ink">📝 AI Test Generator</h2>
+          <p className="text-muted text-sm mt-1">Vygeneruj si cvičné kvízy na míru z libovolného tématu.</p>
         </div>
       </div>
 
-      {/* Vstup pro zadání tématu */}
       {!test && (
-        <div className="bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm space-y-4">
+        <div className="bg-surface p-6 rounded-2xl border border-edge shadow-sm space-y-4">
           <div>
-            <label className="block text-sm font-semibold text-zinc-900 dark:text-white mb-2">
+            <label className="block text-sm font-semibold text-ink mb-2">
               Zadej téma nebo vlož text (stojí 10 🪙):
             </label>
             <input
@@ -97,36 +94,35 @@ export default function AITestModule() {
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
               placeholder="např. Kvantová fyzika, Základy SQL, Dějepis..."
-              className="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+              className="w-full p-3 rounded-xl border border-edge bg-canvas text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-violet text-sm"
             />
           </div>
           <button
             onClick={handleGenerateTest}
             disabled={generating}
-            className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl text-sm transition-colors shadow-lg shadow-indigo-500/20 disabled:opacity-50"
+            className="w-full py-3 bg-violet hover:brightness-110 text-ink font-medium rounded-xl text-sm transition-all shadow-lg shadow-violet/20 disabled:opacity-50"
           >
             {generating ? "Generuji AI test..." : "Vygenerovat test (10 🪙)"}
           </button>
         </div>
       )}
 
-      {/* Probíhající test */}
       {test && (
         <div className="space-y-6">
           {test.map((q, index) => (
-            <div key={q.id} className="bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm space-y-3">
-              <div className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">Otázka {index + 1}</div>
-              <div className="font-bold text-zinc-900 dark:text-white text-base">{q.question}</div>
+            <div key={q.id} className="bg-surface p-6 rounded-2xl border border-edge shadow-sm space-y-3">
+              <div className="text-xs font-mono font-semibold text-violet">Otázka {index + 1}</div>
+              <div className="font-bold text-ink text-base">{q.question}</div>
               <div className="space-y-2 pt-2">
                 {q.options.map((opt, optIdx) => {
                   const isSelected = answers[q.id] === optIdx;
-                  let optionStyle = "border-zinc-200 dark:border-zinc-800 hover:border-indigo-500";
-                  
+                  let optionStyle = "border-edge hover:border-violet text-ink";
+
                   if (submitted) {
-                    if (optIdx === q.correct) optionStyle = "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-500 text-emerald-900 dark:text-emerald-200";
-                    else if (isSelected) optionStyle = "bg-rose-50 dark:bg-rose-950/40 border-rose-500 text-rose-900 dark:text-rose-200";
+                    if (optIdx === q.correct) optionStyle = "bg-mint/10 border-mint text-mint";
+                    else if (isSelected) optionStyle = "bg-coral/10 border-coral text-coral";
                   } else if (isSelected) {
-                    optionStyle = "bg-indigo-50 dark:bg-indigo-950/40 border-indigo-500 text-indigo-900 dark:text-indigo-200";
+                    optionStyle = "bg-violet/10 border-violet text-violet";
                   }
 
                   return (
@@ -147,18 +143,18 @@ export default function AITestModule() {
           {!submitted ? (
             <button
               onClick={handleSubmitTest}
-              className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm transition-colors shadow-lg shadow-emerald-500/20"
+              className="w-full py-3.5 bg-mint hover:brightness-110 text-canvas font-semibold rounded-xl text-sm transition-all shadow-lg shadow-mint/20"
             >
               Vyhodnotit test
             </button>
           ) : (
-            <div className="bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 text-center space-y-4">
-              <div className="text-xl font-bold text-zinc-900 dark:text-white">
+            <div className="bg-surface p-6 rounded-2xl border border-edge text-center space-y-4">
+              <div className="text-xl font-display font-bold text-ink">
                 Výsledek: {score} / {test.length} správně
               </div>
               <button
                 onClick={() => setTest(null)}
-                className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl text-sm transition-colors"
+                className="px-6 py-2.5 bg-violet hover:brightness-110 text-ink font-medium rounded-xl text-sm transition-all"
               >
                 Vytvořit nový test
               </button>
@@ -168,4 +164,4 @@ export default function AITestModule() {
       )}
     </div>
   );
-                 }
+              }
