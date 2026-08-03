@@ -18,7 +18,7 @@ export default function ProfileModule() {
               Sbírej kredity, řeš úkoly a levluj. Tvůj akademický prostor je připraven.
             </p>
           </div>
-          <div className="bg-base/25 backdrop-blur-md px-4 py-3 rounded-xl border border-ink/20 flex items-center gap-3">
+          <div className="bg-canvas/25 backdrop-blur-md px-4 py-3 rounded-xl border border-ink/20 flex items-center gap-3">
             <span className="text-2xl">🪙</span>
             <div>
               <div className="text-xs text-ink/70">Zůstatek kreditů</div>
@@ -32,7 +32,7 @@ export default function ProfileModule() {
             <span>Level {level}</span>
             <span>{xpIntoLevel} / {XP_PER_LEVEL} XP</span>
           </div>
-          <div className="h-2.5 rounded-full bg-base/30 overflow-hidden">
+          <div className="h-2.5 rounded-full bg-canvas/30 overflow-hidden">
             <div className="h-full bg-gold rounded-full transition-all duration-700" style={{ width: `${progress * 100}%` }} />
           </div>
         </div>
@@ -58,7 +58,18 @@ export default function ProfileModule() {
 
       <div className="bg-surface p-6 rounded-2xl border border-edge shadow-sm space-y-4">
         <h3 className="text-lg font-display font-bold text-ink">⚡ Rychlé akce</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <button
+            onClick={() => setActiveModule("timer")}
+            className="flex items-center gap-3 p-4 rounded-xl border border-edge hover:border-mint transition-all text-left group"
+          >
+            <span className="text-2xl p-2 rounded-lg bg-mint/10 group-hover:scale-110 transition-transform">⏱️</span>
+            <div>
+              <div className="font-semibold text-ink">Spustit Study Timer</div>
+              <div className="text-xs text-muted">Soustřeď se a získej kredity</div>
+            </div>
+          </button>
+
           <button
             onClick={() => setActiveModule("solver")}
             className="flex items-center gap-3 p-4 rounded-xl border border-edge hover:border-violet transition-all text-left group"
