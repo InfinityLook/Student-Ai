@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { FOCUS_SESSION_REWARD } from "@/lib/gamification";
 
 interface Notification {
   id: string;
@@ -16,6 +17,9 @@ interface AppState {
   addCredits: (amount: number) => void;
   deductCredits: (amount: number) => void;
 
+  focusSessionsCompleted: number;
+  completeFocusSession: () => void;
+
   notifications: Notification[];
   addNotification: (message: string, type?: "success" | "error" | "info") => void;
   removeNotification: (id: string) => void;
@@ -27,14 +31,22 @@ export const useStore = create<AppState>()(
       activeModule: "profile",
       setActiveModule: (module) => set({ activeModule: module }),
 
-      credits: 50,
-      totalCreditsEarned: 50,
+      credits: 50, // Startovací kredity
+      totalCreditsEarned: 50, // Používá se pro výpočet levelu (nikdy se neodečítá)
       addCredits: (amount) =>
         set((state) => ({
           credits: state.credits + amount,
           totalCreditsEarned: state.totalCreditsEarned + amount,
         })),
       deductCredits: (amount) => set((state) => ({ credits: Math.max(0, state.credits - amount) })),
+
+      focusSessionsCompleted: 0,
+      completeFocusSession: () =>
+        set((state) => ({
+          focusSessionsCompleted: state.focusSessionsCompleted + 1,
+          credits: state.credits + FOCUS_SESSION_REWARD,
+          totalCreditsEarned: state.totalCreditsEarned + FOCUS_SESSION_REWARD,
+        })),
 
       notifications: [],
       addNotification: (message, type = "info") => {
