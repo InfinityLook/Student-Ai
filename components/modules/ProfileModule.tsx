@@ -3,6 +3,7 @@
 import React from "react";
 import { useStore } from "@/store/useStore";
 import { getLevelInfo, XP_PER_LEVEL } from "@/lib/gamification";
+import KairoAvatar from "@/components/KairoAvatar";
 
 export default function ProfileModule() {
   const { credits, totalCreditsEarned, setActiveModule, tasks } = useStore();
@@ -11,29 +12,35 @@ export default function ProfileModule() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <div className="bg-gradient-to-br from-violet to-violet-dim rounded-3xl p-6 text-ink shadow-lg shadow-violet/20">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-5">
+      <div className="bg-surface rounded-3xl p-6 md:p-8 border border-edge shadow-sm">
+        <div className="flex flex-col items-center text-center gap-3 mb-6">
+          <KairoAvatar size={120} />
           <div>
-            <h2 className="text-2xl font-display font-bold">Vítej zpět, Studente! 🎓</h2>
-            <p className="text-ink/80 text-sm mt-1">
-              Sbírej kredity, řeš úkoly a levluj. Tvůj akademický prostor je připraven.
-            </p>
+            <h2 className="text-xl font-display font-bold text-ink">Ahoj, Studente! 👋</h2>
+            <p className="text-muted text-xs mt-1">Ťukni na Kaira pro tip. AI mozek přidáme příště.</p>
           </div>
-          <div className="bg-canvas/25 backdrop-blur-md px-4 py-3 rounded-xl border border-ink/20 flex items-center gap-3">
-            <span className="text-2xl">🪙</span>
+        </div>
+
+        <div className="flex items-center justify-between bg-canvas px-4 py-3 rounded-xl border border-edge mb-4">
+          <div className="flex items-center gap-2">
+            <span className="text-xl">🪙</span>
             <div>
-              <div className="text-xs text-ink/70">Zůstatek kreditů</div>
-              <div className="text-lg font-mono font-bold">{credits}</div>
+              <div className="text-xs text-muted">Zůstatek kreditů</div>
+              <div className="text-base font-mono font-bold text-gold">{credits}</div>
             </div>
+          </div>
+          <div className="text-right">
+            <div className="text-xs text-muted">Level</div>
+            <div className="text-base font-mono font-bold text-ink">{level}</div>
           </div>
         </div>
 
         <div>
-          <div className="flex justify-between text-xs font-mono text-ink/80 mb-1.5">
+          <div className="flex justify-between text-xs font-mono text-muted mb-1.5">
             <span>Level {level}</span>
             <span>{xpIntoLevel} / {XP_PER_LEVEL} XP</span>
           </div>
-          <div className="h-2.5 rounded-full bg-canvas/30 overflow-hidden">
+          <div className="h-2.5 rounded-full bg-canvas overflow-hidden">
             <div className="h-full bg-gold rounded-full transition-all duration-700" style={{ width: `${progress * 100}%` }} />
           </div>
         </div>
