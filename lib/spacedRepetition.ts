@@ -1,3 +1,7 @@
+import { todayISO, addDays } from "@/lib/date";
+
+export { todayISO };
+
 export type ReviewQuality = "again" | "hard" | "good" | "easy";
 
 const QUALITY_SCORE: Record<ReviewQuality, number> = {
@@ -12,16 +16,6 @@ export interface SpacedRepetitionState {
   repetitions: number;
   easeFactor: number;
   dueDate: string; // ISO datum (YYYY-MM-DD)
-}
-
-export function todayISO(): string {
-  return new Date().toISOString().slice(0, 10);
-}
-
-function addDays(dateISO: string, days: number): string {
-  const date = new Date(`${dateISO}T00:00:00`);
-  date.setDate(date.getDate() + days);
-  return date.toISOString().slice(0, 10);
 }
 
 export function createInitialSpacedRepetitionState(): SpacedRepetitionState {
