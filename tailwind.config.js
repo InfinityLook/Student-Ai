@@ -40,10 +40,20 @@ module.exports = {
           "50%": { transform: "scale(1.12)" },
           "100%": { transform: "scale(1)" },
         },
+        float: {
+          "0%, 100%": { transform: "translateY(0px)" },
+          "50%": { transform: "translateY(-8px)" },
+        },
+        blink: {
+          "0%, 90%, 100%": { transform: "scaleY(1)" },
+          "95%": { transform: "scaleY(0.1)" },
+        },
       },
       animation: {
         "toast-in": "toast-in 0.25s ease-out",
         "level-pop": "level-pop 0.4s ease-out",
+        float: "float 4s ease-in-out infinite",
+        blink: "blink 4.5s ease-in-out infinite",
       },
     },
   },
