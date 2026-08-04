@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { useStore } from "@/store/useStore";
 import { getLevelInfo } from "@/lib/gamification";
 import NotificationSystem from "@/components/NotificationSystem";
 import LevelBadge from "@/components/LevelBadge";
 
 import ProfileModule from "@/components/modules/ProfileModule";
+import MenuHubModule from "@/components/modules/MenuHubModule";
 import ShopModule from "@/components/modules/ShopModule";
 import FileSystemModule from "@/components/modules/FileSystemModule";
 import FlashcardsModule from "@/components/modules/FlashcardsModule";
@@ -15,22 +16,20 @@ import AISolver from "@/components/modules/AISolver";
 import FocusTimerModule from "@/components/modules/FocusTimerModule";
 import TaskPlannerModule from "@/components/modules/TaskPlannerModule";
 
+const SUB_MODULE_IDS = ["planner", "shop", "timer", "files", "flashcards", "test", "solver"];
+
+const PRIMARY_TABS = [
+  { id: "profile", label: "Profil", icon: "🏠" },
+  { id: "menu", label: "Menu", icon: "▦" },
+  { id: "settings", label: "Nastavení", icon: "⚙️" },
+];
+
 export default function DashboardShell() {
   const { activeModule, setActiveModule, credits, totalCreditsEarned } = useStore();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { level } = getLevelInfo(totalCreditsEarned);
 
-  const menuItems = [
-    { id: "profile", label: "Přehled", icon: "🏠" },
-    { id: "planner", label: "Plánovač", icon: "📋" },
-    { id: "shop", label: "Obchod & Kredity", icon: "🛒" },
-    { id: "timer", label: "Study Timer", icon: "⏱️" },
-    { id: "files", label: "Předměty & Složky", icon: "📚" },
-    { id: "flashcards", label: "Kartičky", icon: "📇" },
-    { id: "test", label: "AI Test Generator", icon: "📝" },
-    { id: "solver", label: "AI Solver", icon: "🤖" },
-    { id: "settings", label: "Nastavení", icon: "⚙️" },
-  ];
+  const isSubModule = SUB_MODULE_IDS.includes(activeModule);
+  const activeTab = activeModule === "profile" ? "profile" : activeModule === "settings" ? "settings" : "menu";
 
   return (
     <div className="flex h-screen bg-canvas text-ink overflow-hidden font-sans">
@@ -46,19 +45,19 @@ export default function DashboardShell() {
           </div>
         </div>
 
-        <nav className="space-y-1 flex-1 overflow-y-auto">
-          {menuItems.map((item) => (
+        <nav className="space-y-1 flex-1">
+          {PRIMARY_TABS.map((tab) => (
             <button
-              key={item.id}
-              onClick={() => setActiveModule(item.id)}
+              key={tab.id}
+              onClick={() => setActiveModule(tab.id)}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all border-l-2 ${
-                activeModule === item.id
+                activeTab === tab.id
                   ? "bg-surface-hover border-gold text-ink"
                   : "border-transparent text-muted hover:bg-surface-hover hover:text-ink"
               }`}
             >
-              <span>{item.icon}</span>
-              {item.label}
+              <span>{tab.icon}</span>
+              {tab.label}
             </button>
           ))}
         </nav>
@@ -67,46 +66,28 @@ export default function DashboardShell() {
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <header className="md:hidden flex items-center justify-between bg-surface border-b border-edge p-4">
+        <header className="md:hidden flex items-center justify-between bg-surface border-b border-edge p-4 shrink-0">
           <div className="flex items-center gap-3 min-w-0">
             <LevelBadge size={36} />
             <h1 className="font-display font-bold text-base text-ink truncate">Student AI</h1>
           </div>
-          <div className="flex items-center gap-3 shrink-0">
-            <span className="flex items-center gap-1 text-xs font-mono font-semibold px-2.5 py-1.5 bg-canvas border border-edge text-gold rounded-full">
-              {credits} 🪙
-            </span>
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg bg-canvas border border-edge text-ink"
-            >
-              ☰
-            </button>
-          </div>
+          <span className="flex items-center gap-1 text-xs font-mono font-semibold px-2.5 py-1.5 bg-canvas border border-edge text-gold rounded-full shrink-0">
+            {credits} 🪙
+          </span>
         </header>
 
-        {mobileMenuOpen && (
-          <div className="md:hidden bg-surface border-b border-edge p-4 space-y-1 shadow-lg z-20 max-h-80 overflow-y-auto">
-            {menuItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => {
-                  setActiveModule(item.id);
-                  setMobileMenuOpen(false);
-                }}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium ${
-                  activeModule === item.id ? "bg-surface-hover text-ink" : "text-muted"
-                }`}
-              >
-                <span>{item.icon}</span>
-                {item.label}
-              </button>
-            ))}
-          </div>
-        )}
+        <main className="flex-1 overflow-y-auto p-6 md:p-8 pb-24 md:pb-8">
+          {isSubModule && (
+            <button
+              onClick={() => setActiveModule("menu")}
+              className="max-w-4xl mx-auto flex items-center gap-1 text-sm text-muted hover:text-ink mb-4 transition-colors"
+            >
+              ← Zpět do Menu
+            </button>
+          )}
 
-        <main className="flex-1 overflow-y-auto p-6 md:p-8">
           {activeModule === "profile" && <ProfileModule />}
+          {activeModule === "menu" && <MenuHubModule />}
           {activeModule === "planner" && <TaskPlannerModule />}
           {activeModule === "shop" && <ShopModule />}
           {activeModule === "timer" && <FocusTimerModule />}
@@ -132,9 +113,31 @@ export default function DashboardShell() {
             </div>
           )}
         </main>
+
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-edge flex items-stretch z-30 pb-[env(safe-area-inset-bottom)]">
+          {PRIMARY_TABS.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveModule(tab.id)}
+              className="flex-1 flex flex-col items-center justify-center gap-1 py-3 transition-all active:scale-95"
+            >
+              <span className={`text-xl transition-transform ${activeTab === tab.id ? "scale-110" : ""}`}>
+                {tab.icon}
+              </span>
+              <span className={`text-[11px] font-medium ${activeTab === tab.id ? "text-gold" : "text-muted"}`}>
+                {tab.label}
+              </span>
+              <span
+                className={`h-0.5 w-6 rounded-full transition-all ${
+                  activeTab === tab.id ? "bg-gold" : "bg-transparent"
+                }`}
+              />
+            </button>
+          ))}
+        </nav>
       </div>
 
       <NotificationSystem />
     </div>
   );
-    }
+                }
