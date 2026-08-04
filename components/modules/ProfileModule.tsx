@@ -5,8 +5,9 @@ import { useStore } from "@/store/useStore";
 import { getLevelInfo, XP_PER_LEVEL } from "@/lib/gamification";
 
 export default function ProfileModule() {
-  const { credits, totalCreditsEarned, setActiveModule } = useStore();
+  const { credits, totalCreditsEarned, setActiveModule, tasks } = useStore();
   const { level, xpIntoLevel, progress } = getLevelInfo(totalCreditsEarned);
+  const activeTaskCount = tasks.filter((t) => !t.completed).length;
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -39,10 +40,15 @@ export default function ProfileModule() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-surface p-5 rounded-2xl border border-edge shadow-sm">
+        <div
+          onClick={() => setActiveModule("planner")}
+          className="bg-surface p-5 rounded-2xl border border-edge shadow-sm cursor-pointer hover:border-violet transition-all"
+        >
           <div className="text-muted text-sm mb-1">Aktivní úkoly</div>
-          <div className="text-2xl font-display font-bold text-ink">3</div>
-          <div className="text-xs text-mint mt-2">Vše pod kontrolou</div>
+          <div className="text-2xl font-display font-bold text-ink">{activeTaskCount}</div>
+          <div className={`text-xs mt-2 ${activeTaskCount === 0 ? "text-mint" : "text-gold"}`}>
+            {activeTaskCount === 0 ? "Vše pod kontrolou" : "Otevřít plánovač →"}
+          </div>
         </div>
         <div className="bg-surface p-5 rounded-2xl border border-edge shadow-sm">
           <div className="text-muted text-sm mb-1">AI Řešení</div>
@@ -95,4 +101,4 @@ export default function ProfileModule() {
       </div>
     </div>
   );
-            }
+}
