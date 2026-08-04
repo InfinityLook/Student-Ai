@@ -15,7 +15,7 @@ export default function NotificationSystem() {
   if (notifications.length === 0) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 flex flex-col-reverse gap-2 max-w-sm w-full pointer-events-none">
+    <div className="fixed bottom-20 md:bottom-4 right-4 z-50 flex flex-col-reverse gap-2 max-w-sm w-full pointer-events-none">
       {notifications.map((n) => {
         const style = STYLES[n.type] ?? STYLES.info;
         return (
@@ -36,4 +36,4 @@ export default function NotificationSystem() {
       })}
     </div>
   );
-}
+            }
