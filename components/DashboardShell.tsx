@@ -13,6 +13,7 @@ import FlashcardsModule from "@/components/modules/FlashcardsModule";
 import AITestModule from "@/components/modules/AITestModule";
 import AISolver from "@/components/modules/AISolver";
 import FocusTimerModule from "@/components/modules/FocusTimerModule";
+import TaskPlannerModule from "@/components/modules/TaskPlannerModule";
 
 export default function DashboardShell() {
   const { activeModule, setActiveModule, credits, totalCreditsEarned } = useStore();
@@ -21,6 +22,7 @@ export default function DashboardShell() {
 
   const menuItems = [
     { id: "profile", label: "Přehled", icon: "🏠" },
+    { id: "planner", label: "Plánovač", icon: "📋" },
     { id: "shop", label: "Obchod & Kredity", icon: "🛒" },
     { id: "timer", label: "Study Timer", icon: "⏱️" },
     { id: "files", label: "Předměty & Složky", icon: "📚" },
@@ -105,6 +107,7 @@ export default function DashboardShell() {
 
         <main className="flex-1 overflow-y-auto p-6 md:p-8">
           {activeModule === "profile" && <ProfileModule />}
+          {activeModule === "planner" && <TaskPlannerModule />}
           {activeModule === "shop" && <ShopModule />}
           {activeModule === "timer" && <FocusTimerModule />}
           {activeModule === "files" && <FileSystemModule />}
@@ -134,4 +137,4 @@ export default function DashboardShell() {
       <NotificationSystem />
     </div>
   );
-}
+    }
