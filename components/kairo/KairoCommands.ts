@@ -67,10 +67,11 @@ export function executeKairoCommand(
 
 
   if (
-    text.includes("nastavení")
+    text.includes("nastavení") ||
+    text.includes("profil")
   ) {
 
-    setActiveModule("settings");
+    setActiveModule("profile");
 
     speak(
       "Otevírám nastavení."
@@ -83,14 +84,13 @@ export function executeKairoCommand(
 
 
   if (
-    text.includes("profil") ||
     text.includes("domů")
   ) {
 
-    setActiveModule("profile");
+    setActiveModule("home");
 
     speak(
-      "Otevírám profil."
+      "Otevírám domovskou obrazovku."
     );
 
     return;
