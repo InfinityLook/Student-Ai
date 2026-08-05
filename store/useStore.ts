@@ -36,6 +36,9 @@ interface AppState {
   activeModule: string;
   setActiveModule: (module: string) => void;
 
+  favorites: (string | null)[];
+  setFavorite: (slot: number, moduleId: string | null) => void;
+
   credits: number;
   totalCreditsEarned: number;
   addCredits: (amount: number) => void;
@@ -63,6 +66,14 @@ export const useStore = create<AppState>()(
     (set) => ({
       activeModule: "home",
       setActiveModule: (module) => set({ activeModule: module }),
+
+      favorites: [null, null],
+      setFavorite: (slot, moduleId) =>
+        set((state) => {
+          const next = [...state.favorites];
+          next[slot] = moduleId;
+          return { favorites: next };
+        }),
 
       credits: 50, // Startovací kredity
       totalCreditsEarned: 50, // Používá se pro výpočet levelu (nikdy se neodečítá)
@@ -177,4 +188,4 @@ export const useStore = create<AppState>()(
     }
   )
 );
-              
+                   
