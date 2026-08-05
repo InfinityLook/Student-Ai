@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import DashboardShell from "@/components/DashboardShell";
 import MenuHubModule from "@/components/modules/MenuHubModule";
 import ShopModule from "@/components/modules/ShopModule";
@@ -15,12 +15,10 @@ import AITestModule from "@/components/modules/AITestModule";
 import DocumentEditorModule from "@/components/DocumentEditorModule";
 import KairoFloating from "@/components/KairoFloating";
 import KairoChat from "@/components/kairo/KairoChat";
-import { useStore } from "@/store/useStore";
 
 export default function Page() {
   const [activeModule, setActiveModule] = useState<string>("menu");
   const [isKairoOpen, setIsKairoOpen] = useState(false);
-  const user = useStore((state) => state.user);
 
   return (
     <DashboardShell activeModule={activeModule} setActiveModule={setActiveModule}>
