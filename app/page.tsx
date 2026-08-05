@@ -4,10 +4,20 @@ import React from "react";
 import { useStore } from "@/store/useStore";
 import { getLevelInfo } from "@/lib/gamification";
 import KairoAvatar from "@/components/KairoAvatar";
-import Link from "next/link";
+import DashboardShell from "@/components/DashboardShell";
+import MenuHubModule from "@/components/modules/MenuHubModule";
+import ShopModule from "@/components/modules/ShopModule";
+import ProfileModule from "@/components/modules/ProfileModule";
+import TaskPlannerModule from "@/components/modules/TaskPlannerModule";
+import FocusTimerModule from "@/components/modules/FocusTimerModule";
+import FileSystemModule from "@/components/modules/FileSystemModule";
+import FlashcardsModule from "@/components/modules/FlashcardsModule";
+import AITestModule from "@/components/modules/AITestModule";
+import AISolver from "@/components/modules/AISolver";
+import StudyLibrary from "@/components/StudyLibrary";
 
-export default function HomePage() {
-  const { totalCreditsEarned } = useStore();
+function HomeDashboard() {
+  const { totalCreditsEarned, setActiveModule } = useStore();
   const { level, progress } = getLevelInfo(totalCreditsEarned);
 
   const hour = new Date().getHours();
@@ -16,7 +26,7 @@ export default function HomePage() {
 
   return (
     <div className="h-full flex flex-col justify-between max-w-md mx-auto py-3 px-4 select-none overflow-hidden">
-      {/* Horní část s Kairem – přidán horní padding pt-4, aby anténka nebyla uříznutá */}
+      {/* Horní část s Kairem */}
       <div className="flex flex-col items-center text-center space-y-2 pt-4">
         <div className="relative flex justify-center items-center py-2">
           <KairoAvatar />
@@ -66,8 +76,8 @@ export default function HomePage() {
 
       {/* Rychlé dlaždice / akce */}
       <div className="grid grid-cols-2 gap-3 pb-4">
-        <Link
-          href="/menu"
+        <button
+          onClick={() => setActiveModule("profile")}
           className="bg-white/5 hover:bg-white/10 border border-white/10 p-4 rounded-2xl backdrop-blur-xl transition flex flex-col items-center text-center gap-2 group shadow-lg"
         >
           <div className="w-10 h-10 rounded-xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-400 group-hover:scale-110 transition">
@@ -77,10 +87,10 @@ export default function HomePage() {
             <span className="text-sm font-semibold text-white block">Statistiky</span>
             <span className="text-[10px] text-gray-400">Přehled pokroku</span>
           </div>
-        </Link>
+        </button>
 
-        <Link
-          href="/shop"
+        <button
+          onClick={() => setActiveModule("shop")}
           className="bg-white/5 hover:bg-white/10 border border-white/10 p-4 rounded-2xl backdrop-blur-xl transition flex flex-col items-center text-center gap-2 group shadow-lg"
         >
           <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 group-hover:scale-110 transition">
@@ -90,8 +100,42 @@ export default function HomePage() {
             <span className="text-sm font-semibold text-white block">Rychlé akce</span>
             <span className="text-[10px] text-gray-400">Obchod & Odměny</span>
           </div>
-        </Link>
+        </button>
       </div>
     </div>
   );
+}
+
+export default function HomePage() {
+  const { activeModule } = useStore();
+
+  const renderModule = () => {
+    switch (activeModule) {
+      case "menu":
+        return <MenuHubModule />;
+      case "shop":
+        return <ShopModule />;
+      case "profile":
+        return <ProfileModule />;
+      case "planner":
+        return <TaskPlannerModule />;
+      case "timer":
+        return <FocusTimerModule />;
+      case "files":
+        return <FileSystemModule />;
+      case "flashcards":
+        return <FlashcardsModule />;
+      case "test":
+        return <AITestModule />;
+      case "solver":
+        return <AISolver />;
+      case "knihovna":
+        return <StudyLibrary />;
+      case "home":
+      default:
+        return <HomeDashboard />;
+    }
+  };
+
+  return <DashboardShell>{renderModule()}</DashboardShell>;
 }
