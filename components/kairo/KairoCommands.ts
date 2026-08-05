@@ -1,10 +1,34 @@
+import { useStore } from "@/store/useStore";
+
+
 export function executeKairoCommand(
  command:string
 ){
 
-
  const text =
  command.toLowerCase();
+
+
+ const {
+   setActiveModule
+ } = useStore.getState();
+
+
+
+ if(
+ text.includes("flash") ||
+ text.includes("kartič")
+ ){
+
+   setActiveModule("flashcards");
+
+   speak(
+    "Otevírám tvoje flashcards"
+   );
+
+   return;
+
+ }
 
 
 
@@ -12,8 +36,10 @@ export function executeKairoCommand(
  text.includes("test")
  ){
 
-   alert(
-    "Otevírám AI test modul"
+   setActiveModule("test");
+
+   speak(
+    "Připravuji AI test"
    );
 
    return;
@@ -23,13 +49,13 @@ export function executeKairoCommand(
 
 
  if(
- text.includes("flash")
- ||
- text.includes("kartič")
+ text.includes("knih")
  ){
 
-   alert(
-    "Otevírám flashcards"
+   setActiveModule("knihovna");
+
+   speak(
+    "Otevírám studijní knihovnu"
    );
 
    return;
@@ -39,11 +65,13 @@ export function executeKairoCommand(
 
 
  if(
- text.includes("úkol")
+ text.includes("nastavení")
  ){
 
-   alert(
-    "Otevírám plán úkolů"
+   setActiveModule("settings");
+
+   speak(
+    "Otevírám nastavení"
    );
 
    return;
@@ -52,9 +80,33 @@ export function executeKairoCommand(
 
 
 
- alert(
-  "Kairo zatím nerozumí tomuto příkazu."
+ speak(
+ "Tomuto příkazu zatím nerozumím"
  );
 
 
 }
+
+
+
+function speak(
+ text:string
+){
+
+ if(
+ typeof window === "undefined"
+ ) return;
+
+
+ const speech =
+ new SpeechSynthesisUtterance(text);
+
+
+ speech.lang="cs-CZ";
+
+
+ window.speechSynthesis.speak(
+  speech
+ );
+
+  }
