@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import KairoAvatar from "@/components/KairoAvatar";
 import NotificationSystem from "@/components/NotificationSystem";
 import { useStore } from "@/store/useStore";
@@ -14,8 +14,12 @@ const NAV_ITEMS = [
 ];
 
 export default function DashboardShell({ children }: { children: React.ReactNode }) {
-  const { totalCreditsEarned, activeModule, setActiveModule } = useStore();
+  const { totalCreditsEarned, activeModule, setActiveModule, checkTaskReminders } = useStore();
   const { level } = getLevelInfo(totalCreditsEarned);
+
+  useEffect(() => {
+    checkTaskReminders();
+  }, [checkTaskReminders]);
 
   return (
     <div className="fixed inset-0 bg-[#090a0f] text-white flex flex-col overflow-hidden select-none">
@@ -63,4 +67,4 @@ export default function DashboardShell({ children }: { children: React.ReactNode
       </nav>
     </div>
   );
-      }
+}
