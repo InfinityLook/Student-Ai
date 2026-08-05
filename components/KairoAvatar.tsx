@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
+import KairoVoice from "./kairo/KairoVoice";
 
 const messages = [
   "Ahoj! Jsem Kairo, tvůj studijní parťák. Pomůžu ti zvládnout dnešní učení 🚀",
@@ -126,6 +126,7 @@ export default function KairoAvatar() {
           🎙️ Mluvit s Kairem
 
         </button>
+        <KairoVoice />
 
 
 
