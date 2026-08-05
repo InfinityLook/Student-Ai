@@ -70,7 +70,7 @@ function renderActiveModule(
           <p className="text-gray-400 mb-6">Požadovaný modul se nepodařilo načíst.</p>
           <button
             onClick={() => setActiveModule("menu")}
-            className="px-6 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-black font-semibold rounded-xl transition"
+            className="px-6 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-black font-semibold rounded-xl transition cursor-pointer"
           >
             Zpět do menu
           </button>
