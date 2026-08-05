@@ -2,87 +2,106 @@ import { useStore } from "@/store/useStore";
 
 
 export function executeKairoCommand(
- command:string
-){
-
- const text =
- command.toLowerCase();
+  command: string
+) {
 
 
- const {
-   setActiveModule
- } = useStore.getState();
+  const text =
+    command.toLowerCase();
 
 
 
- if(
- text.includes("flash") ||
- text.includes("kartič")
- ){
-
-   setActiveModule("flashcards");
-
-   speak(
-    "Otevírám tvoje flashcards"
-   );
-
-   return;
-
- }
+  const {
+    setActiveModule
+  } = useStore.getState();
 
 
 
- if(
- text.includes("test")
- ){
+  if (
+    text.includes("flash") ||
+    text.includes("kartič")
+  ) {
 
-   setActiveModule("test");
+    setActiveModule("flashcards");
 
-   speak(
-    "Připravuji AI test"
-   );
+    speak(
+      "Otevírám tvoje flashcards."
+    );
 
-   return;
+    return;
 
- }
-
-
-
- if(
- text.includes("knih")
- ){
-
-   setActiveModule("knihovna");
-
-   speak(
-    "Otevírám studijní knihovnu"
-   );
-
-   return;
-
- }
+  }
 
 
 
- if(
- text.includes("nastavení")
- ){
+  if (
+    text.includes("test")
+  ) {
 
-   setActiveModule("settings");
+    setActiveModule("test");
 
-   speak(
-    "Otevírám nastavení"
-   );
+    speak(
+      "Otevírám AI test."
+    );
 
-   return;
+    return;
 
- }
+  }
 
 
 
- speak(
- "Tomuto příkazu zatím nerozumím"
- );
+  if (
+    text.includes("knih")
+  ) {
+
+    setActiveModule("knihovna");
+
+    speak(
+      "Otevírám studijní knihovnu."
+    );
+
+    return;
+
+  }
+
+
+
+  if (
+    text.includes("nastavení")
+  ) {
+
+    setActiveModule("settings");
+
+    speak(
+      "Otevírám nastavení."
+    );
+
+    return;
+
+  }
+
+
+
+  if (
+    text.includes("profil") ||
+    text.includes("domů")
+  ) {
+
+    setActiveModule("profile");
+
+    speak(
+      "Otevírám profil."
+    );
+
+    return;
+
+  }
+
+
+
+  speak(
+    "Tomuto příkazu zatím nerozumím."
+  );
 
 
 }
@@ -90,23 +109,27 @@ export function executeKairoCommand(
 
 
 function speak(
- text:string
-){
-
- if(
- typeof window === "undefined"
- ) return;
+  text:string
+) {
 
 
- const speech =
- new SpeechSynthesisUtterance(text);
+  if(
+    typeof window === "undefined"
+  ) return;
 
 
- speech.lang="cs-CZ";
+
+  const speech =
+    new SpeechSynthesisUtterance(text);
 
 
- window.speechSynthesis.speak(
-  speech
- );
 
-  }
+  speech.lang = "cs-CZ";
+
+
+  window.speechSynthesis.speak(
+    speech
+  );
+
+
+}
