@@ -6,7 +6,7 @@ import { getLevelInfo } from "@/lib/gamification";
 
 export default function ProfileModule() {
   const { totalCreditsEarned } = useStore();
-  const { level, progress, currentXp, xpNeeded } = getLevelInfo(totalCreditsEarned);
+  const { level, progress } = getLevelInfo(totalCreditsEarned);
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
