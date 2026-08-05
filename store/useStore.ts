@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, createJSONStorage } from "zustand/middleware";
 import { FOCUS_SESSION_REWARD, FLASHCARD_REVIEW_REWARD } from "@/lib/gamification";
 import {
   ReviewQuality,
@@ -32,6 +32,13 @@ interface Task {
   completed: boolean;
 }
 
+interface FileItem {
+  id: string;
+  name: string;
+  type: "folder" | "file";
+  parentId: string | null;
+}
+
 interface AppState {
   activeModule: string;
   setActiveModule: (module: string) => void;
@@ -58,6 +65,11 @@ interface AppState {
 
   lastReminderCheckDate: string | null;
   checkTaskReminders: () => void;
+
+  files: FileItem[];
+  addFileItem: (name: string, type: "folder" | "file", parentId: string | null) => void;
+  deleteFileItem: (id: string) => void;
+  renameFileItem: (id: string, name: string) => void;
 
   notifications: Notification[];
   addNotification: (message: string, type?: "success" | "error" | "info") => void;
@@ -190,6 +202,43 @@ export const useStore = create<AppState>()(
         set({ lastReminderCheckDate: today });
       },
 
+      files: [
+        { id: "1", name: "Matematika", type: "folder", parentId: null },
+        { id: "2", name: "Programování", type: "folder", parentId: null },
+        { id: "3", name: "Integrály - poznámky.md", type: "file", parentId: "1" },
+      ],
+      addFileItem: (name, type, parentId) =>
+        set((state) => ({
+          files: [
+            ...state.files,
+            {
+              id: Math.random().toString(36).substring(2, 9),
+              name,
+              type,
+              parentId,
+            },
+          ],
+        })),
+      deleteFileItem: (id) =>
+        set((state) => {
+          const toDelete = new Set<string>([id]);
+          let changed = true;
+          while (changed) {
+            changed = false;
+            for (const item of state.files) {
+              if (item.parentId && toDelete.has(item.parentId) && !toDelete.has(item.id)) {
+                toDelete.add(item.id);
+                changed = true;
+              }
+            }
+          }
+          return { files: state.files.filter((item) => !toDelete.has(item.id)) };
+        }),
+      renameFileItem: (id, name) =>
+        set((state) => ({
+          files: state.files.map((item) => (item.id === id ? { ...item, name } : item)),
+        })),
+
       notifications: [],
       addNotification: (message, type = "info") => {
         const id = Math.random().toString(36).substring(2, 9);
@@ -209,6 +258,13 @@ export const useStore = create<AppState>()(
     }),
     {
       name: "school-ide-storage",
+      version: 1,
+      storage: createJSONStorage(() => localStorage),
+      // Toasty jsou dočasné - nemá smysl je ukládat mezi relacemi.
+      partialize: (state) => {
+        const { notifications, ...rest } = state;
+        return rest;
+      },
     }
   )
 );
