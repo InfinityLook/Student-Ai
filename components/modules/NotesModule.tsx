@@ -1,28 +1,33 @@
 "use client";
 import React, { useState } from "react";
 
-const initialNotes = [
+interface Note {
+  id: number;
+  title: string;
+  category: string;
+  date: string;
+  content: string;
+}
+
+const initialNotes: Note[] = [
   { id: 1, title: "Nápady na bakalářku", category: "Škola", date: "5. 8. 2026", content: "1. Využít Next.js pro frontend\n2. AI integrace přes OpenAI API\n3. Zaměřit se na uživatelskou přívětivost." },
   { id: 2, title: "Seznam nákupů na zítra", category: "Osobní", date: "4. 8. 2026", content: "- Káva\n- Enerťák\n- Sladkosti do zásoby na kódování" },
   { id: 3, title: "CSS triky pro glassmorphism", category: "Programování", date: "2. 8. 2026", content: "Používat `bg-white/5`, `border-white/10`, a `backdrop-blur-xl` pro parádní skleněný efekt v dark mode." },
 ];
 
 export default function NotesModule() {
-  const [notes, setNotes] = useState(initialNotes);
-  const [filter, setFilter] = useState("Vše");
-  const [search, setSearch] = useState("");
+  const [notes, setNotes] = useState<Note[]>(initialNotes);
+  const [filter, setFilter] = useState<string>("Vše");
+  const [search, setSearch] = useState<string>("");
   
-  // Stavy pro přidávání a úpravy
-  const [isAdding, setIsAdding] = useState(false);
-  const [editingId, setEditingId] = useState(null);
-  const [title, setTitle] = useState("");
-  const [category, setCategory] = useState("Škola");
-  const [content, setContent] = useState("");
+  const [isAdding, setIsAdding] = useState<boolean>(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [title, setTitle] = useState<string>("");
+  const [category, setCategory] = useState<string>("Škola");
+  const [content, setContent] = useState<string>("");
 
-  // Stav pro prohlížeč poznámky
-  const [viewingNote, setViewingNote] = useState(null);
+  const [viewingNote, setViewingNote] = useState<Note | null>(null);
 
-  // Dynamické generování filtrů podle kategorií
   const dynamicCategories = ["Vše", ...Array.from(new Set(notes.map(n => n.category).filter(Boolean)))];
 
   const filteredNotes = notes.filter((item) => {
@@ -45,7 +50,7 @@ export default function NotesModule() {
       ));
     } else {
       const dateFormatted = new Date().toLocaleDateString("cs-CZ");
-      const newNote = {
+      const newNote: Note = {
         id: Date.now(),
         title: title.trim(),
         category: trimmedCategory,
@@ -58,7 +63,7 @@ export default function NotesModule() {
     resetForm();
   };
 
-  const handleEditClick = (e, note) => {
+  const handleEditClick = (e: React.MouseEvent<HTMLButtonElement>, note: Note) => {
     e.stopPropagation();
     setEditingId(note.id);
     setTitle(note.title);
@@ -67,7 +72,7 @@ export default function NotesModule() {
     setIsAdding(true);
   };
 
-  const handleDelete = (e, id) => {
+  const handleDelete = (e: React.MouseEvent<HTMLButtonElement>, id: number) => {
     e.stopPropagation();
     setNotes(notes.filter(n => n.id !== id));
   };
@@ -268,9 +273,9 @@ export default function NotesModule() {
 
             <div className="mt-6 flex justify-end">
                <button 
-                onClick={() => {
+                onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                   setViewingNote(null);
-                  handleEditClick({ stopPropagation: () => {} }, viewingNote);
+                  handleEditClick(e, viewingNote);
                 }}
                 className="px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium rounded-xl text-sm transition-all"
               >
@@ -282,5 +287,4 @@ export default function NotesModule() {
       )}
     </div>
   );
-    }
-      
+                }
