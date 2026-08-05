@@ -15,6 +15,7 @@ import FlashcardsModule from "@/components/modules/FlashcardsModule";
 import AITestModule from "@/components/modules/AITestModule";
 import AISolver from "@/components/modules/AISolver";
 import StudyLibrary from "@/components/StudyLibrary";
+import NotesModule from "@/components/modules/NotesModule";
 
 function HomeDashboard() {
   const { totalCreditsEarned, setActiveModule } = useStore();
@@ -131,6 +132,8 @@ export default function HomePage() {
         return <AISolver />;
       case "knihovna":
         return <StudyLibrary />;
+      case "notes":
+        return <NotesModule />;
       case "home":
       default:
         return <HomeDashboard />;
@@ -138,4 +141,4 @@ export default function HomePage() {
   };
 
   return <DashboardShell>{renderModule()}</DashboardShell>;
-}
+          }
