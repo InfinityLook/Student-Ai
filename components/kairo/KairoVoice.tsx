@@ -6,25 +6,25 @@ import { executeKairoCommand } from "./KairoCommands";
 
 export default function KairoVoice() {
 
-
-  const [listening,setListening] = useState(false);
-  const [text,setText] = useState("");
-
+  const [listening, setListening] = useState(false);
+  const [text, setText] = useState("");
 
 
   const startListening = () => {
 
+    if (typeof window === "undefined") return;
+
 
     const SpeechRecognition =
-      window.SpeechRecognition ||
-      window.webkitSpeechRecognition;
+      (window as any).SpeechRecognition ||
+      (window as any).webkitSpeechRecognition;
 
 
 
-    if(!SpeechRecognition){
+    if (!SpeechRecognition) {
 
       alert(
-        "Tento prohlížeč nepodporuje hlasové ovládání."
+        "Hlasové ovládání není v tomto prohlížeči podporováno."
       );
 
       return;
@@ -39,12 +39,12 @@ export default function KairoVoice() {
 
 
     recognition.lang = "cs-CZ";
-
     recognition.continuous = false;
+    recognition.interimResults = false;
 
 
 
-    recognition.onstart = ()=>{
+    recognition.onstart = () => {
 
       setListening(true);
 
@@ -52,7 +52,7 @@ export default function KairoVoice() {
 
 
 
-    recognition.onend = ()=>{
+    recognition.onend = () => {
 
       setListening(false);
 
@@ -60,7 +60,15 @@ export default function KairoVoice() {
 
 
 
-    recognition.onresult = (event:any)=>{
+    recognition.onerror = () => {
+
+      setListening(false);
+
+    };
+
+
+
+    recognition.onresult = (event: any) => {
 
 
       const result =
@@ -69,7 +77,6 @@ export default function KairoVoice() {
 
 
       setText(result);
-
 
 
       executeKairoCommand(result);
@@ -86,7 +93,6 @@ export default function KairoVoice() {
 
 
 
-
   return (
 
     <div className="mt-4">
@@ -97,23 +103,25 @@ export default function KairoVoice() {
         onClick={startListening}
 
         className="
-        px-5
-        py-3
-        rounded-2xl
-        bg-cyan-500/20
-        border
-        border-cyan-400/30
-        text-cyan-300
-        transition
+          px-5
+          py-3
+          rounded-2xl
+          bg-cyan-500/20
+          border
+          border-cyan-400/30
+          text-cyan-300
+          hover:bg-cyan-500/30
+          transition
         "
 
       >
 
-        {listening
-        ?
-        "🎧 Poslouchám..."
-        :
-        "🎙️ Mluvit s Kairem"
+        {
+          listening
+          ?
+          "🎧 Poslouchám..."
+          :
+          "🎙️ Mluvit s Kairem"
         }
 
 
@@ -122,20 +130,30 @@ export default function KairoVoice() {
 
 
       {
-        text &&
-        <p className="mt-3 text-gray-400">
+        text && (
 
-          Slyšel jsem:
-          <br/>
-          {text}
+          <div className="
+            mt-3
+            text-sm
+            text-gray-400
+          ">
 
-        </p>
+            <span>
+              Kairo slyšel:
+            </span>
+
+            <br/>
+
+            {text}
+
+          </div>
+
+        )
       }
 
 
     </div>
 
   );
-
 
 }
