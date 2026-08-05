@@ -28,7 +28,7 @@ const PRIMARY_TABS = [
 
 export default function DashboardShell() {
   const { activeModule, setActiveModule, credits, totalCreditsEarned } = useStore();
-  const { level, currentLevelXp, xpForNextLevel } = getLevelInfo(totalCreditsEarned);
+  const { level } = getLevelInfo(totalCreditsEarned);
 
   const isSubModule = SUB_MODULE_IDS.includes(activeModule);
   const activeTab = activeModule === "profile" ? "profile" : activeModule === "settings" ? "settings" : "menu";
@@ -95,5 +95,4 @@ export default function DashboardShell() {
       </nav>
     </div>
   );
-      }
-                
+}
