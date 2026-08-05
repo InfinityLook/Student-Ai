@@ -8,51 +8,65 @@ const TILES: {
   label: string;
   description: string;
   icon: string;
-  accent: "violet" | "gold" | "mint";
+  accent: string;
 }[] = [
-  { id: "planner", label: "Plánovač", description: "Úkoly a termíny", icon: "📋", accent: "violet" },
-  { id: "shop", label: "Obchod & Kredity", description: "Doplň si kredity", icon: "🛒", accent: "gold" },
-  { id: "timer", label: "Study Timer", description: "Soustřeď se a získej odměnu", icon: "⏱️", accent: "mint" },
-  { id: "files", label: "Předměty & Složky", description: "Studijní materiály", icon: "📚", accent: "violet" },
-  { id: "flashcards", label: "Kartičky", description: "Chytré opakování", icon: "📇", accent: "gold" },
-  { id: "test", label: "AI Test Generator", description: "Cvičné kvízy", icon: "📝", accent: "violet" },
-  { id: "solver", label: "AI Solver", description: "Pomoc s úkoly", icon: "🤖", accent: "mint" },
-  { id: "knihovna", label: "Knihovna", description: "Studijní knihy", icon: "📖", accent: "gold" },
+  { id: "planner", label: "Plánovač", description: "Úkoly a termíny", icon: "📋", accent: "from-purple-500/20 to-indigo-500/20 text-purple-400" },
+  { id: "shop", label: "Obchod & Kredity", description: "Doplň si kredity", icon: "🛒", accent: "from-amber-500/20 to-yellow-500/20 text-amber-400" },
+  { id: "timer", label: "Study Timer", description: "Soustřeď se a získej odměnu", icon: "⏱️", accent: "from-emerald-500/20 to-teal-500/20 text-emerald-400" },
+  { id: "files", label: "Předměty & Složky", description: "Studijní materiály", icon: "📚", accent: "from-blue-500/20 to-cyan-500/20 text-blue-400" },
+  { id: "flashcards", label: "Kartičky", description: "Chytré opakování", icon: "📇", accent: "from-yellow-500/20 to-orange-500/20 text-yellow-400" },
+  { id: "test", label: "AI Test Generator", description: "Cvičné kvízy", icon: "📝", accent: "from-violet-500/20 to-purple-500/20 text-violet-400" },
+  { id: "solver", label: "AI Solver", description: "Pomoc s úkoly", icon: "🤖", accent: "from-teal-500/20 to-cyan-500/20 text-teal-400" },
+  { id: "knihovna", label: "Knihovna", description: "Studijní knihy", icon: "📖", accent: "from-pink-500/20 to-rose-500/20 text-pink-400" },
 ];
-
-const ACCENT_CLASSES: Record<string, string> = {
-  violet: "bg-violet/10 text-violet",
-  gold: "bg-gold/10 text-gold",
-  mint: "bg-mint/10 text-mint",
-};
 
 export default function MenuHubModule() {
   const { setActiveModule } = useStore();
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <div className="bg-surface p-6 rounded-2xl border border-edge shadow-sm">
-        <h2 className="text-2xl font-display font-bold text-ink">▦ Menu</h2>
-        <p className="text-muted text-sm mt-1">Všechny nástroje appky na jednom místě.</p>
+      {/* Header karty menu */}
+      <div className="bg-white/5 border border-white/10 p-6 rounded-3xl backdrop-blur-xl shadow-lg">
+        <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+          <span>▦</span> Menu
+        </h2>
+        <p className="text-gray-400 text-sm mt-1">
+          Všechny nástroje appky na jednom místě.
+        </p>
       </div>
 
+      {/* Mřížka dlaždic ve stejném stylu */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
         {TILES.map((tile) => (
           <button
             key={tile.id}
             onClick={() => setActiveModule(tile.id)}
-            className="bg-surface p-5 rounded-2xl border border-edge shadow-sm text-left transition-all hover:-translate-y-0.5 hover:shadow-md active:scale-95"
+            className="
+              bg-white/5 
+              border 
+              border-white/10 
+              p-5 
+              rounded-3xl 
+              backdrop-blur-xl 
+              text-left 
+              transition-all 
+              hover:bg-white/10 
+              hover:border-white/20 
+              hover:-translate-y-0.5 
+              active:scale-95
+              shadow-lg
+            "
           >
             <span
-              className={`inline-flex items-center justify-center w-11 h-11 rounded-xl text-xl mb-3 ${ACCENT_CLASSES[tile.accent]}`}
+              className={`inline-flex items-center justify-center w-12 h-12 rounded-2xl text-xl mb-3 bg-gradient-to-br ${tile.accent} border border-white/10`}
             >
               {tile.icon}
             </span>
-            <div className="font-semibold text-ink text-sm">{tile.label}</div>
-            <div className="text-xs text-muted mt-0.5">{tile.description}</div>
+            <div className="font-semibold text-white text-sm">{tile.label}</div>
+            <div className="text-xs text-gray-400 mt-0.5">{tile.description}</div>
           </button>
         ))}
       </div>
     </div>
   );
-}
+              }
