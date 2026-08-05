@@ -1,56 +1,54 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import KairoVoice from "./kairo/KairoVoice";
-
-const messages = [
-  "Ahoj! Jsem Kairo, tvůj studijní parťák. Pomůžu ti zvládnout dnešní učení 🚀",
-  "Vítej zpět! Podíváme se spolu, co dnes potřebuješ udělat?",
-  "Jsem připravený ti pomoct s učením, testy i plánováním 📚",
-  "Každý malý krok tě posouvá dál. Začneme spolu?"
-];
-
 interface KairoAvatarProps {
   size?: "sm" | "lg";
-  showDetails?: boolean;
 }
 
-export default function KairoAvatar({ size = "lg", showDetails = false }: KairoAvatarProps) {
-  const [message, setMessage] = useState("");
+export default function KairoAvatar({ size = "lg" }: KairoAvatarProps) {
+  const isSmall = size === "sm";
 
-  useEffect(() => {
-    const random = messages[Math.floor(Math.random() * messages.length)];
-    setMessage(random);
-  }, []);
-
-  // Pokud chceme jen samotnou ikonku (např. do hlavičky)
-  if (!showDetails) {
-    const dimensionClass = size === "sm" ? "w-8 h-8 text-xl" : "w-24 h-24 text-5xl";
+  if (isSmall) {
     return (
-      <div
-        className={`relative ${dimensionClass} rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center shadow-xl animate-pulse select-none`}
-      >
-        <span>🤖</span>
+      <div className="relative w-8 h-8 rounded-full bg-gradient-to-b from-blue-400 to-indigo-600 flex items-center justify-center shadow-md select-none">
+        {/* Mini anténa */}
+        <div className="absolute -top-1 w-1 h-1 bg-amber-400 rounded-full animate-pulse" />
+        <span className="text-xs">🤖</span>
       </div>
     );
   }
 
-  // Plná verze s chatem a tlačítkem (pokud bys ji někde chtěl)
   return (
-    <div className="flex items-center gap-5">
-      <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center shadow-xl animate-pulse select-none">
-        <span className="text-5xl">🤖</span>
-      </div>
+    <div className="relative w-32 h-32 flex items-center justify-center select-none animate-bounce duration-1000">
+      {/* Zářící pozadí */}
+      <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-cyan-500/30 to-blue-500/30 blur-xl"></div>
 
-      <div className="flex-1">
-        <h3 className="text-xl font-bold text-cyan-400">Kairo</h3>
-        <div className="mt-2 bg-white/10 border border-white/10 rounded-2xl p-4 text-gray-200">
-          {message}
+      {/* Hlavní tělo Kaira */}
+      <div className="relative w-28 h-28 rounded-full bg-gradient-to-b from-cyan-300 via-blue-500 to-indigo-700 flex flex-col items-center justify-center shadow-2xl border border-white/20 overflow-hidden">
+        
+        {/* Anténa */}
+        <div className="absolute top-1 flex flex-col items-center">
+          <div className="w-1.5 h-1.5 bg-amber-300 rounded-full shadow-[0_0_8px_#fde047] animate-ping" />
+          <div className="w-0.5 h-2 bg-blue-200" />
         </div>
-        <button className="mt-3 px-5 py-2 rounded-xl bg-cyan-500/20 border border-cyan-400/30 text-cyan-300 hover:bg-cyan-500/30 transition">
-          🎙️ Mluvit s Kairem
-        </button>
-        <KairoVoice />
+
+        {/* Sluchátko / mikrofon na boku */}
+        <div className="absolute right-1 top-1/2 -translate-y-1/2 w-2.5 h-5 bg-blue-300/80 rounded-l-full border-l border-white/40" />
+
+        {/* Obličejová maska / displej */}
+        <div className="w-20 h-14 rounded-2xl bg-indigo-950/40 backdrop-blur-md flex flex-col items-center justify-center gap-1.5 border border-white/10 mt-2 shadow-inner">
+          {/* Oči */}
+          <div className="flex gap-4 items-center">
+            <div className="w-2 h-2 bg-white rounded-full shadow-[0_0_5px_white]" />
+            <div className="w-2 h-2 bg-white rounded-full shadow-[0_0_5px_white]" />
+          </div>
+          {/* Úsměv a tvářičky */}
+          <div className="relative flex items-center justify-center">
+            <div className="absolute -left-3 w-2 h-1 bg-pink-400/60 rounded-full blur-[1px]" />
+            <div className="text-xs text-white font-bold tracking-widest">‿</div>
+            <div className="absolute -right-3 w-2 h-1 bg-pink-400/60 rounded-full blur-[1px]" />
+          </div>
+        </div>
+
       </div>
     </div>
   );
