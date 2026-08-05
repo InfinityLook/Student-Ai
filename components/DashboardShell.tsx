@@ -4,14 +4,12 @@ import React from "react";
 interface DashboardShellProps {
   activeModule: string;
   setActiveModule: (id: string) => void;
-  onOpenKairo?: () => void;
   children: React.ReactNode;
 }
 
 export default function DashboardShell({
   activeModule,
   setActiveModule,
-  onOpenKairo,
   children,
 }: DashboardShellProps) {
   return (
@@ -43,27 +41,24 @@ export default function DashboardShell({
       </main>
 
       {/* Spodní plovoucí navigační panel */}
-      <nav className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 bg-black/85 backdrop-blur-2xl border border-white/15 px-3 py-2.5 rounded-2xl shadow-2xl flex items-center gap-1.5 md:gap-3">
-        {/* 1. Profil (Hlavní stránka s Kairo) */}
+      <nav className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 bg-black/85 backdrop-blur-2xl border border-white/15 px-4 py-2.5 rounded-2xl shadow-2xl flex items-center gap-3 md:gap-6">
+        {/* 1. Profil */}
         <button
-          onClick={() => {
-            setActiveModule("profile");
-            if (onOpenKairo) onOpenKairo();
-          }}
-          className={`flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-xl transition cursor-pointer ${
+          onClick={() => setActiveModule("profile")}
+          className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition cursor-pointer ${
             activeModule === "profile"
               ? "bg-cyan-500/20 text-cyan-400"
               : "text-gray-400 hover:text-white hover:bg-white/5"
           }`}
         >
-          <span className="text-lg">✨</span>
+          <span className="text-lg">👤</span>
           <span className="text-[10px] font-medium">Profil</span>
         </button>
 
         {/* 2. Menu */}
         <button
           onClick={() => setActiveModule("menu")}
-          className={`flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-xl transition cursor-pointer ${
+          className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition cursor-pointer ${
             activeModule === "menu"
               ? "bg-cyan-500/20 text-cyan-400"
               : "text-gray-400 hover:text-white hover:bg-white/5"
@@ -76,7 +71,7 @@ export default function DashboardShell({
         {/* 3. Obchod */}
         <button
           onClick={() => setActiveModule("shop")}
-          className={`flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-xl transition cursor-pointer ${
+          className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition cursor-pointer ${
             activeModule === "shop"
               ? "bg-cyan-500/20 text-cyan-400"
               : "text-gray-400 hover:text-white hover:bg-white/5"
@@ -86,21 +81,14 @@ export default function DashboardShell({
           <span className="text-[10px] font-medium">Obchod</span>
         </button>
 
-        {/* 4. Chat */}
-        <button
-          onClick={() => {
-            if (onOpenKairo) onOpenKairo();
-          }}
-          className="flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-xl transition cursor-pointer text-gray-400 hover:text-cyan-400 hover:bg-white/5"
-        >
-          <span className="text-lg">💬</span>
-          <span className="text-[10px] font-medium">Chat</span>
-        </button>
-
-        {/* 5. Nastavení */}
+        {/* 4. Nastavení */}
         <button
           onClick={() => setActiveModule("profile")}
-          className="flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-xl transition cursor-pointer text-gray-400 hover:text-white hover:bg-white/5"
+          className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition cursor-pointer ${
+            activeModule === "settings"
+              ? "bg-cyan-500/20 text-cyan-400"
+              : "text-gray-400 hover:text-white hover:bg-white/5"
+          }`}
         >
           <span className="text-lg">⚙️</span>
           <span className="text-[10px] font-medium">Nastavení</span>
