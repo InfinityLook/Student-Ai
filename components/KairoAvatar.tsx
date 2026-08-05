@@ -17,28 +17,37 @@ export default function KairoAvatar({ size = "lg" }: KairoAvatarProps) {
   }
 
   return (
-    <div className="relative w-32 h-32 flex items-center justify-center select-none animate-bounce duration-1000">
-      <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-cyan-500/30 to-blue-500/30 blur-xl"></div>
+    <div className="relative w-36 h-36 flex items-center justify-center select-none animate-bounce duration-1000 my-2">
+      {/* Zářící pozadí */}
+      <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-cyan-500/30 to-blue-500/30 blur-2xl"></div>
 
-      <div className="relative w-28 h-28 rounded-full bg-gradient-to-b from-cyan-300 via-blue-500 to-indigo-700 flex flex-col items-center justify-center shadow-2xl border border-white/20 overflow-hidden">
-        <div className="absolute top-1 flex flex-col items-center">
-          <div className="w-1.5 h-1.5 bg-amber-300 rounded-full shadow-[0_0_8px_#fde047] animate-ping" />
-          <div className="w-0.5 h-2 bg-blue-200" />
+      {/* Hlavní tělo Kaira - zvětšené a plně viditelné */}
+      <div className="relative w-32 h-32 rounded-full bg-gradient-to-b from-cyan-300 via-blue-500 to-indigo-700 flex flex-col items-center justify-center shadow-2xl border border-white/20 overflow-visible">
+        
+        {/* Anténa (vytažená výš, aby nebyla uříznutá) */}
+        <div className="absolute -top-3 flex flex-col items-center">
+          <div className="w-2 h-2 bg-amber-300 rounded-full shadow-[0_0_10px_#fde047] animate-ping" />
+          <div className="w-0.5 h-3 bg-blue-200" />
         </div>
 
-        <div className="absolute right-1 top-1/2 -translate-y-1/2 w-2.5 h-5 bg-blue-300/80 rounded-l-full border-l border-white/40" />
+        {/* Sluchátko / mikrofon na boku */}
+        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-6 bg-blue-300/90 rounded-l-full border-l border-white/40 shadow-md" />
 
-        <div className="w-20 h-14 rounded-2xl bg-indigo-950/40 backdrop-blur-md flex flex-col items-center justify-center gap-1.5 border border-white/10 mt-2 shadow-inner">
-          <div className="flex gap-4 items-center">
-            <div className="w-2 h-2 bg-white rounded-full shadow-[0_0_5px_white]" />
-            <div className="w-2 h-2 bg-white rounded-full shadow-[0_0_5px_white]" />
+        {/* Obličejová maska / displej */}
+        <div className="w-24 h-16 rounded-2xl bg-indigo-950/40 backdrop-blur-md flex flex-col items-center justify-center gap-2 border border-white/10 shadow-inner">
+          {/* Oči */}
+          <div className="flex gap-5 items-center">
+            <div className="w-2.5 h-2.5 bg-white rounded-full shadow-[0_0_6px_white]" />
+            <div className="w-2.5 h-2.5 bg-white rounded-full shadow-[0_0_6px_white]" />
           </div>
+          {/* Úsměv a tvářičky */}
           <div className="relative flex items-center justify-center">
-            <div className="absolute -left-3 w-2 h-1 bg-pink-400/60 rounded-full blur-[1px]" />
-            <div className="text-xs text-white font-bold tracking-widest">‿</div>
-            <div className="absolute -right-3 w-2 h-1 bg-pink-400/60 rounded-full blur-[1px]" />
+            <div className="absolute -left-3.5 w-2.5 h-1.5 bg-pink-400/70 rounded-full blur-[1px]" />
+            <div className="text-sm text-white font-bold tracking-widest">‿</div>
+            <div className="absolute -right-3.5 w-2.5 h-1.5 bg-pink-400/70 rounded-full blur-[1px]" />
           </div>
         </div>
+
       </div>
     </div>
   );
