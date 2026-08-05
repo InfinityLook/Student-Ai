@@ -21,8 +21,8 @@ export default function HomePage() {
       <div className="flex flex-col items-center text-center space-y-3 pt-2">
         <div className="relative">
           <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 opacity-30 blur-lg"></div>
-          <div className="relative w-24 h-24 rounded-full bg-white/5 border border-white/10 backdrop-blur-xl flex items-center justify-center shadow-2xl">
-            <KairoAvatar size="lg" />
+          <div className="relative w-24 h-24 rounded-full bg-white/5 border border-white/10 backdrop-blur-xl flex items-center justify-center shadow-2xl overflow-hidden">
+            <KairoAvatar />
           </div>
         </div>
 
@@ -98,4 +98,4 @@ export default function HomePage() {
       </div>
     </div>
   );
-          }
+}
