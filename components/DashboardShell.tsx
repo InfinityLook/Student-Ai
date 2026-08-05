@@ -1,70 +1,55 @@
 "use client";
+import React, { useState } from "react";
+import MenuHubModule from "@/components/modules/MenuHubModule";
+import DocumentEditorModule from "@/components/DocumentEditorModule";
+import NotesModule from "@/components/modules/NotesModule";
+import TaskPlannerModule from "@/components/modules/TaskPlannerModule";
+import FlashcardsModule from "@/components/modules/FlashcardsModule";
+import AISolver from "@/components/modules/AISolver";
+import AITestModule from "@/components/modules/AITestModule";
+import FocusTimerModule from "@/components/modules/FocusTimerModule";
+import FileSystemModule from "@/components/modules/FileSystemModule";
 
-import React, { useEffect } from "react";
-import KairoAvatar from "@/components/KairoAvatar";
-import NotificationSystem from "@/components/NotificationSystem";
-import { useStore } from "@/store/useStore";
-import { getLevelInfo } from "@/lib/gamification";
-
-const NAV_ITEMS = [
-  { id: "home", icon: "🏠", label: "Domů" },
-  { id: "menu", icon: "🗂️", label: "Menu" },
-  { id: "shop", icon: "🛍️", label: "Obchod" },
-  { id: "profile", icon: "⚙️", label: "Nastavení" },
-];
-
-export default function DashboardShell({ children }: { children: React.ReactNode }) {
-  const { totalCreditsEarned, activeModule, setActiveModule, checkTaskReminders } = useStore();
-  const { level } = getLevelInfo(totalCreditsEarned);
-
-  useEffect(() => {
-    checkTaskReminders();
-  }, [checkTaskReminders]);
+export default function DashboardShell() {
+  const [activeModule, setActiveModule] = useState<string>("menu-hub");
 
   return (
-    <div className="fixed inset-0 bg-[#090a0f] text-white flex flex-col overflow-hidden select-none">
-      {/* Vrchní lišta */}
-      <header className="flex items-center justify-between px-5 py-3 border-b border-white/10 bg-white/[0.02] backdrop-blur-xl z-20 shrink-0">
-        <div>
-          <h2 className="text-lg font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-            Student AI
-          </h2>
-          <p className="text-xs text-gray-400">Level {level} • Tvůj AI studijní parťák</p>
+    <div className="min-h-screen bg-[#050508] text-white flex flex-col">
+      {/* Navigační lišta */}
+      <header className="border-b border-white/10 bg-black/40 backdrop-blur-xl px-6 py-4 flex items-center justify-between sticky top-0 z-40">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setActiveModule("menu-hub")}
+            className="text-lg font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent hover:opacity-80 transition"
+          >
+            🎓 Student AI
+          </button>
         </div>
-        <button
-          onClick={() => setActiveModule("profile")}
-          className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center backdrop-blur-xl shadow-inner overflow-hidden"
-        >
-          <KairoAvatar size="sm" />
-        </button>
+        {activeModule !== "menu-hub" && (
+          <button
+            onClick={() => setActiveModule("menu-hub")}
+            className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-semibold transition flex items-center gap-1.5"
+          >
+            <span>←</span> Zpět do menu
+          </button>
+        )}
       </header>
 
       {/* Hlavní obsah */}
-      <main className={`flex-1 relative ${activeModule === "home" ? "overflow-hidden" : "overflow-y-auto"} p-4 pb-24`}>
-        {children}
+      <main className="flex-1 p-4 md:p-8">
+        {activeModule === "menu-hub" && (
+          <MenuHubModule onSelectModule={(id) => setActiveModule(id)} />
+        )}
+        
+        {activeModule === "document-editor" && <DocumentEditorModule />}
+        {activeModule === "notes" && <NotesModule />}
+        {activeModule === "tasks" && <TaskPlannerModule />}
+        {activeModule === "flashcards" && <FlashcardsModule />}
+        {activeModule === "ai-solver" && <AISolver />}
+        {activeModule === "ai-tests" && <AITestModule />}
+        {activeModule === "focus-timer" && <FocusTimerModule />}
+        {activeModule === "file-system" && <FileSystemModule />}
       </main>
-
-      {/* Notifikace */}
-      <NotificationSystem />
-
-      {/* Fixní spodní navigace se 4 položkami */}
-      <nav className="absolute bottom-0 left-0 right-0 h-16 bg-[#090a0f]/95 border-t border-white/10 backdrop-blur-2xl flex items-center justify-around px-2 z-50">
-        {NAV_ITEMS.map((item) => {
-          const isActive = activeModule === item.id;
-          return (
-            <button
-              key={item.id}
-              onClick={() => setActiveModule(item.id)}
-              className={`flex flex-col items-center gap-1 transition ${
-                isActive ? "text-cyan-400 font-semibold" : "text-gray-400 hover:text-white"
-              }`}
-            >
-              <span className="text-lg">{item.icon}</span>
-              <span className="text-[10px]">{item.label}</span>
-            </button>
-          );
-        })}
-      </nav>
     </div>
   );
 }
