@@ -10,23 +10,19 @@ export default function HomePage() {
   const { totalCreditsEarned } = useStore();
   const { level, progress } = getLevelInfo(totalCreditsEarned);
 
-  // Zjištění denní doby pro pozdrav
   const hour = new Date().getHours();
   const greeting =
     hour < 12 ? "Dobré ráno! ☀️" : hour < 18 ? "Dobrý den! 👋" : "Dobrý večer! 👋";
 
   return (
-    <div className="h-full flex flex-col justify-between max-w-md mx-auto py-2 px-4 select-none overflow-hidden">
-      {/* Horní část s animovaným Kairem */}
-      <div className="flex flex-col items-center text-center space-y-3 pt-2">
-        <div className="relative">
-          <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 opacity-30 blur-lg"></div>
-          <div className="relative w-24 h-24 rounded-full bg-white/5 border border-white/10 backdrop-blur-xl flex items-center justify-center shadow-2xl overflow-hidden">
-            <KairoAvatar />
-          </div>
+    <div className="h-full flex flex-col justify-between max-w-md mx-auto py-3 px-4 select-none overflow-hidden">
+      {/* Horní část s Kairem – přidán horní padding pt-4, aby anténka nebyla uříznutá */}
+      <div className="flex flex-col items-center text-center space-y-2 pt-4">
+        <div className="relative flex justify-center items-center py-2">
+          <KairoAvatar />
         </div>
 
-        <div>
+        <div className="mt-1">
           <p className="text-sm text-gray-400 font-medium">{greeting}</p>
           <h1 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent mt-0.5">
             Kairo Study AI
@@ -69,7 +65,7 @@ export default function HomePage() {
       </div>
 
       {/* Rychlé dlaždice / akce */}
-      <div className="grid grid-cols-2 gap-3 pb-2">
+      <div className="grid grid-cols-2 gap-3 pb-4">
         <Link
           href="/menu"
           className="bg-white/5 hover:bg-white/10 border border-white/10 p-4 rounded-2xl backdrop-blur-xl transition flex flex-col items-center text-center gap-2 group shadow-lg"
