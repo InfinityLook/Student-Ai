@@ -17,6 +17,7 @@ const TILES: {
   { id: "flashcards", label: "Kartičky", description: "Chytré opakování", icon: "📇", accent: "gold" },
   { id: "test", label: "AI Test Generator", description: "Cvičné kvízy", icon: "📝", accent: "violet" },
   { id: "solver", label: "AI Solver", description: "Pomoc s úkoly", icon: "🤖", accent: "mint" },
+  { id: "knihovna", label: "Knihovna", description: "Studijní knihy", icon: "📖", accent: "gold" },
 ];
 
 const ACCENT_CLASSES: Record<string, string> = {
@@ -54,4 +55,4 @@ export default function MenuHubModule() {
       </div>
     </div>
   );
-            }
+}
