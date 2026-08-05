@@ -421,4 +421,343 @@ export default function DocumentEditorModule() {
                   <button type="button" onClick={() => insertFormatting("### ")} className="px-2.5 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs text-gray-200 font-medium">H3</button>
                   <button type="button" onClick={() => insertFormatting("#### ")} className="px-2.5 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs text-gray-200 font-medium">H4</button>
                   
-                 
+                  <div className="w-[1px] h-5 bg-white/10 mx-2"></div>
+                  <span className="text-[10px] uppercase font-bold text-cyan-400 tracking-wider mr-1">Písmo:</span>
+                  <button type="button" onClick={() => insertFormatting("**", "**")} className="px-2.5 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs text-gray-200 font-bold">B</button>
+                  <button type="button" onClick={() => insertFormatting("*", "*")} className="px-2.5 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs text-gray-200 italic">I</button>
+                  <button type="button" onClick={() => insertFormatting("<u>", "</u>")} className="px-2.5 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs text-gray-200 underline">U</button>
+                  <button type="button" onClick={() => insertFormatting("<s>", "</s>")} className="px-2.5 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs text-gray-200 line-through">S</button>
+                  
+                  <div className="w-[1px] h-5 bg-white/10 mx-2"></div>
+                  <span className="text-[10px] uppercase font-bold text-cyan-400 tracking-wider mr-1">Barvy:</span>
+                  <button type="button" onClick={() => insertFormatting('<span style="color: #38bdf8;">', '</span>')} className="px-2 py-1 bg-sky-500/20 hover:bg-sky-500/30 border border-sky-500/40 rounded-lg text-xs text-sky-300 font-medium">Modrá</button>
+                  <button type="button" onClick={() => insertFormatting('<span style="color: #f43f5e;">', '</span>')} className="px-2 py-1 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 rounded-lg text-xs text-rose-300 font-medium">Červená</button>
+                  <button type="button" onClick={() => insertFormatting('<mark style="background-color: rgba(234, 179, 8, 0.3); color: #fff; padding: 2px 4px; border-radius: 4px;">', '</mark>')} className="px-2 py-1 bg-yellow-500/20 hover:bg-yellow-500/30 border border-yellow-500/40 rounded-lg text-xs text-yellow-300">Marker</button>
+                </div>
+
+                {/* 2. Řádek: Zarovnání, seznamy a vkládání */}
+                <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                  <span className="text-[10px] uppercase font-bold text-cyan-400 tracking-wider mr-1">Odstavec:</span>
+                  <button type="button" onClick={() => insertFormatting('<div style="text-align: left;">', '</div>')} className="px-2.5 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs text-gray-300" title="Vlevo">⫷</button>
+                  <button type="button" onClick={() => insertFormatting('<div style="text-align: center;">', '</div>')} className="px-2.5 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs text-gray-300" title="Na střed">↔</button>
+                  <button type="button" onClick={() => insertFormatting('<div style="text-align: right;">', '</div>')} className="px-2.5 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs text-gray-300" title="Vpravo">⫸</button>
+                  <button type="button" onClick={() => insertFormatting('<div style="text-align: justify;">', '</div>')} className="px-2.5 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs text-gray-300" title="Do bloku">≡</div>
+                  
+                  <div className="w-[1px] h-5 bg-white/10 mx-2"></div>
+                  <button type="button" onClick={() => insertFormatting("- ")} className="px-2 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs text-gray-300">• Odrážka</button>
+                  <button type="button" onClick={() => insertFormatting("1. ")} className="px-2 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs text-gray-300">1. Číslo</button>
+                  <button type="button" onClick={() => insertFormatting("- [ ] ")} className="px-2 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs text-gray-300">☑️ Úkol</button>
+                  <button type="button" onClick={() => insertFormatting("> ")} className="px-2 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs text-gray-300">💬 Citace</button>
+
+                  <div className="w-[1px] h-5 bg-white/10 mx-2"></div>
+                  <span className="text-[10px] uppercase font-bold text-cyan-400 tracking-wider mr-1">Vložit:</span>
+                  <button type="button" onClick={() => setShowImageModal(true)} className="px-2.5 py-1 bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 rounded-lg text-xs text-cyan-300 font-medium">🖼️ Obrázek</button>
+                  <button type="button" onClick={handleInsertTable} className="px-2.5 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs text-gray-300">📊 Tabulka</button>
+                  <button type="button" onClick={handleInsertDate} className="px-2.5 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs text-gray-300">📅 Datum</button>
+                  <button type="button" onClick={() => setShowFindReplace(!showFindReplace)} className="px-2.5 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs text-gray-300">🔍 Hledat</button>
+                </div>
+
+              </div>
+
+              {/* Panel Hledat a nahradit */}
+              {showFindReplace && (
+                <div className="bg-black/50 border border-cyan-500/40 p-4 rounded-2xl space-y-3 backdrop-blur-md">
+                  <div className="flex justify-between items-center">
+                    <h4 className="text-white text-xs font-semibold">🔍 Hledání a nahrazení textu</h4>
+                    <button onClick={() => setShowFindReplace(false)} className="text-gray-400 hover:text-white text-xs">✕ Zavřít</button>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <input
+                      type="text"
+                      placeholder="Hledat text..."
+                      value={findText}
+                      onChange={(e) => setFindText(e.target.value)}
+                      className="p-2.5 rounded-xl border border-white/10 bg-[#090a0f] text-white text-xs focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Nahradit čím..."
+                      value={replaceText}
+                      onChange={(e) => setReplaceText(e.target.value)}
+                      className="p-2.5 rounded-xl border border-white/10 bg-[#090a0f] text-white text-xs focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    />
+                  </div>
+                  <div className="flex justify-end">
+                    <button
+                      type="button"
+                      onClick={handleFindAndReplace}
+                      className="px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-black font-semibold rounded-xl text-xs transition"
+                    >
+                      Nahradit vše v textu
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Modální okno pro vložení obrázku */}
+              {showImageModal && (
+                <div className="bg-black/50 border border-cyan-500/40 p-4 rounded-2xl space-y-3 backdrop-blur-md">
+                  <div className="flex justify-between items-center">
+                    <h4 className="text-white text-xs font-semibold">🖼️ Vložení obrázku s obtékáním</h4>
+                    <button onClick={() => setShowImageModal(false)} className="text-gray-400 hover:text-white text-xs">✕ Zavřít</button>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="URL adresa obrázku (např. https://...)"
+                    value={imageUrl}
+                    onChange={(e) => setImageUrl(e.target.value)}
+                    className="w-full p-2.5 rounded-xl border border-white/10 bg-[#090a0f] text-white text-xs focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  />
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                    <div className="flex items-center gap-2 text-gray-300 w-full sm:w-auto">
+                      <span>Obtékání:</span>
+                      <select
+                        value={imageAlign}
+                        onChange={(e) => setImageAlign(e.target.value as any)}
+                        className="p-1.5 rounded-lg bg-[#090a0f] border border-white/10 text-white focus:outline-none"
+                      >
+                        <option value="left">Vlevo (text obtéká zprava)</option>
+                        <option value="right">Vpravo (text obtéká zleva)</option>
+                        <option value="center">Na střed (bez obtékání)</option>
+                      </select>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleInsertImage}
+                      className="w-full sm:w-auto px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-black font-semibold rounded-xl text-xs transition"
+                    >
+                      Vložit do textu
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <textarea
+                id="doc-content-textarea"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="Začni psát text své práce..."
+                rows={12}
+                className={`w-full p-4 rounded-xl border border-white/10 bg-[#090a0f] text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 resize-y ${getFontClass(fontFamily)} ${getLineSpacingClass(lineSpacing)} ${getFontSizeClass(fontSize)}`}
+              />
+            </>
+          ) : (
+            <div 
+              className={`w-full p-6 rounded-xl border border-white/10 bg-[#090a0f] text-gray-200 min-h-[300px] ${getFontClass(fontFamily)} ${getLineSpacingClass(lineSpacing)} ${getFontSizeClass(fontSize)}`}
+              dangerouslySetInnerHTML={{ __html: content.replace(/\n/g, '<br />') }}
+            ></div>
+          )}
+
+          {/* Statistiky dokumentu */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 text-xs text-gray-400 pt-2 border-t border-white/10">
+            <div>Slov: <strong className="text-cyan-400">{wordCount}</strong></div>
+            <div>Znaků: <strong className="text-cyan-400">{charCount}</strong></div>
+            <div>Vět: <strong className="text-cyan-400">{sentenceCount}</strong></div>
+            <div>Odstavců: <strong className="text-cyan-400">{paragraphCount}</strong></div>
+            <div>Stránek (~): <strong className="text-cyan-400">{normativePages}</strong></div>
+            <div>Čtení: <strong className="text-cyan-400">~{readingTime} min</strong></div>
+          </div>
+          {copySuccess && <div className="text-emerald-400 font-medium text-xs">✓ Zkopírováno do schránky!</div>}
+
+          <div className="flex gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => handleCopyClipboard(content)}
+              className="px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 font-medium rounded-xl text-sm transition-all"
+            >
+              📋 Kopírovat text
+            </button>
+            <button
+              onClick={handleSave}
+              className="flex-1 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-500 hover:brightness-110 text-white font-semibold rounded-xl text-sm transition-all active:scale-95"
+            >
+              {editingId ? "Uložit změny dokumentu" : "Uložit dokument"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Vyhledávání a filtrace */}
+      <div className="flex flex-col sm:flex-row gap-4">
+        <input
+          type="text"
+          placeholder="Hledat v dokumentech..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="flex-1 p-3 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 text-sm shadow-lg"
+        />
+        <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0 hide-scrollbar">
+          {dynamicSubjects.map((s) => (
+            <button
+              key={s}
+              onClick={() => setFilter(s)}
+              className={`px-4 py-2.5 rounded-2xl whitespace-nowrap text-sm font-semibold transition-all shadow-lg ${
+                filter === s
+                  ? "bg-white/10 border-white/20 text-white"
+                  : "bg-white/5 border-white/5 text-gray-400 hover:bg-white/10 hover:text-gray-200"
+              } border backdrop-blur-xl`}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Seznam dokumentů */}
+      {filteredDocuments.length === 0 ? (
+        <div className="bg-white/5 border border-white/10 p-12 rounded-3xl backdrop-blur-xl text-center text-gray-400 text-sm">
+          Žádné dokumenty nebyly nalezeny.
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredDocuments.map((doc) => (
+            <div
+              key={doc.id}
+              onClick={() => setViewingDoc(doc)}
+              className="bg-white/5 border border-white/10 p-5 rounded-3xl backdrop-blur-xl shadow-lg flex flex-col justify-between group transition-all hover:bg-white/10 hover:border-cyan-500/30 relative cursor-pointer"
+            >
+              <div className="absolute top-4 right-4 flex gap-1 z-10">
+                <button 
+                  onClick={(e) => handleExportMarkdown(e, doc)}
+                  className="p-1.5 text-gray-400 hover:text-amber-400 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-colors"
+                  title="Stáhnout jako Markdown (.md)"
+                >
+                  📝
+                </button>
+                <button 
+                  onClick={(e) => handleExportHtml(e, doc)}
+                  className="p-1.5 text-gray-400 hover:text-cyan-400 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-colors"
+                  title="Stáhnout jako HTML"
+                >
+                  🌐
+                </button>
+                <button 
+                  onClick={(e) => handleExportTxt(e, doc)}
+                  className="p-1.5 text-gray-400 hover:text-emerald-400 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-colors"
+                  title="Stáhnout jako .txt"
+                >
+                  📥
+                </button>
+                <button 
+                  onClick={(e) => handleEditClick(e, doc)}
+                  className="p-1.5 text-gray-400 hover:text-cyan-400 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-colors"
+                  title="Upravit"
+                >
+                  ✏️
+                </button>
+                <button 
+                  onClick={(e) => handleDelete(e, doc.id)}
+                  className="p-1.5 text-gray-400 hover:text-rose-400 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-colors"
+                  title="Smazat"
+                >
+                  🗑️
+                </button>
+              </div>
+
+              <div className="pr-32 mb-4">
+                <h3 className="font-semibold text-white group-hover:text-cyan-400 transition-colors text-base line-clamp-1 mb-2">
+                  {doc.title}
+                </h3>
+                <p className={`text-gray-400 text-xs line-clamp-3 ${getFontClass(doc.font)} ${getLineSpacingClass(doc.lineSpacing)}`}>
+                  {doc.content.replace(/<[^>]*>?/gm, '') || "Prázdný dokument..."}
+                </p>
+              </div>
+              
+              <div className="pt-4 border-t border-white/10 flex justify-between items-center">
+                <div className="flex flex-col gap-1">
+                  <span className="shrink-0 text-xs font-semibold px-2.5 py-1 rounded-lg border bg-white/5 text-gray-300 border-white/10 inline-block w-fit">
+                    📁 {doc.subject}
+                  </span>
+                  <span className="text-[10px] text-gray-500 uppercase tracking-wider pl-1">
+                    {doc.date}
+                  </span>
+                </div>
+                <span className="text-xs font-semibold text-cyan-500 group-hover:translate-x-1 transition-transform">
+                  Číst →
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Celoobrazovkový náhled / čtečka dokumentu */}
+      {viewingDoc && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-[#090a0f] border border-white/10 p-6 md:p-8 rounded-3xl max-w-3xl w-full max-h-[85vh] overflow-y-auto shadow-2xl relative">
+            <button 
+              onClick={() => setViewingDoc(null)}
+              className="absolute top-6 right-6 text-gray-400 hover:text-white transition-colors bg-white/5 hover:bg-white/10 p-2 rounded-xl border border-white/10"
+            >
+              ✕ Zavřít
+            </button>
+            
+            <div className="mb-6 pr-16">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xs font-semibold px-2.5 py-1 rounded-lg border bg-white/5 text-gray-300 border-white/10">
+                  📁 {viewingDoc.subject}
+                </span>
+                <span className="text-xs text-gray-500 uppercase tracking-wider">
+                  {viewingDoc.date}
+                </span>
+              </div>
+              <h2 className="text-xl md:text-2xl font-bold text-white leading-tight">
+                {viewingDoc.title}
+              </h2>
+            </div>
+
+            <div 
+              className={`bg-white/5 border border-white/10 rounded-2xl p-6 min-h-[250px] text-gray-200 ${getFontClass(viewingDoc.font)} ${getLineSpacingClass(viewingDoc.lineSpacing)} ${getFontSizeClass(viewingDoc.fontSize)}`}
+              dangerouslySetInnerHTML={{ __html: viewingDoc.content.replace(/\n/g, '<br />') }}
+            ></div>
+
+            <div className="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+              <div className="text-xs text-gray-400 flex flex-wrap gap-3">
+                <span>Slov: <strong className="text-cyan-400">{viewingDoc.content.trim() ? viewingDoc.content.trim().split(/\s+/).length : 0}</strong></span>
+                <span>Normostran: <strong className="text-cyan-400">{((viewingDoc.content.trim() ? viewingDoc.content.trim().split(/\s+/).length : 0) / 250).toFixed(1)}</strong></span>
+                <span>Doba čtení: <strong className="text-cyan-400">~{Math.ceil((viewingDoc.content.trim() ? viewingDoc.content.trim().split(/\s+/).length : 0) / 200)} min</strong></span>
+              </div>
+              
+              <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+                <button 
+                  onClick={() => handleCopyClipboard(viewingDoc.content)}
+                  className="px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 font-medium rounded-xl text-sm transition-all"
+                >
+                  📋 Kopírovat
+                </button>
+                <button 
+                  onClick={(e) => handleExportMarkdown(e, viewingDoc)}
+                  className="px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-amber-400 font-medium rounded-xl text-sm transition-all"
+                >
+                  📝 .md
+                </button>
+                <button 
+                  onClick={(e) => handleExportHtml(e, viewingDoc)}
+                  className="px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-cyan-400 font-medium rounded-xl text-sm transition-all"
+                >
+                  🌐 HTML
+                </button>
+                <button 
+                  onClick={(e) => handleExportTxt(e, viewingDoc)}
+                  className="px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-emerald-400 font-medium rounded-xl text-sm transition-all"
+                >
+                  📥 .txt
+                </button>
+                <button 
+                  onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                    setViewingDoc(null);
+                    handleEditClick(e, viewingDoc);
+                  }}
+                  className="px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium rounded-xl text-sm transition-all"
+                >
+                  ✏️ Upravit
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
