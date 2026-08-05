@@ -27,13 +27,13 @@ export default function DashboardShell({ children }: { children: React.ReactNode
         </div>
       </header>
 
-      {/* Hlavní obsah - domovská stránka má zakázaný scroll */}
-      <main className={`flex-1 relative ${pathname === "/" ? "overflow-hidden" : "overflow-y-auto"} p-4 pb-20`}>
+      {/* Hlavní obsah */}
+      <main className={`flex-1 relative ${pathname === "/" ? "overflow-hidden" : "overflow-y-auto"} p-4 pb-24`}>
         {children}
       </main>
 
-      {/* Spodní navigace */}
-      <nav className="absolute bottom-0 left-0 right-0 h-16 bg-[#090a0f]/95 border-t border-white/10 backdrop-blur-2xl flex items-center justify-around px-2 z-30">
+      {/* Fixní spodní navigace se 4 položkami */}
+      <nav className="absolute bottom-0 left-0 right-0 h-16 bg-[#090a0f]/95 border-t border-white/10 backdrop-blur-2xl flex items-center justify-around px-2 z-50">
         <Link
           href="/"
           className={`flex flex-col items-center gap-1 transition ${
