@@ -15,12 +15,14 @@ import AITestModule from "@/components/modules/AITestModule";
 import AISolver from "@/components/modules/AISolver";
 import FocusTimerModule from "@/components/modules/FocusTimerModule";
 import TaskPlannerModule from "@/components/modules/TaskPlannerModule";
+import StudyLibrary form "@/components/StudyLibrary";
 
 const SUB_MODULE_IDS = ["planner", "shop", "timer", "files", "flashcards", "test", "solver"];
 
 const PRIMARY_TABS = [
   { id: "profile", label: "Profil", icon: "🏠" },
   { id: "menu", label: "Menu", icon: "▦" },
+  { id: "knihovna", label: "knihovna", icon: "📚" },
   { id: "settings", label: "Nastavení", icon: "⚙️" },
 ];
 
