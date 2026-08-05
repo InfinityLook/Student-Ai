@@ -1,147 +1,75 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { useStore } from "@/store/useStore";
 
-interface Item {
-  id: string;
-  name: string;
-  type: "folder" | "file";
-  parentId: string | null;
-}
+export default function ShopModule() {
+  const { totalCreditsEarned, setTotalCreditsEarned } = useStore();
 
-export default function FileSystemModule() {
-  const { addNotification } = useStore();
-  const [currentFolder, setCurrentFolder] = useState<string | null>(null);
-  const [items, setItems] = useState<Item[]>([
-    { id: "1", name: "Matematika", type: "folder", parentId: null },
-    { id: "2", name: "Programování", type: "folder", parentId: null },
-    { id: "3", name: "Integrály - poznámky.md", type: "file", parentId: "1" },
-  ]);
-
-  const [newItemName, setNewItemName] = useState("");
-  const [isCreatingType, setIsCreatingType] = useState<"folder" | "file" | null>(null);
-
-  const currentItems = items.filter((item) => item.parentId === currentFolder);
-
-  const handleCreate = (type: "folder" | "file") => {
-    if (!newItemName.trim()) {
-      addNotification("Zadej název položky!", "error");
+  const handleBuy = (cost: number, itemName: string) => {
+    if (totalCreditsEarned < cost) {
+      alert("Nemáš dostatek kreditu!");
       return;
     }
-
-    const newItem: Item = {
-      id: Math.random().toString(36).substring(2, 9),
-      name: newItemName.trim(),
-      type,
-      parentId: currentFolder,
-    };
-
-    setItems([...items, newItem]);
-    setNewItemName("");
-    setIsCreatingType(null);
-    addNotification(`Úspěšně vytvořeno: ${newItem.name}`, "success");
-  };
-
-  const handleDelete = (id: string) => {
-    setItems(items.filter((item) => item.id !== id && item.parentId !== id));
-    addNotification("Položka byla smazána.", "info");
+    setTotalCreditsEarned(totalCreditsEarned - cost);
+    alert(`Úspěšně jsi zakoupil: ${itemName}!`);
   };
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <div className="bg-surface p-6 rounded-2xl border border-edge shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="bg-white/5 border border-white/10 p-6 rounded-3xl backdrop-blur-xl shadow-lg flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-display font-bold text-ink">📚 Předměty & Složky</h2>
-          <p className="text-muted text-sm mt-1">Hierarchické úložiště tvých studijních materiálů.</p>
+          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+            <span>🛍️</span> Obchod & Odměny
+          </h2>
+          <p className="text-gray-400 text-sm mt-1">
+            Utrať své těžce vydělané kredity za bonusy.
+          </p>
         </div>
-
-        <div className="flex items-center gap-2">
-          {currentFolder && (
-            <button
-              onClick={() => setCurrentFolder(null)}
-              className="px-3 py-2 bg-surface-hover hover:bg-edge text-ink rounded-xl text-sm font-medium transition-colors border border-edge"
-            >
-              ← Zpět domů
-            </button>
-          )}
-          <button
-            onClick={() => setIsCreatingType("folder")}
-            className="px-3 py-2 bg-violet/10 text-violet hover:bg-violet/20 rounded-xl text-sm font-medium transition-colors"
-          >
-            + Nová složka
-          </button>
-          <button
-            onClick={() => setIsCreatingType("file")}
-            className="px-3 py-2 bg-violet hover:brightness-110 text-ink rounded-xl text-sm font-medium transition-all shadow-lg shadow-violet/20"
-          >
-            + Nový soubor
-          </button>
+        <div className="bg-white/10 border border-white/10 px-4 py-2 rounded-2xl text-amber-400 font-bold flex items-center gap-1.5 shadow-inner">
+          <span>✨</span> {totalCreditsEarned}
         </div>
       </div>
 
-      {isCreatingType && (
-        <div className="bg-surface p-4 rounded-2xl border border-violet shadow-sm flex items-center gap-3">
-          <input
-            type="text"
-            value={newItemName}
-            onChange={(e) => setNewItemName(e.target.value)}
-            placeholder={isCreatingType === "folder" ? "Název složky..." : "Název souboru..."}
-            className="flex-1 p-2.5 rounded-xl border border-edge bg-canvas text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-violet text-sm"
-            autoFocus
-          />
-          <button
-            onClick={() => handleCreate(isCreatingType)}
-            className="px-4 py-2.5 bg-violet hover:brightness-110 text-ink font-medium rounded-xl text-sm transition-all"
-          >
-            Vytvořit
-          </button>
-          <button
-            onClick={() => {
-              setIsCreatingType(null);
-              setNewItemName("");
-            }}
-            className="px-4 py-2.5 bg-surface-hover text-ink font-medium rounded-xl text-sm transition-colors border border-edge"
-          >
-            Zrušit
-          </button>
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {currentItems.length === 0 ? (
-          <div className="col-span-full text-center py-12 text-muted text-sm">
-            Tato složka je prázdná. Vytvoř novou složku nebo soubor nahoře.
-          </div>
-        ) : (
-          currentItems.map((item) => (
-            <div
-              key={item.id}
-              onClick={() => {
-                if (item.type === "folder") setCurrentFolder(item.id);
-              }}
-              className={`bg-surface p-4 rounded-2xl border border-edge shadow-sm flex items-center justify-between group transition-all ${
-                item.type === "folder" ? "cursor-pointer hover:border-violet" : ""
-              }`}
-            >
-              <div className="flex items-center gap-3 min-w-0">
-                <span className="text-2xl">{item.type === "folder" ? "📁" : "📄"}</span>
-                <span className="font-semibold text-ink truncate text-sm">{item.name}</span>
-              </div>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDelete(item.id);
-                }}
-                className="opacity-0 group-hover:opacity-100 p-1.5 text-muted hover:text-coral transition-opacity"
-                title="Smazat"
-              >
-                🗑️
-              </button>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="bg-white/5 border border-white/10 p-6 rounded-3xl backdrop-blur-xl shadow-lg flex flex-col justify-between">
+          <div>
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500/20 to-yellow-500/20 border border-white/10 flex items-center justify-center text-xl mb-4">
+              ☕
             </div>
-          ))
-        )}
+            <h3 className="text-lg font-semibold text-white">Virtuální káva pro Kaira</h3>
+            <p className="text-gray-400 text-sm mt-1">Nakrm svého AI parťáka kávou a získej bleskovou motivaci.</p>
+          </div>
+          <div className="mt-6 flex items-center justify-between">
+            <span className="text-amber-400 font-bold">💎 150 kreditů</span>
+            <button
+              onClick={() => handleBuy(150, "Virtuální káva")}
+              className="px-4 py-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/30 text-cyan-400 font-medium text-sm transition active:scale-95"
+            >
+              Koupit
+            </button>
+          </div>
+        </div>
+
+        <div className="bg-white/5 border border-white/10 p-6 rounded-3xl backdrop-blur-xl shadow-lg flex flex-col justify-between">
+          <div>
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500/20 to-indigo-500/20 border border-white/10 flex items-center justify-center text-xl mb-4">
+              🎨
+            </div>
+            <h3 className="text-lg font-semibold text-white">Exkluzivní vzhled chatu</h3>
+            <p className="text-gray-400 text-sm mt-1>Odemkni si prémiové barevné schéma pro konverzace s AI.</p>
+          </div>
+          <div className="mt-6 flex items-center justify-between">
+            <span className="text-amber-400 font-bold">💎 500 kreditů</span>
+            <button
+              onClick={() => handleBuy(500, "Exkluzivní vzhled chatu")}
+              className="px-4 py-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/30 text-cyan-400 font-medium text-sm transition active:scale-95"
+            >
+              Koupit
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
-                                             }
+}
