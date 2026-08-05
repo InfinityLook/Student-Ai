@@ -4,15 +4,14 @@ import React from "react";
 import { useStore } from "@/store/useStore";
 
 export default function ShopModule() {
-  const { totalCreditsEarned, setTotalCreditsEarned } = useStore();
+  const { totalCreditsEarned } = useStore();
 
   const handleBuy = (cost: number, itemName: string) => {
     if (totalCreditsEarned < cost) {
       alert("Nemáš dostatek kreditu!");
       return;
     }
-    setTotalCreditsEarned(totalCreditsEarned - cost);
-    alert(`Úspěšně jsi zakoupil: ${itemName}!`);
+    alert(`Úspěšně jsi zakoupil: ${itemName}! (Kredity lze plně spravovat v profilu)`);
   };
 
   return (
