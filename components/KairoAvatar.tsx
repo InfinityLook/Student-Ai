@@ -1,65 +1,141 @@
 "use client";
 
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 
-const TIPS = [
-  "Ahoj! Jsem Kairo, tvůj studijní parťák. 👋",
-  "Nezapomeň si mezi učením dát pauzu.",
-  "Skvělá práce! Pokračuj v tom, jde ti to.",
-  "Máš něco těžkého na programu? Mrkni na Plánovač.",
-  "Opakování kartiček funguje nejlíp, když ho neodkládáš.",
-  "AI mozek mi zatím chybí, ale brzy se ho dočkáš. 🧠",
+
+const messages = [
+  "Ahoj! Jsem Kairo, tvůj studijní parťák. Pomůžu ti zvládnout dnešní učení 🚀",
+  "Vítej zpět! Podíváme se spolu, co dnes potřebuješ udělat?",
+  "Jsem připravený ti pomoct s učením, testy i plánováním 📚",
+  "Každý malý krok tě posouvá dál. Začneme spolu?"
 ];
 
-export default function KairoAvatar({ size = 120 }: { size?: number }) {
-  const [tipIndex, setTipIndex] = useState<number | null>(null);
-  const [isTalking, setIsTalking] = useState(false);
 
-  const handleTap = () => {
-    setTipIndex(Math.floor(Math.random() * TIPS.length));
-    setIsTalking(true);
-    setTimeout(() => setIsTalking(false), 900);
-  };
+export default function KairoAvatar() {
 
-  const eyeSize = size * 0.12;
+
+  const [message,setMessage] = useState("");
+
+
+
+  useEffect(()=>{
+
+    const random =
+      messages[
+        Math.floor(
+          Math.random()*messages.length
+        )
+      ];
+
+
+    setMessage(random);
+
+
+  },[]);
+
+
 
   return (
-    <div className="flex flex-col items-center gap-4">
-      <button
-        onClick={handleTap}
-        className="relative animate-float focus:outline-none"
-        style={{ width: size, height: size }}
-        aria-label="Ťukni na Kaira pro tip"
-      >
-        <div className="absolute inset-0 rounded-full bg-violet/30 blur-2xl scale-90" />
 
-        <div className="relative z-10 w-full h-full rounded-full bg-gradient-to-br from-violet to-violet-dim shadow-lg shadow-violet/40 flex flex-col items-center justify-center gap-2">
-          <div className="flex" style={{ gap: size * 0.16 }}>
-            <span
-              className="block rounded-full bg-ink animate-blink"
-              style={{ width: eyeSize, height: eyeSize * 1.3 }}
-            />
-            <span
-              className="block rounded-full bg-ink animate-blink"
-              style={{ width: eyeSize, height: eyeSize * 1.3 }}
-            />
-          </div>
+    <div className="
+      flex
+      items-center
+      gap-5
+    ">
 
-          <div
-            className="rounded-full bg-ink/90 transition-all duration-150"
-            style={{
-              width: isTalking ? size * 0.22 : size * 0.16,
-              height: isTalking ? size * 0.09 : size * 0.045,
-            }}
-          />
+
+      {/* AVATAR */}
+
+      <div className="
+        relative
+        w-24
+        h-24
+        rounded-full
+        bg-gradient-to-br
+        from-cyan-400
+        to-blue-600
+        flex
+        items-center
+        justify-center
+        shadow-xl
+        animate-pulse
+      ">
+
+        <span className="
+          text-5xl
+        ">
+          🤖
+        </span>
+
+
+      </div>
+
+
+
+
+      {/* CHAT */}
+
+      <div className="
+        flex-1
+      ">
+
+
+        <h3 className="
+          text-xl
+          font-bold
+          text-cyan-400
+        ">
+          Kairo
+        </h3>
+
+
+        <div className="
+          mt-2
+          bg-white/10
+          border
+          border-white/10
+          rounded-2xl
+          p-4
+          text-gray-200
+        ">
+
+          {message}
+
+
         </div>
-      </button>
 
-      {tipIndex !== null && (
-        <div className="bg-canvas border border-edge rounded-2xl px-4 py-3 max-w-xs text-center text-sm text-ink shadow-sm animate-toast-in">
-          {TIPS[tipIndex]}
-        </div>
-      )}
+
+
+        <button
+
+          className="
+            mt-3
+            px-5
+            py-2
+            rounded-xl
+            bg-cyan-500/20
+            border
+            border-cyan-400/30
+            text-cyan-300
+            hover:bg-cyan-500/30
+            transition
+          "
+
+        >
+
+          🎙️ Mluvit s Kairem
+
+        </button>
+
+
+
+      </div>
+
+
+
     </div>
+
+
   );
+
 }
