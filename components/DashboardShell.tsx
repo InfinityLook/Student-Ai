@@ -185,7 +185,7 @@ export default function DashboardShell() {
         {[
           ["profile","🏠","Domů"],
           ["menu","▦","Menu"],
-          ["knihovna","📚","Knihy"],
+          ["shop","🛍️","Obchod"],
           ["settings","⚙️","Nastavení"]
 
         ].map(([id,icon,label])=>(
@@ -229,4 +229,4 @@ export default function DashboardShell() {
     </div>
 
   );
-}
+      }
