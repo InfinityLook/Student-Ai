@@ -3,12 +3,14 @@
 import KairoChat from "./kairo/KairoChat";
 
 
-export default function KairoFloating(){
+export default function KairoFloating() {
 
- return (
 
-   <KairoChat />
+  return (
 
- );
+    <KairoChat />
+
+  );
+
 
 }
