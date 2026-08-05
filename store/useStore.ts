@@ -61,7 +61,7 @@ interface AppState {
 export const useStore = create<AppState>()(
   persist(
     (set) => ({
-      activeModule: "profile",
+      activeModule: "home",
       setActiveModule: (module) => set({ activeModule: module }),
 
       credits: 50, // Startovací kredity
@@ -177,3 +177,4 @@ export const useStore = create<AppState>()(
     }
   )
 );
+              
