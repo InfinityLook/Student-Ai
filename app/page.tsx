@@ -13,24 +13,17 @@ import FileSystemModule from "@/components/modules/FileSystemModule";
 import AISolver from "@/components/modules/AISolver";
 import AITestModule from "@/components/modules/AITestModule";
 import DocumentEditorModule from "@/components/DocumentEditorModule";
-import KairoChat from "@/components/kairo/KairoChat";
 
 export default function Page() {
   const [activeModule, setActiveModule] = useState<string>("menu");
-  const [isKairoOpen, setIsKairoOpen] = useState(false);
 
   return (
     <DashboardShell 
       activeModule={activeModule} 
       setActiveModule={setActiveModule}
-      onOpenKairo={() => setIsKairoOpen(true)}
     >
       <div className="relative min-h-[calc(100vh-5rem)]">
         {renderActiveModule(activeModule, setActiveModule)}
-
-        {isKairoOpen && (
-          <KairoChat onClose={() => setIsKairoOpen(false)} />
-        )}
       </div>
     </DashboardShell>
   );
