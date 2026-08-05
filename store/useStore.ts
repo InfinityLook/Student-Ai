@@ -56,6 +56,9 @@ interface AppState {
   toggleTask: (id: string) => void;
   deleteTask: (id: string) => void;
 
+  lastReminderCheckDate: string | null;
+  checkTaskReminders: () => void;
+
   notifications: Notification[];
   addNotification: (message: string, type?: "success" | "error" | "info") => void;
   removeNotification: (id: string) => void;
@@ -166,6 +169,27 @@ export const useStore = create<AppState>()(
           tasks: state.tasks.filter((t) => t.id !== id),
         })),
 
+      lastReminderCheckDate: null,
+      checkTaskReminders: () => {
+        const state = useStore.getState();
+        const today = todayISO();
+
+        if (state.lastReminderCheckDate === today) return;
+
+        const overdue = state.tasks.filter((t) => !t.completed && t.dueDate && t.dueDate < today);
+        const dueToday = state.tasks.filter((t) => !t.completed && t.dueDate === today);
+
+        overdue.forEach((t) => {
+          state.addNotification(`⏰ Po termínu: "${t.title}"`, "error");
+        });
+
+        dueToday.forEach((t) => {
+          state.addNotification(`📌 Dnes je termín: "${t.title}"`, "info");
+        });
+
+        set({ lastReminderCheckDate: today });
+      },
+
       notifications: [],
       addNotification: (message, type = "info") => {
         const id = Math.random().toString(36).substring(2, 9);
@@ -188,4 +212,4 @@ export const useStore = create<AppState>()(
     }
   )
 );
-                   
+      
