@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 
-// Ukázková data
 const initialMaterials = [
   { id: 1, title: "React Hooks Cheatsheet", type: "odkaz", subject: "Programování", date: "5. 8. 2026" },
   { id: 2, title: "Vzorce pro 1. semestr", type: "pdf", subject: "Fyzika", date: "1. 8. 2026" },
@@ -15,14 +14,12 @@ export default function StudyLibrary() {
   const [filter, setFilter] = useState("Vše");
   const [search, setSearch] = useState("");
 
-  // Filtrace materiálů
   const filteredMaterials = initialMaterials.filter((item) => {
     const matchesSubject = filter === "Vše" || item.subject === filter;
     const matchesSearch = item.title.toLowerCase().includes(search.toLowerCase());
     return matchesSubject && matchesSearch;
   });
 
-  // Pomocná funkce pro ikony
   const getIcon = (type) => {
     switch (type) {
       case "pdf": return "📄";
@@ -34,7 +31,6 @@ export default function StudyLibrary() {
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      {/* Hlavička */}
       <div className="flex justify-between items-center mb-6">
         <div>
           <h2 className="text-2xl font-bold text-gray-800 dark:text-white">📚 Studijní knihovna</h2>
@@ -45,7 +41,6 @@ export default function StudyLibrary() {
         </button>
       </div>
 
-      {/* Ovládací panel (Filtry a Hledání) */}
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
         <input
           type="text"
@@ -71,7 +66,6 @@ export default function StudyLibrary() {
         </div>
       </div>
 
-      {/* Mřížka s materiály */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredMaterials.map((item) => (
           <div
@@ -96,7 +90,6 @@ export default function StudyLibrary() {
           </div>
         ))}
         
-        {/* Prázdný stav */}
         {filteredMaterials.length === 0 && (
           <div className="col-span-full py-12 text-center text-gray-500 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-dashed border-gray-300 dark:border-gray-700">
             Nebyl nalezen žádný materiál. Zkus změnit hledání nebo přidej nový!
@@ -105,4 +98,4 @@ export default function StudyLibrary() {
       </div>
     </div>
   );
-      }
+}
