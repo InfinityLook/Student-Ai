@@ -43,19 +43,16 @@ export default function StudyLibrary() {
     }
   };
 
-  // Uložení nového NEBO upraveného materiálu
   const handleSave = () => {
     if (!title.trim()) return;
 
     if (editingId) {
-      // Úprava existujícího
       setMaterials(materials.map(m => 
         m.id === editingId 
           ? { ...m, title: title.trim(), type, subject, content } 
           : m
       ));
     } else {
-      // Přidání nového
       const dateFormatted = new Date().toLocaleDateString("cs-CZ");
       const addedItem = {
         id: Date.now(),
@@ -72,14 +69,13 @@ export default function StudyLibrary() {
   };
 
   const handleEditClick = (e, item) => {
-    e.stopPropagation(); // Zabrání otevření prohlížeče při kliknutí na tužku
+    e.stopPropagation();
     setEditingId(item.id);
     setTitle(item.title);
     setType(item.type);
     setSubject(item.subject);
     setContent(item.content || "");
     setIsAdding(true);
-    // Skrolování na formulář by tu mohlo být, ale vzhledem k UI to necháme jednoduché
   };
 
   const handleDelete = (e, id) => {
@@ -217,25 +213,25 @@ export default function StudyLibrary() {
               onClick={() => setViewingItem(item)}
               className="bg-white/5 border border-white/10 p-5 rounded-3xl backdrop-blur-xl shadow-lg flex flex-col justify-between group transition-all hover:bg-white/10 hover:border-cyan-500/30 relative cursor-pointer"
             >
-              {/* Tlačítka pro úpravu a smazání (zobrazí se na hover) */}
-              <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              {/* Tlačítka pro úpravu a smazání (trvale viditelná) */}
+              <div className="absolute top-4 right-4 flex gap-1.5 z-10">
                 <button 
                   onClick={(e) => handleEditClick(e, item)}
-                  className="p-1.5 text-gray-500 hover:text-cyan-400 bg-[#090a0f]/50 rounded-lg backdrop-blur-sm transition-colors"
+                  className="p-1.5 text-gray-400 hover:text-cyan-400 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-colors"
                   title="Upravit materiál"
                 >
                   ✏️
                 </button>
                 <button 
                   onClick={(e) => handleDelete(e, item.id)}
-                  className="p-1.5 text-gray-500 hover:text-rose-400 bg-[#090a0f]/50 rounded-lg backdrop-blur-sm transition-colors"
+                  className="p-1.5 text-gray-400 hover:text-rose-400 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-colors"
                   title="Smazat materiál"
                 >
                   🗑️
                 </button>
               </div>
 
-              <div className="pr-16">
+              <div className="pr-20">
                 <div className="flex justify-between items-start mb-4">
                   <span className="text-3xl bg-white/5 p-2 rounded-xl border border-white/5">{getIcon(item.type)}</span>
                 </div>
@@ -322,4 +318,5 @@ export default function StudyLibrary() {
       )}
     </div>
   );
-          }
+                                                          }
+    
