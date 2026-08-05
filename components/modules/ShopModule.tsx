@@ -57,7 +57,7 @@ export default function ShopModule() {
               🎨
             </div>
             <h3 className="text-lg font-semibold text-white">Exkluzivní vzhled chatu</h3>
-            <p className="text-gray-400 text-sm mt-1>Odemkni si prémiové barevné schéma pro konverzace s AI.</p>
+            <p className="text-gray-400 text-sm mt-1">Odemkni si prémiové barevné schéma pro konverzace s AI.</p>
           </div>
           <div className="mt-6 flex items-center justify-between">
             <span className="text-amber-400 font-bold">💎 500 kreditů</span>
