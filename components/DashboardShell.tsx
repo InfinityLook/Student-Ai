@@ -14,7 +14,7 @@ import AITestModule from "@/components/modules/AITestModule";
 import FocusTimerModule from "@/components/modules/FocusTimerModule";
 import StudyLibrary from "@/components/StudyLibrary";
 import KairoAvatar from "@/components/KairoAvatar";
-
+import KairoFloating from "@/components/KairoFloating";
 
 const SUB_MODULE_IDS = [
   "shop",
@@ -136,7 +136,7 @@ export default function DashboardShell() {
           ">
 
             <KairoAvatar />
-
+<KairoFloating />
           </div>
 
         </section>
