@@ -13,8 +13,6 @@ import FlashcardsModule from "@/components/modules/FlashcardsModule";
 import AITestModule from "@/components/modules/AITestModule";
 import FocusTimerModule from "@/components/modules/FocusTimerModule";
 import StudyLibrary from "@/components/StudyLibrary";
-import KairoAvatar from "@/components/KairoAvatar";
-import KairoFloating from "@/components/KairoFloating";
 
 const SUB_MODULE_IDS = [
   "shop",
@@ -114,35 +112,6 @@ export default function DashboardShell() {
 
 
       </header>
-
-
-
-      {/* KAIRO */}
-
-      {activeModule === "profile" && (
-
-        <section className="
-          px-6
-          pt-6
-        ">
-
-          <div className="
-            rounded-3xl
-            bg-white/5
-            border
-            border-white/10
-            p-5
-            backdrop-blur-xl
-          ">
-
-            <KairoAvatar />
-<KairoFloating />
-          </div>
-
-        </section>
-
-      )}
-
 
 
 
