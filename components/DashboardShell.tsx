@@ -40,7 +40,7 @@ export default function DashboardShell() {
       {/* Horní lišta */}
       <header className="border-b bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 px-6 py-4 flex justify-between items-center sticky top-0 z-20">
         <div className="flex items-center gap-3">
-          <LevelBadge level={level} />
+          <LevelBadge />
           <h1 className="text-xl font-bold tracking-tight">Student AI</h1>
         </div>
         <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 px-3 py-1.5 rounded-full font-medium text-sm">
