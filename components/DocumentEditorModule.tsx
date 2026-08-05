@@ -441,7 +441,7 @@ export default function DocumentEditorModule() {
                   <button type="button" onClick={() => insertFormatting('<div style="text-align: left;">', '</div>')} className="px-2.5 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs text-gray-300" title="Vlevo">⫷</button>
                   <button type="button" onClick={() => insertFormatting('<div style="text-align: center;">', '</div>')} className="px-2.5 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs text-gray-300" title="Na střed">↔</button>
                   <button type="button" onClick={() => insertFormatting('<div style="text-align: right;">', '</div>')} className="px-2.5 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs text-gray-300" title="Vpravo">⫸</button>
-                  <button type="button" onClick={() => insertFormatting('<div style="text-align: justify;">', '</div>')} className="px-2.5 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs text-gray-300" title="Do bloku">≡</div>
+                  <button type="button" onClick={() => insertFormatting('<div style="text-align: justify;">', '</div>')} className="px-2.5 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs text-gray-300" title="Do bloku">≡</button>
                   
                   <div className="w-[1px] h-5 bg-white/10 mx-2"></div>
                   <button type="button" onClick={() => insertFormatting("- ")} className="px-2 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs text-gray-300">• Odrážka</button>
@@ -760,4 +760,3 @@ export default function DocumentEditorModule() {
     </div>
   );
 }
-
