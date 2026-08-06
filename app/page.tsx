@@ -13,6 +13,7 @@ import FileSystemModule from "@/components/modules/FileSystemModule";
 import AISolver from "@/components/modules/AISolver";
 import AITestModule from "@/components/modules/AITestModule";
 import DocumentEditorModule from "@/components/DocumentEditorModule";
+import KairoModule from "@/components/modules/KairoModule";
 
 export default function Page() {
   const [activeModule, setActiveModule] = useState<string>("menu");
@@ -56,6 +57,8 @@ function renderActiveModule(
       return <AITestModule />;
     case "document-editor":
       return <DocumentEditorModule />;
+    case "kairo":
+      return <KairoModule />;
     default:
       return (
         <div className="flex flex-col items-center justify-center py-20 text-center">
