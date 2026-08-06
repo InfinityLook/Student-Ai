@@ -48,12 +48,17 @@ module.exports = {
           "0%, 90%, 100%": { transform: "scaleY(1)" },
           "95%": { transform: "scaleY(0.1)" },
         },
+        "spin-slow": {
+          "0%": { transform: "rotate(0deg)" },
+          "100%": { transform: "rotate(360deg)" },
+        },
       },
       animation: {
         "toast-in": "toast-in 0.25s ease-out",
         "level-pop": "level-pop 0.4s ease-out",
         float: "float 4s ease-in-out infinite",
         blink: "blink 4.5s ease-in-out infinite",
+        "spin-slow": "spin-slow 3s linear infinite",
       },
     },
   },
