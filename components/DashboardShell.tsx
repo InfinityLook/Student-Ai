@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import KairoAvatar from "@/components/KairoAvatar";
 
 interface DashboardShellProps {
   activeModule: string;
@@ -55,7 +56,20 @@ export default function DashboardShell({
           <span className="text-[10px] font-medium">Profil</span>
         </button>
 
-        {/* 2. Menu */}
+        {/* 2. Kairo */}
+        <button
+          onClick={() => setActiveModule("kairo")}
+          className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition cursor-pointer ${
+            activeModule === "kairo"
+              ? "bg-cyan-500/20 text-cyan-400"
+              : "text-gray-400 hover:text-white hover:bg-white/5"
+          }`}
+        >
+          <KairoAvatar size="sm" />
+          <span className="text-[10px] font-medium">Kairo</span>
+        </button>
+
+        {/* 3. Menu */}
         <button
           onClick={() => setActiveModule("menu")}
           className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition cursor-pointer ${
@@ -68,7 +82,7 @@ export default function DashboardShell({
           <span className="text-[10px] font-medium">Menu</span>
         </button>
 
-        {/* 3. Obchod */}
+        {/* 4. Obchod */}
         <button
           onClick={() => setActiveModule("shop")}
           className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition cursor-pointer ${
@@ -81,7 +95,7 @@ export default function DashboardShell({
           <span className="text-[10px] font-medium">Obchod</span>
         </button>
 
-        {/* 4. Nastavení */}
+        {/* 5. Nastavení */}
         <button
           onClick={() => setActiveModule("profile")}
           className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition cursor-pointer ${
