@@ -10,9 +10,7 @@ import {
   BookOpen, 
   ArrowLeft,
   Copy,
-  Check,
-  Zap,
-  HelpCircle
+  Check
 } from 'lucide-react';
 
 export interface SolutionStep {
@@ -56,7 +54,6 @@ export default function AiSolverModule({ onBack }: AiSolverModuleProps) {
 
     setIsSolving(true);
     setSolution(null);
-
     setSolvingProgress('Inicializace AI modelu...');
     
     setTimeout(() => {
@@ -114,8 +111,6 @@ export default function AiSolverModule({ onBack }: AiSolverModuleProps) {
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto pb-12">
-      
-      {/* Horní lišta / Zpět */}
       {onBack && (
         <button 
           onClick={onBack}
@@ -126,12 +121,9 @@ export default function AiSolverModule({ onBack }: AiSolverModuleProps) {
       )}
 
       {!solution && !isSolving ? (
-        
-        /* HLAVNÍ FORMULÁŘ */
         <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-6 md:p-8 backdrop-blur-xl shadow-2xl space-y-6">
           <div className="absolute top-0 right-0 w-60 h-60 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
 
-          {/* Hlavička modulu */}
           <div className="flex items-center gap-3.5 pb-4 border-b border-white/10">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
               <Calculator className="w-6 h-6 text-white" />
@@ -143,8 +135,6 @@ export default function AiSolverModule({ onBack }: AiSolverModuleProps) {
           </div>
 
           <form onSubmit={handleSolve} className="space-y-6">
-            
-            {/* Výběr předmětu - moderní pill tlačítka */}
             <div className="space-y-2">
               <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">Vyber předmět</label>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
@@ -166,7 +156,6 @@ export default function AiSolverModule({ onBack }: AiSolverModuleProps) {
               </div>
             </div>
 
-            {/* Vstupní textové pole */}
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">Zadání příkladu</label>
@@ -181,12 +170,11 @@ export default function AiSolverModule({ onBack }: AiSolverModuleProps) {
                 rows={5}
                 value={problemText}
                 onChange={(e) => setProblemText(e.target.value)}
-                placeholder="Napiš zadání příkladu (např. Vyřeš rovnici x^2 + x - 6 = 0 nebo spočítej dráhu tělesa)..."
+                placeholder="Napiš zadání příkladu (např. Vyřeš rovnici x^2 + x - 6 = 0)..."
                 className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-sm text-white placeholder-slate-500 outline-none focus:border-cyan-500 transition font-mono resize-none shadow-inner"
               />
             </div>
 
-            {/* Odesílací tlačítko */}
             <div className="flex justify-end pt-2">
               <button
                 type="submit"
@@ -198,37 +186,25 @@ export default function AiSolverModule({ onBack }: AiSolverModuleProps) {
               </button>
             </div>
           </form>
-
         </div>
-
       ) : isSolving ? (
-        
-        /* STAV: AI PŘEMÝŠLÍ */
         <div className="rounded-[32px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-12 backdrop-blur-xl text-center space-y-6 shadow-2xl max-w-lg mx-auto my-12">
           <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
             <div className="absolute inset-0 rounded-full border-4 border-cyan-500/20 border-t-cyan-400 animate-spin" />
             <Sparkles className="w-8 h-8 text-cyan-400 animate-pulse" />
           </div>
-
           <div className="space-y-2">
             <h3 className="text-xl font-black text-white">AI analyzuje zadání...</h3>
             <p className="text-xs text-cyan-300 font-semibold animate-pulse">{solvingProgress}</p>
           </div>
-
           <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden border border-white/10 p-0.5">
             <div className="bg-gradient-to-r from-cyan-400 to-indigo-500 h-full rounded-full animate-pulse w-3/4" />
           </div>
         </div>
-
       ) : (
-
-        /* VÝSLEDEK A POSTUP */
         solution && (
           <div className="space-y-6">
-            
-            {/* Karta s výsledkem */}
             <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-emerald-500/10 via-white/[0.05] to-white/[0.02] border border-emerald-500/40 p-6 md:p-8 backdrop-blur-xl shadow-2xl space-y-6">
-              
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-white/10">
                 <div className="space-y-1">
                   <span className="text-[10px] uppercase font-bold tracking-wider px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
@@ -236,7 +212,6 @@ export default function AiSolverModule({ onBack }: AiSolverModuleProps) {
                   </span>
                   <h2 className="text-xl md:text-2xl font-black text-white pt-1">{solution.title}</h2>
                 </div>
-
                 <div className="flex items-center gap-2 w-full sm:w-auto">
                   <button
                     onClick={handleCopy}
@@ -255,7 +230,6 @@ export default function AiSolverModule({ onBack }: AiSolverModuleProps) {
                 </div>
               </div>
 
-              {/* Box výsledku */}
               <div className="bg-emerald-950/40 border border-emerald-500/30 rounded-2xl p-5 flex items-center justify-between shadow-inner">
                 <div>
                   <div className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">Konečný výsledek</div>
@@ -271,7 +245,6 @@ export default function AiSolverModule({ onBack }: AiSolverModuleProps) {
               </p>
             </div>
 
-            {/* Postup krok za krokem */}
             <div className="rounded-[32px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-6 md:p-8 backdrop-blur-xl shadow-2xl space-y-6">
               <h3 className="text-lg font-black text-white flex items-center gap-2">
                 <BookOpen className="w-5 h-5 text-cyan-400" />
@@ -303,11 +276,9 @@ export default function AiSolverModule({ onBack }: AiSolverModuleProps) {
                 ))}
               </div>
             </div>
-
           </div>
         )
       )}
-
     </div>
   );
 }
