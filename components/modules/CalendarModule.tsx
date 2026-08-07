@@ -1,326 +1,115 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { 
-  Calendar as CalendarIcon, 
-  Bell, 
-  Plus, 
-  Trash2, 
-  X, 
-  CheckCircle2, 
-  Clock, 
-  Tag
-} from 'lucide-react';
-
-export interface CalendarEvent {
-  id: string;
-  title: string;
-  date: string;
-  time?: string;
-  color: string; // Hex nebo Tailwind barva
-  category: string;
-  notify: boolean;
-}
-
-const COLOR_OPTIONS = [
-  { name: 'Červená (Test/Zkouška)', value: '#ef4444' },
-  { name: 'Modrá (Projekt/Úkol)', value: '#3b82f6' },
-  { name: 'Zelená (Přednáška/Cvičení)', value: '#10b981' },
-  { name: 'Fialová (Osobní/Akce)', value: '#8b5cf6' },
-  { name: 'Žlutá (Důležité)', value: '#f59e0b' }
-];
+import React, { useState } from 'react';
+import { CalendarDays, ChevronLeft, ChevronRight, Clock, AlertTriangle } from 'lucide-react';
 
 export default function CalendarModule() {
-  const [events, setEvents] = useState<CalendarEvent[]>([
-    {
-      id: '1',
-      title: 'Zkouška z Matematiky',
-      date: '2026-08-15',
-      time: '09:00',
-      color: '#ef4444',
-      category: 'Zkouška',
-      notify: true
-    },
-    {
-      id: '2',
-      title: 'Odevzdání seminární práce',
-      date: '2026-08-20',
-      time: '23:59',
-      color: '#3b82f6',
-      category: 'Projekt',
-      notify: true
-    }
-  ]);
+  const [selectedDate, setSelectedDate] = useState(15);
+  
+  const exams = [
+    { id: 1, title: 'Matematická analýza II', date: '15. června', time: '09:00', room: 'A12', type: 'Zkouška', urgent: true },
+    { id: 2, title: 'Fyzika - Zápočet', date: '18. června', time: '11:00', room: 'E4', type: 'Zápočet', urgent: false },
+    { id: 3, title: 'Databázové systémy', date: '22. června', time: '14:00', room: 'Online', type: 'Projekt', urgent: false },
+  ];
 
-  const [showModal, setShowModal] = useState(false);
-  const [notificationsGranted, setNotificationsGranted] = useState(false);
-
-  // Formulářové stavy
-  const [title, setTitle] = useState('');
-  const [date, setDate] = useState('');
-  const [time, setTime] = useState('09:00');
-  const [color, setColor] = useState('#ef4444');
-  const [category, setCategory] = useState('Test');
-  const [notify, setNotify] = useState(true);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined' && 'Notification' in window) {
-      setNotificationsGranted(Notification.permission === 'granted');
-    }
-  }, []);
-
-  const requestNotificationPermission = async () => {
-    if (typeof window !== 'undefined' && 'Notification' in window) {
-      const permission = await Notification.requestPermission();
-      if (permission === 'granted') {
-        setNotificationsGranted(true);
-        new Notification('Student AI', {
-          body: 'Upozornění a notifikace byly zapnuty.'
-        });
-      }
-    }
-  };
-
-  const handleAddEvent = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!title.trim() || !date) return;
-
-    const newEvent: CalendarEvent = {
-      id: Date.now().toString(),
-      title,
-      date,
-      time,
-      color,
-      category,
-      notify
-    };
-
-    setEvents([...events, newEvent].sort((a, b) => a.date.localeCompare(b.date)));
-    setShowModal(false);
-
-    // Reset
-    setTitle('');
-    setDate('');
-    setTime('09:00');
-
-    if (notify && notificationsGranted && typeof window !== 'undefined' && 'Notification' in window) {
-      new Notification('Přípomínka uložena', {
-        body: `${title} - ${date} v ${time}`
-      });
-    }
-  };
-
-  const handleDelete = (id: string) => {
-    setEvents(events.filter((ev) => ev.id !== id));
-  };
+  const calendarDays = Array.from({ length: 30 }, (_, i) => i + 1);
 
   return (
-    <div className="p-4 md:p-8 max-w-4xl mx-auto space-y-6 text-slate-100">
-      
-      {/* HLAVIČKA */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Kalendář (2 sloupce) */}
+      <div className="lg:col-span-2 rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-6 backdrop-blur-xl flex flex-col justify-between">
         <div>
-          <h1 className="text-2xl font-extrabold text-white flex items-center gap-2.5">
-            <CalendarIcon className="w-7 h-7 text-indigo-400" />
-            <span>Kalendář událostí</span>
-          </h1>
-          <p className="text-xs text-slate-400 mt-1">
-            Zapisujte testy, zkoušky a úkoly. Nastavte si barevné rozlišení a notifikace.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3">
-          {!notificationsGranted && (
-            <button
-              onClick={requestNotificationPermission}
-              className="px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-300 hover:text-white flex items-center gap-2 transition"
-            >
-              <Bell className="w-4 h-4 text-amber-400" />
-              <span>Povolit notifikace</span>
-            </button>
-          )}
-
-          <button
-            onClick={() => setShowModal(true)}
-            className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-lg shadow-indigo-600/20"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Přidat událost</span>
-          </button>
-        </div>
-      </div>
-
-      {/* SEZNAM UDÁLOSTÍ */}
-      <div className="space-y-3">
-        {events.length === 0 ? (
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center text-slate-500 text-xs">
-            Žádné naplánované události. Klikněte na tlačítko "Přidat událost".
-          </div>
-        ) : (
-          events.map((ev) => (
-            <div
-              key={ev.id}
-              className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center justify-between gap-4 transition hover:border-slate-700"
-            >
-              <div className="flex items-center gap-4">
-                {/* Barevný indikátor */}
-                <div
-                  className="w-3.5 h-10 rounded-full flex-shrink-0"
-                  style={{ backgroundColor: ev.color }}
-                />
-
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-bold text-white">{ev.title}</h3>
-                    <span
-                      className="text-[10px] font-semibold px-2 py-0.5 rounded-md text-white/90"
-                      style={{ backgroundColor: `${ev.color}33`, color: ev.color }}
-                    >
-                      {ev.category}
-                    </span>
-                  </div>
-
-                  <div className="text-xs text-slate-400 mt-1 flex items-center gap-3">
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5 text-slate-500" />
-                      {ev.date} {ev.time && `v ${ev.time}`}
-                    </span>
-                    {ev.notify && (
-                      <span className="flex items-center gap-1 text-indigo-400 font-medium text-[11px]">
-                        <Bell className="w-3 h-3" />
-                        Upozornění zapnuto
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <button
-                onClick={() => handleDelete(ev.id)}
-                className="p-2 text-slate-500 hover:text-red-400 hover:bg-red-950/20 rounded-xl transition"
-                title="Smazat událost"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            </div>
-          ))
-        )}
-      </div>
-
-      {/* MODAL PRO PŘIDÁNÍ UDÁLOSTI */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <form
-            onSubmit={handleAddEvent}
-            className="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl relative"
-          >
-            <button
-              type="button"
-              onClick={() => setShowModal(false)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-white p-1"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <Plus className="w-5 h-5 text-indigo-400" />
-              <span>Nová událost / Test</span>
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-xl font-bold text-white flex items-center gap-2">
+              <CalendarDays className="w-5 h-5 text-pink-400" /> Červen 2026
             </h3>
-
-            <div className="space-y-3">
-              <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">Název</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="např. Test z Fyziky"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-400 mb-1">Datum</label>
-                  <input
-                    type="date"
-                    required
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-400 mb-1">Čas</label>
-                  <input
-                    type="time"
-                    value={time}
-                    onChange={(e) => setTime(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">Kategorie</label>
-                <input
-                  type="text"
-                  placeholder="např. Test, Zkouška, Úkol"
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">Barevné označení</label>
-                <div className="flex gap-2">
-                  {COLOR_OPTIONS.map((c) => (
-                    <button
-                      key={c.value}
-                      type="button"
-                      onClick={() => setColor(c.value)}
-                      className={`w-7 h-7 rounded-full transition border-2 ${
-                        color === c.value ? 'border-white scale-110' : 'border-transparent opacity-70'
-                      }`}
-                      style={{ backgroundColor: c.value }}
-                      title={c.name}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-slate-800 pt-2">
-                <span className="text-xs text-slate-300">Aktivovat upozornění</span>
-                <input
-                  type="checkbox"
-                  checked={notify}
-                  onChange={(e) => setNotify(e.target.checked)}
-                  className="w-4 h-4 accent-indigo-600 rounded"
-                />
-              </div>
-            </div>
-
-            <div className="flex gap-3 pt-2">
-              <button
-                type="button"
-                onClick={() => setShowModal(false)}
-                className="flex-1 py-2 bg-slate-950 hover:bg-slate-800 text-slate-400 rounded-xl text-xs font-bold border border-slate-800 transition"
-              >
-                Zrušit
+            <div className="flex gap-1">
+              <button className="p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition text-slate-300 cursor-pointer">
+                <ChevronLeft className="w-4 h-4" />
               </button>
-              <button
-                type="submit"
-                className="flex-1 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-indigo-600/20"
-              >
-                Uložit
+              <button className="p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition text-slate-300 cursor-pointer">
+                <ChevronRight className="w-4 h-4" />
               </button>
             </div>
-          </form>
+          </div>
+
+          {/* Dny v týdnu */}
+          <div className="grid grid-cols-7 gap-2 mb-3 text-center text-xs font-bold text-slate-400">
+            <span>Po</span><span>Út</span><span>St</span><span>Čt</span><span>Pá</span><span>So</span><span>Ne</span>
+          </div>
+
+          {/* Mřížka dnů */}
+          <div className="grid grid-cols-7 gap-2">
+            {calendarDays.map((day) => {
+              const hasExam = [15, 18, 22].includes(day);
+              const isSelected = selectedDate === day;
+              return (
+                <div
+                  key={day}
+                  onClick={() => setSelectedDate(day)}
+                  className={`aspect-square rounded-2xl flex flex-col items-center justify-center text-sm font-bold cursor-pointer transition-all relative ${
+                    isSelected 
+                      ? 'bg-gradient-to-tr from-pink-500 to-purple-600 text-white shadow-lg shadow-pink-500/25 scale-105' 
+                      : 'bg-white/5 text-slate-300 hover:bg-white/10 border border-white/5'
+                  }`}
+                >
+                  <span>{day}</span>
+                  {hasExam && (
+                    <span className="absolute bottom-1.5 w-1.5 h-1.5 rounded-full bg-pink-400 animate-pulse" />
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
-      )}
+
+        <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-xs text-slate-400">
+          <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-pink-400" /> Den se zkouškou</span>
+          <span>Kliknutím zobrazíš detaily</span>
+        </div>
+      </div>
+
+      {/* Seznam zkoušek (1 sloupec) */}
+      <div className="rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-6 backdrop-blur-xl flex flex-col justify-between space-y-4">
+        <div>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-bold text-white flex items-center gap-2">
+              <Clock className="w-5 h-5 text-purple-400" /> Nadcházející zkoušky
+            </h3>
+          </div>
+
+          <div className="space-y-3">
+            {exams.map((exam) => (
+              <div 
+                key={exam.id}
+                className="p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-purple-500/40 transition-all space-y-2 group cursor-pointer"
+              >
+                <div className="flex justify-between items-start">
+                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-md bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                    {exam.type}
+                  </span>
+                  {exam.urgent && (
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-pink-500/20 text-pink-400 flex items-center gap-1">
+                      <AlertTriangle className="w-3 h-3" /> Brzy
+                    </span>
+                  )}
+                </div>
+                <h4 className="font-bold text-white text-sm group-hover:text-purple-300 transition-colors">
+                  {exam.title}
+                </h4>
+                <div className="flex justify-between text-xs text-slate-400 pt-1 border-t border-white/5">
+                  <span>📅 {exam.date}</span>
+                  <span>⏰ {exam.time} ({exam.room})</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <button className="w-full py-3 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 text-white font-bold text-xs transition flex items-center justify-center gap-2 cursor-pointer">
+          <span>+ Přidat nový termín</span>
+        </button>
+      </div>
     </div>
   );
-      }
-            
+}
