@@ -43,6 +43,12 @@ interface AppState {
   activeModule: string;
   setActiveModule: (module: string) => void;
 
+  // Mobilní přizpůsobitelné menu (3 sloty)
+  unlockedNavSlots: number[]; // indexy 0 (Zdarma), 1 (50 K), 2 (200 K)
+  customNavSlots: (string | null)[]; // ID modulů přiřazených ke slotům [slot0, slot1, slot2]
+  unlockNavSlot: (slotIndex: number, cost: number) => boolean;
+  setCustomNavSlot: (slotIndex: number, moduleId: string | null) => void;
+
   favorites: (string | null)[];
   setFavorite: (slot: number, moduleId: string | null) => void;
 
@@ -78,9 +84,34 @@ interface AppState {
 
 export const useStore = create<AppState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       activeModule: "home",
       setActiveModule: (module) => set({ activeModule: module }),
+
+      // Slot 0 je zdarma a odemčený hned v základu
+      unlockedNavSlots: [0],
+      customNavSlots: [null, null, null],
+
+      unlockNavSlot: (slotIndex, cost) => {
+        const state = get();
+        if (state.credits < cost) {
+          state.addNotification(`Nedostatek kreditů! Potřebuješ ${cost} kreditů.`, "error");
+          return false;
+        }
+        set({
+          credits: state.credits - cost,
+          unlockedNavSlots: [...state.unlockedNavSlots, slotIndex],
+        });
+        state.addNotification(`Slot ${slotIndex + 1} byl úspěšně odemčen!`, "success");
+        return true;
+      },
+
+      setCustomNavSlot: (slotIndex, moduleId) =>
+        set((state) => {
+          const nextSlots = [...state.customNavSlots];
+          nextSlots[slotIndex] = moduleId;
+          return { customNavSlots: nextSlots };
+        }),
 
       favorites: [null, null],
       setFavorite: (slot, moduleId) =>
@@ -90,8 +121,8 @@ export const useStore = create<AppState>()(
           return { favorites: next };
         }),
 
-      credits: 50, // Startovací kredity
-      totalCreditsEarned: 50, // Používá se pro výpočet levelu (nikdy se neodečítá)
+      credits: 50,
+      totalCreditsEarned: 50,
       addCredits: (amount) =>
         set((state) => ({
           credits: state.credits + amount,
@@ -183,7 +214,7 @@ export const useStore = create<AppState>()(
 
       lastReminderCheckDate: null,
       checkTaskReminders: () => {
-        const state = useStore.getState();
+        const state = get();
         const today = todayISO();
 
         if (state.lastReminderCheckDate === today) return;
@@ -260,7 +291,6 @@ export const useStore = create<AppState>()(
       name: "school-ide-storage",
       version: 1,
       storage: createJSONStorage(() => localStorage),
-      // Toasty jsou dočasné - nemá smysl je ukládat mezi relacemi.
       partialize: (state) => {
         const { notifications, ...rest } = state;
         return rest;
@@ -268,4 +298,4 @@ export const useStore = create<AppState>()(
     }
   )
 );
-      
+          
