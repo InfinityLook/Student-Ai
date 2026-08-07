@@ -1,273 +1,186 @@
-"use client";
+'use client';
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { useStore } from "@/store/useStore";
-import KairoAvatar, { KairoState } from "@/components/KairoAvatar";
-import { matchKairoCommand, isBackCommand } from "@/components/kairo/KairoCommands";
+import React, { useState, useEffect, useRef } from 'react';
+import KairoAvatar3D from '../KairoAvatar3D';
 
-const GREETING =
-  "Ahoj, jsem Kairo, tvůj studijní parťák. Řekni mi, co potřebuješ, třeba otevři úkoly, nebo se mě na něco zeptej.";
+declare global {
+  interface Window {
+    SpeechRecognition: any;
+    webkitSpeechRecognition: any;
+  }
+}
 
 export default function KairoModule() {
-  const setActiveModule = useStore((s) => s.setActiveModule);
-
-  const [state, setState] = useState<KairoState>("idle");
-  const [heard, setHeard] = useState<string>("");
-  const [kairoSays, setKairoSays] = useState<string>(GREETING);
-  const [micSupported, setMicSupported] = useState(true);
-  const [autoActive, setAutoActive] = useState(true);
-  const [typedCommand, setTypedCommand] = useState("");
-
-  // Refy, aby callbacky Web Speech API vždy pracovaly s aktuálním stavem
+  const [input, setInput] = useState('');
+  const [response, setResponse] = useState('');
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  
+  const [isListening, setIsListening] = useState(false);
+  const [talkMode, setTalkMode] = useState(false);
+  
   const recognitionRef = useRef<any>(null);
-  const autoActiveRef = useRef(true);
-  const mountedRef = useRef(true);
 
   useEffect(() => {
-    autoActiveRef.current = autoActive;
-  }, [autoActive]);
-
-  const speak = useCallback((text: string, afterSpeak?: () => void) => {
-    setKairoSays(text);
-
-    if (typeof window === "undefined" || !window.speechSynthesis) {
-      afterSpeak?.();
-      return;
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.getVoices();
     }
 
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = false;
+      recognitionRef.current.lang = 'cs-CZ';
+      recognitionRef.current.interimResults = false;
+
+      recognitionRef.current.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        setInput(transcript);
+        handleSendMessage(transcript); 
+      };
+
+      recognitionRef.current.onerror = (event: any) => {
+        console.error("Chyba mikrofonu:", event.error);
+        setIsListening(false);
+      };
+
+      recognitionRef.current.onend = () => {
+        setIsListening(false);
+      };
+    }
+  }, []);
+
+  const speak = (text: string) => {
+    if (!('speechSynthesis' in window)) return;
+    
     window.speechSynthesis.cancel();
-
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "cs-CZ";
-    utterance.rate = 1.02;
-    utterance.pitch = 1.05;
-
-    utterance.onstart = () => setState("speaking");
-    utterance.onend = () => {
-      if (!mountedRef.current) return;
-      setState("idle");
-      afterSpeak?.();
-    };
-    utterance.onerror = () => {
-      if (!mountedRef.current) return;
-      setState("idle");
-      afterSpeak?.();
-    };
-
-    window.speechSynthesis.speak(utterance);
-  }, []);
-
-  const startListening = useCallback(() => {
-    if (typeof window === "undefined") return;
-
-    const SpeechRecognition =
-      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-
-    if (!SpeechRecognition) {
-      setMicSupported(false);
-      return;
+    utterance.lang = 'cs-CZ';
+    
+    const voices = window.speechSynthesis.getVoices();
+    const czechVoices = voices.filter(v => v.lang === 'cs-CZ' || v.lang === 'cs_CZ');
+    const bestVoice = czechVoices.find(v => v.name.includes('Google') || v.name.includes('Premium') || v.name.includes('Marketa'));
+    
+    if (bestVoice) {
+      utterance.voice = bestVoice;
+    } else if (czechVoices.length > 0) {
+      utterance.voice = czechVoices[0];
     }
 
-    // Nespouštět znovu, pokud už jedna instance běží
-    if (recognitionRef.current) return;
-
-    const recognition = new SpeechRecognition();
-    recognition.lang = "cs-CZ";
-    recognition.continuous = false;
-    recognition.interimResults = false;
-
-    recognition.onstart = () => {
-      if (!mountedRef.current) return;
-      setState("listening");
-    };
-
-    recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript;
-      setHeard(transcript);
-      handleCommand(transcript);
-    };
-
-    recognition.onerror = (event: any) => {
-      recognitionRef.current = null;
-      if (!mountedRef.current) return;
-      setState("idle");
-      // "no-speech" - prostě nic neřekl, zkusíme to znovu, pokud je automatický režim zapnutý
-      if (event.error === "not-allowed" || event.error === "service-not-allowed") {
-        setMicSupported(false);
-        setAutoActive(false);
-      } else if (autoActiveRef.current) {
-        setTimeout(() => startListening(), 700);
+    utterance.pitch = 1.5; 
+    utterance.rate = 1.05; 
+    
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => {
+      setIsSpeaking(false);
+      if (talkMode && recognitionRef.current) {
+         try {
+            recognitionRef.current.start();
+            setIsListening(true);
+         } catch(e) {}
       }
     };
-
-    recognition.onend = () => {
-      recognitionRef.current = null;
-      if (!mountedRef.current) return;
-      setState((prev) => (prev === "listening" ? "idle" : prev));
-    };
-
-    recognitionRef.current = recognition;
-    recognition.start();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const handleCommand = useCallback(
-    async (transcript: string) => {
-      if (isBackCommand(transcript)) {
-        speak("Dobře, zavírám Kaira.", () => setActiveModule("menu"));
-        return;
-      }
-
-      const match = matchKairoCommand(transcript);
-
-      if (match) {
-        speak(match.reply, () => {
-          setActiveModule(match.moduleId);
-        });
-        return;
-      }
-
-      // Žádný navigační příkaz nesedí -> zeptáme se AI (Groq, zdarma bez karty)
-      setState("thinking");
-      try {
-        const res = await fetch("/api/kairo", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: transcript }),
-        });
-        const data = await res.json();
-        const reply: string = data?.reply || "Tomu jsem úplně nerozuměl, zkus to prosím jinak.";
-
-        speak(reply, () => {
-          if (autoActiveRef.current) startListening();
-        });
-      } catch {
-        speak("Nepodařilo se mi připojit na server, zkus to prosím znovu.", () => {
-          if (autoActiveRef.current) startListening();
-        });
-      }
-    },
-    [setActiveModule, speak, startListening]
-  );
-
-  // Kairo se aktivuje automaticky při otevření obrazovky: přivítá se a začne poslouchat
-  useEffect(() => {
-    mountedRef.current = true;
-
-    const SpeechRecognition =
-      typeof window !== "undefined" &&
-      ((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition);
-    if (!SpeechRecognition) setMicSupported(false);
-
-    speak(GREETING, () => {
-      if (autoActiveRef.current) startListening();
-    });
-
-    return () => {
-      mountedRef.current = false;
-      if (typeof window !== "undefined" && window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-      }
-      if (recognitionRef.current) {
-        try {
-          recognitionRef.current.abort();
-        } catch {
-          /* noop */
-        }
-        recognitionRef.current = null;
-      }
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const toggleAuto = () => {
-    setAutoActive((prev) => {
-      const next = !prev;
-      if (!next && recognitionRef.current) {
-        try {
-          recognitionRef.current.abort();
-        } catch {
-          /* noop */
-        }
-        recognitionRef.current = null;
-        setState("idle");
-      }
-      if (next) {
-        startListening();
-      }
-      return next;
-    });
+    utterance.onerror = () => setIsSpeaking(false);
+    
+    window.speechSynthesis.speak(utterance);
   };
 
-  const submitTyped = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!typedCommand.trim()) return;
-    setHeard(typedCommand);
-    handleCommand(typedCommand);
-    setTypedCommand("");
+  const toggleTalkMode = () => {
+    if (isListening || talkMode) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+      setTalkMode(false);
+      window.speechSynthesis.cancel();
+    } else {
+      setTalkMode(true);
+      try {
+        recognitionRef.current?.start();
+        setIsListening(true);
+      } catch(e) {}
+    }
+  };
+
+  const handleSendMessage = async (textToSend: string = input) => {
+    if (!textToSend.trim()) return;
+    
+    setIsLoading(true);
+    setIsListening(false);
+    if (recognitionRef.current) recognitionRef.current.stop();
+    window.speechSynthesis.cancel();
+    setIsSpeaking(false);
+
+    try {
+      const res = await fetch('/api/kairo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: textToSend }),
+      });
+      
+      const data = await res.json();
+      
+      if (data.reply) {
+        setResponse(data.reply);
+        speak(data.reply); 
+      }
+    } catch (error) {
+      console.error(error);
+      setResponse("Jejda, ztratil jsem spojení.");
+    } finally {
+      setIsLoading(false);
+      if (textToSend === input) setInput('');
+    }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[70vh] text-center px-4">
-      <div className="bg-white/5 border border-white/10 rounded-3xl backdrop-blur-xl shadow-lg px-8 py-10 max-w-lg w-full flex flex-col items-center">
-        <KairoAvatar size="lg" state={state} />
-
-        <div className="mt-6 min-h-[3.5rem] max-w-sm">
-          <p className="text-white text-sm leading-relaxed">{kairoSays}</p>
-        </div>
-
-        {heard && (
-          <p className="mt-3 text-xs text-gray-500 italic">Slyšel jsem: „{heard}“</p>
-        )}
-
-        <div className="mt-6 flex items-center gap-3">
-          <button
-            onClick={() => (state === "listening" ? null : startListening())}
-            disabled={!micSupported}
-            className="px-5 py-2.5 rounded-2xl bg-cyan-500/20 border border-cyan-400/30 text-cyan-300 hover:bg-cyan-500/30 transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed text-sm font-medium"
-          >
-            {state === "listening" ? "🎧 Poslouchám…" : "🎙️ Mluvit s Kairem"}
-          </button>
-
-          <button
-            onClick={toggleAuto}
-            className={`px-4 py-2.5 rounded-2xl border text-xs font-medium transition cursor-pointer ${
-              autoActive
-                ? "bg-emerald-500/10 border-emerald-400/30 text-emerald-300 hover:bg-emerald-500/20"
-                : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10"
-            }`}
-          >
-            {autoActive ? "🔁 Automatický režim: zapnutý" : "⏸️ Automatický režim: vypnutý"}
-          </button>
-        </div>
-
-        {!micSupported && (
-          <div className="mt-5 w-full">
-            <p className="text-xs text-amber-400 mb-2">
-              Hlasové ovládání tvůj prohlížeč nepodporuje (nebo jsi nepovolil mikrofon). Zkus
-              Chrome nebo Edge, nebo napiš příkaz ručně:
-            </p>
-            <form onSubmit={submitTyped} className="flex gap-2">
-              <input
-                value={typedCommand}
-                onChange={(e) => setTypedCommand(e.target.value)}
-                placeholder="např. otevři úkoly"
-                className="flex-1 px-3 py-2 rounded-xl bg-black/40 border border-white/10 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-cyan-400/50"
-              />
-              <button
-                type="submit"
-                className="px-4 py-2 rounded-xl bg-cyan-500/20 border border-cyan-400/30 text-cyan-300 hover:bg-cyan-500/30 transition cursor-pointer text-sm"
-              >
-                Odeslat
-              </button>
-            </form>
+    <div className="flex flex-col items-center p-6 bg-white rounded-2xl shadow-xl max-w-2xl mx-auto mt-8 border border-gray-100">
+      
+      <KairoAvatar3D isSpeaking={isSpeaking} />
+      
+      <div className="mt-8 w-full min-h-[120px] p-5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100 shadow-sm relative">
+        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 w-6 h-6 bg-blue-50 rotate-45 border-l border-t border-blue-100"></div>
+        
+        {isLoading ? (
+          <div className="flex items-center space-x-2 text-blue-600 justify-center h-full">
+            <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"></div>
+            <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+            <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
           </div>
+        ) : (
+          <p className="text-gray-800 text-lg leading-relaxed text-center">
+            {response || "Ahoj! Jsem Kairo. Můžeš mi psát, nebo zapnout mikrofon a povídat si se mnou!"}
+          </p>
         )}
+      </div>
 
-        <p className="mt-6 text-[11px] text-gray-500">
-          Zkus říct: „otevři úkoly“, „ukaž kartičky“, „spusť časovač“, „zpět do menu“…
-        </p>
+      <div className="mt-6 flex w-full gap-3 items-center">
+        <button 
+          onClick={toggleTalkMode}
+          className={`p-4 rounded-xl flex-shrink-0 transition-all shadow-md font-bold ${
+            isListening 
+            ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse' 
+            : 'bg-blue-100 hover:bg-blue-200 text-blue-700'
+          }`}
+          title="Talk to Talk mód (Hlasová konverzace)"
+        >
+          {isListening ? '🛑 Poslouchám...' : '🎤 Hlasově'}
+        </button>
+
+        <input 
+          type="text" 
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+          placeholder="Na co se chceš zeptat?..."
+          className="flex-1 p-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all shadow-sm"
+        />
+        <button 
+          onClick={() => handleSendMessage()}
+          disabled={isLoading || !input.trim()}
+          className="px-6 py-4 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors shadow-md"
+        >
+          Odeslat
+        </button>
       </div>
     </div>
   );
-}
+      }
