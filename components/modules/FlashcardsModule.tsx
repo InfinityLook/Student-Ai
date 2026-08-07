@@ -1,237 +1,135 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useStore } from '@/store/useStore';
-import { 
-  BrainCircuit, 
-  Plus, 
-  RotateCw, 
-  CheckCircle2, 
-  XCircle, 
-  Trash2, 
-  ArrowLeft, 
-  FolderPlus, 
-  Folder,
-  Trophy, 
-  Play, 
-  Check, 
-  RefreshCw, 
-  Shuffle, 
-  Search,
-  HelpCircle,
-  CheckCircle
-} from 'lucide-react';
+import { Plus, Search, Layers, RotateCw, Check, X, Sparkles, BookOpen, Trash2 } from 'lucide-react';
 
-export type CardType = 'standard' | 'yesno';
-
-export interface Card {
+export interface Flashcard {
   id: string;
-  type: CardType;
   front: string;
   back: string;
-  correctAnswer?: boolean;
-  starred?: boolean;
-}
-
-export type NewCardInput = Omit<Card, 'id'>;
-
-export interface Group {
-  id: string;
-  name: string;
-  color: string;
 }
 
 export interface Deck {
   id: string;
   title: string;
+  description: string;
   groupId: string;
-  cards: Card[];
+  cards: Flashcard[];
 }
 
-const GROUP_COLORS = [
-  'from-cyan-500 to-blue-600',
-  'from-emerald-500 to-teal-600',
-  'from-purple-500 to-indigo-600',
-  'from-amber-500 to-orange-600',
-  'from-rose-500 to-pink-600'
+export interface Group {
+  id: string;
+  name: string;
+}
+
+const INITIAL_GROUPS: Group[] = [
+  { id: 'all', name: 'Všechny okruhy' },
+  { id: 'matematika', name: 'Matematika' },
+  { id: 'biologie', name: 'Biologie' },
+  { id: 'dejepis', name: 'Dějepis' },
+];
+
+const INITIAL_DECKS: Deck[] = [
+  {
+    id: 'deck-1',
+    title: 'Anatomie - Kosterní soustava',
+    description: 'Základní kosti lidského těla a jejich latinské názvy.',
+    groupId: 'biologie',
+    cards: [
+      { id: 'c1', front: 'Lidská lebka', back: 'Cranium' },
+      { id: 'c2', front: 'Páteř', back: 'Columna vertebralis' },
+      { id: 'c3', front: 'Kostí hrudní', back: 'Sternum' },
+    ],
+  },
+  {
+    id: 'deck-2',
+    title: 'Derivace a Integrály',
+    description: 'Vorce a pravidla pro počítání základních derivací.',
+    groupId: 'matematika',
+    cards: [
+      { id: 'c4', front: 'Derivace x^n', back: 'n * x^(n-1)' },
+      { id: 'c5', front: 'Derivace sin(x)', back: 'cos(x)' },
+      { id: 'c6', front: 'Derivace cos(x)', back: '-sin(x)' },
+    ],
+  },
 ];
 
 export default function FlashcardsModule() {
-  const addNotification = useStore((state) => state.addNotification);
-
-  // Hlavní stavy
-  const [groups, setGroups] = useState<Group[]>([]);
-  const [decks, setDecks] = useState<Deck[]>([]);
-  const [selectedGroupId, setSelectedGroupId] = useState<string>('all');
-  const [activeDeckId, setActiveDeckId] = useState<string | null>(null);
-  
-  // Režimy obrazovky
-  const [mode, setMode] = useState<'overview' | 'study' | 'create-deck' | 'create-group'>('overview');
+  const [decks, setDecks] = useState<Deck[]>(INITIAL_DECKS);
   const [searchTerm, setSearchTerm] = useState('');
-
-  // Stavy studijního režimu
-  const [currentCards, setCurrentCards] = useState<Card[]>([]);
+  const [selectedGroupId, setSelectedGroupId] = useState('all');
+  
+  // Stavy pro učení
+  const [activeDeck, setActiveDeck] = useState<Deck | null>(null);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
-  const [userChoice, setUserChoice] = useState<boolean | null>(null);
-  const [knownCards, setKnownCards] = useState<string[]>([]);
-  const [unknownCards, setUnknownCards] = useState<string[]>([]);
-  const [isFinished, setIsFinished] = useState(false);
 
-  // Stavy pro tvorbu nové skupiny
-  const [newGroupName, setNewGroupName] = useState('');
-  const [newGroupColor, setNewGroupColor] = useState(GROUP_COLORS[0]);
-
-  // Stavy pro tvorbu nové sady
-  const [newDeckTitle, setNewDeckTitle] = useState('');
-  const [newDeckGroupId, setNewDeckGroupId] = useState('');
-  const [newCards, setNewCards] = useState<NewCardInput[]>([
-    { type: 'standard', front: '', back: '' }
+  // Stavy pro tvorbu balíčku
+  const [isCreating, setIsCreating] = useState(false);
+  const [newTitle, setNewTitle] = useState('');
+  const [newDesc, setNewDesc] = useState('');
+  const [newGroupId, setNewGroupId] = useState('biologie');
+  const [newCards, setNewCards] = useState<{ front: string; back: string }[]>([
+    { front: '', back: '' },
   ]);
 
-  const activeDeck = decks.find((d) => d.id === activeDeckId);
-
-  // --- SPRÁVA SKUPIN ---
-  const handleCreateGroup = () => {
-    if (!newGroupName.trim()) {
-      addNotification('Zadej název skupiny', 'error');
-      return;
-    }
-    const createdGroup: Group = {
-      id: Date.now().toString(),
-      name: newGroupName,
-      color: newGroupColor
-    };
-    setGroups((prev) => [...prev, createdGroup]);
-    setNewGroupName('');
-    setMode('overview');
-    addNotification(`Skupina "${createdGroup.name}" byla vytvořena`, 'success');
-  };
-
-  const handleDeleteGroup = (groupId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setGroups((prev) => prev.filter((g) => g.id !== groupId));
-    setDecks((prev) => prev.map((d) => (d.groupId === groupId ? { ...d, groupId: '' } : d)));
-    if (selectedGroupId === groupId) setSelectedGroupId('all');
-    addNotification('Skupina byla smazána', 'info');
-  };
-
-  // --- SPRÁVA SAD A KARTIČEK ---
-  const handleAddCardToNewDeck = (type: CardType) => {
-    setNewCards((prev) => [
-      ...prev,
-      type === 'standard'
-        ? { type: 'standard', front: '', back: '' }
-        : { type: 'yesno', front: '', back: '', correctAnswer: true }
-    ]);
-  };
-
-  const handleSaveDeck = () => {
-    if (!newDeckTitle.trim()) {
-      addNotification('Zadej název sady', 'error');
-      return;
-    }
-
-    const validCards = newCards.filter((c) => c.front.trim() && c.back.trim());
-    if (validCards.length === 0) {
-      addNotification('Přidej alespoň jednu vyplněnou kartičku', 'error');
-      return;
-    }
-
-    const createdDeck: Deck = {
-      id: Date.now().toString(),
-      title: newDeckTitle,
-      groupId: newDeckGroupId,
-      cards: validCards.map((c, idx) => ({
-        ...c,
-        id: `${Date.now()}-${idx}`
-      }))
-    };
-
-    setDecks((prev) => [createdDeck, ...prev]);
-    setNewDeckTitle('');
-    setNewCards([{ type: 'standard', front: '', back: '' }]);
-    setMode('overview');
-    addNotification('Sada kartiček byla vytvořena', 'success');
-  };
-
-  const handleDeleteDeck = (deckId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setDecks((prev) => prev.filter((d) => d.id !== deckId));
-    addNotification('Sada byla smazána', 'info');
-  };
-
-  // --- STUDIJNÍ REŽIM ---
-  const handleStartStudy = (deckId: string) => {
-    const deck = decks.find((d) => d.id === deckId);
-    if (!deck || deck.cards.length === 0) {
-      addNotification('Tato sada neobsahuje žádné kartičky', 'error');
-      return;
-    }
-
-    setActiveDeckId(deckId);
-    setCurrentCards([...deck.cards]);
+  const handleStartStudy = (deck: Deck) => {
+    if (deck.cards.length === 0) return;
+    setActiveDeck(deck);
     setCurrentCardIndex(0);
     setIsFlipped(false);
-    setUserChoice(null);
-    setKnownCards([]);
-    setUnknownCards([]);
-    setIsFinished(false);
-    setMode('study');
-  };
-
-  const handleYesNoChoice = (choice: boolean) => {
-    if (userChoice !== null) return;
-    setUserChoice(choice);
-    const card = currentCards[currentCardIndex];
-    const isCorrect = card.correctAnswer === choice;
-
-    if (isCorrect) {
-      setKnownCards((prev) => [...prev, card.id]);
-    } else {
-      setUnknownCards((prev) => [...prev, card.id]);
-    }
-
-    setTimeout(() => {
-      setIsFlipped(true);
-    }, 200);
-  };
-
-  const handleStandardAnswer = (known: boolean) => {
-    const card = currentCards[currentCardIndex];
-    if (known) {
-      setKnownCards((prev) => [...prev, card.id]);
-    } else {
-      setUnknownCards((prev) => [...prev, card.id]);
-    }
-    handleNextCard();
   };
 
   const handleNextCard = () => {
+    if (!activeDeck) return;
     setIsFlipped(false);
-    setUserChoice(null);
-
-    if (currentCardIndex + 1 < currentCards.length) {
-      setTimeout(() => {
-        setCurrentCardIndex((prev) => prev + 1);
-      }, 200);
+    if (currentCardIndex < activeDeck.cards.length - 1) {
+      setCurrentCardIndex((prev) => prev + 1);
     } else {
-      setIsFinished(true);
-      addNotification('Sada byla dokončena!', 'success');
+      setActiveDeck(null); // Dokončení balíčku
     }
   };
 
-  const handleShuffle = () => {
-    const shuffled = [...currentCards].sort(() => Math.random() - 0.5);
-    setCurrentCards(shuffled);
-    setCurrentCardIndex(0);
-    setIsFlipped(false);
-    setUserChoice(null);
-    addNotification('Kartičky byly zamíchány', 'info');
+  const handleAddCardInput = () => {
+    setNewCards([...newCards, { front: '', back: '' }]);
+  };
+
+  const handleRemoveCardInput = (index: number) => {
+    setNewCards(newCards.filter((_, i) => i !== index));
+  };
+
+  const handleCardInputChange = (index: number, field: 'front' | 'back', value: string) => {
+    const updated = [...newCards];
+    updated[index][field] = value;
+    setNewCards(updated);
+  };
+
+  const handleSaveDeck = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTitle.trim()) return;
+
+    const validCards = newCards
+      .filter((c) => c.front.trim() && c.back.trim())
+      .map((c, i) => ({ id: `card-${Date.now()}-${i}`, front: c.front, back: c.back }));
+
+    const createdDeck: Deck = {
+      id: `deck-${Date.now()}`,
+      title: newTitle,
+      description: newDesc,
+      groupId: newGroupId,
+      cards: validCards,
+    };
+
+    setDecks([createdDeck, ...decks]);
+    setIsCreating(false);
+    setNewTitle('');
+    setNewDesc('');
+    setNewCards([{ front: '', back: '' }]);
   };
 
   const filteredDecks = decks.filter((deck) => {
-    const matchesSearch = deck.title.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = deck.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          deck.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesGroup = selectedGroupId === 'all' || deck.groupId === selectedGroupId;
     return matchesSearch && matchesGroup;
   });
@@ -242,268 +140,240 @@ export default function FlashcardsModule() {
       {/* HLAVIČKA A NÁSTROJE */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
         <div>
-          <h1 className="text-2xl font-extrabold text-white flex items-center gap-2.5">
-            <BrainCircuit className="w-7 h-7 text-cyan-400" />
-            <span>Kartičky & Skupiny</span>
+          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+            <Layers className="w-7 h-7 text-indigo-400" />
+            Kartičky (Flashcards)
           </h1>
-          <p className="text-xs text-slate-400 mt-1">
-            Vytvářej si vlastní skupiny, normální kartičky nebo interaktivní Ano / Ne otázky.
+          <p className="text-slate-400 text-sm mt-1">
+            Procvičujte a upevňujte své znalosti pomocí paměťových kartiček.
           </p>
         </div>
-
-        {mode === 'overview' && (
-          <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
-            <button
-              onClick={() => setMode('create-group')}
-              className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/30 px-3.5 py-2 rounded-2xl text-xs font-semibold transition-all"
-            >
-              <FolderPlus className="w-4 h-4" />
-              <span>Nová skupina</span>
-            </button>
-
-            <button
-              onClick={() => {
-                if (groups.length === 0) {
-                  setNewDeckGroupId('');
-                } else if (!newDeckGroupId) {
-                  setNewDeckGroupId(groups[0].id);
-                }
-                setMode('create-deck');
-              }}
-              className="flex items-center gap-1.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 px-3.5 py-2 rounded-2xl text-xs font-bold transition-all shadow-lg shadow-cyan-500/20"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Vytvořit sadu</span>
-            </button>
-          </div>
-        )}
-
-        {mode !== 'overview' && (
-          <button
-            onClick={() => setMode('overview')}
-            className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-xl text-xs font-semibold transition-all border border-slate-700 self-start sm:self-auto"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Zpět na přehled</span>
-          </button>
-        )}
+        <button
+          onClick={() => setIsCreating(true)}
+          className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2.5 rounded-xl font-medium transition flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20"
+        >
+          <Plus className="w-5 h-5" />
+          Vytvořit balíček
+        </button>
       </div>
 
-      {/* REŽIM 1: PŘEHLED (SKUPINY + SADY) */}
-      {mode === 'overview' && (
-        <div className="space-y-6">
-          
-          {/* SEKCE SKUPIN */}
-          {groups.length > 0 && (
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                  <Folder className="w-4 h-4 text-cyan-400" />
-                  <span>Moje Skupiny</span>
-                </h2>
-              </div>
+      {/* REŽIM UČENÍ */}
+      {activeDeck ? (
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-10 space-y-6 max-w-2xl mx-auto shadow-2xl">
+          <div className="flex justify-between items-center text-sm text-slate-400">
+            <span>{activeDeck.title}</span>
+            <span>
+              Karta {currentCardIndex + 1} z {activeDeck.cards.length}
+            </span>
+          </div>
 
-              <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
-                <button
-                  onClick={() => setSelectedGroupId('all')}
-                  className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all whitespace-nowrap border ${
-                    selectedGroupId === 'all'
-                      ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40 shadow-lg shadow-cyan-500/10'
-                      : 'bg-slate-900 text-slate-400 border-slate-800 hover:bg-slate-850'
-                  }`}
-                >
-                  Všechny sady ({decks.length})
-                </button>
+          <div
+            onClick={() => setIsFlipped(!isFlipped)}
+            className="w-full min-h-[260px] bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 text-center select-none shadow-inner"
+          >
+            <span className="text-xs uppercase tracking-wider font-semibold text-indigo-400 mb-4">
+              {isFlipped ? 'Odpověď / Zadní strana' : 'Otázka / Přední strana'}
+            </span>
+            <p className="text-2xl font-medium text-white leading-relaxed">
+              {isFlipped
+                ? activeDeck.cards[currentCardIndex].back
+                : activeDeck.cards[currentCardIndex].front}
+            </p>
+            <p className="text-xs text-slate-500 mt-6 flex items-center gap-1">
+              <RotateCw className="w-3.5 h-3.5" /> Klikněte pro otočení
+            </p>
+          </div>
 
-                {groups.map((group) => {
-                  const groupDecksCount = decks.filter((d) => d.groupId === group.id).length;
-                  const isSelected = selectedGroupId === group.id;
-                  return (
-                    <div
-                      key={group.id}
-                      onClick={() => setSelectedGroupId(group.id)}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-bold cursor-pointer transition-all border group relative whitespace-nowrap ${
-                        isSelected
-                          ? `bg-gradient-to-r ${group.color} text-white border-transparent shadow-lg`
-                          : 'bg-slate-900 text-slate-300 border-slate-800 hover:border-slate-700'
-                      }`}
-                    >
-                      <span>{group.name}</span>
-                      <span className="opacity-80 font-mono text-[10px] bg-black/20 px-2 py-0.5 rounded-full">
-                        {groupDecksCount}
-                      </span>
-                      
-                      <button
-                        onClick={(e) => handleDeleteGroup(group.id, e)}
-                        className="opacity-0 group-hover:opacity-100 ml-1 text-slate-400 hover:text-red-300 transition-all"
-                        title="Smazat skupinu"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
+          <div className="flex items-center justify-between gap-4 pt-2">
+            <button
+              onClick={() => setActiveDeck(null)}
+              className="px-4 py-2 text-slate-400 hover:text-white transition text-sm"
+            >
+              Ukončit
+            </button>
+            <button
+              onClick={handleNextCard}
+              className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2.5 rounded-xl font-medium transition flex items-center gap-2"
+            >
+              {currentCardIndex < activeDeck.cards.length - 1 ? 'Další karta' : 'Dokončit'}
+            </button>
+          </div>
+        </div>
+      ) : isCreating ? (
+        /* FORMULÁŘ DNO TVORBY BALÍČKU */
+        <form onSubmit={handleSaveDeck} className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6">
+          <div className="flex justify-between items-center border-b border-slate-800 pb-4">
+            <h2 className="text-lg font-bold text-white">Nový balíček kartiček</h2>
+            <button
+              type="button"
+              onClick={() => setIsCreating(false)}
+              className="text-slate-400 hover:text-white p-1"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
 
-          {/* VYHLEDÁVÁNÍ */}
-          {decks.length > 0 && (
-            <div className="relative">
-              <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-slate-400 mb-1">Název balíčku</label>
               <input
                 type="text"
-                placeholder="Hledat v sadách kartiček..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-2xl pl-9 pr-4 py-2.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500/50"
+                value={newTitle}
+                onChange={(e) => setNewTitle(e.target.value)}
+                placeholder="např. Latinská slovíčka"
+                required
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 text-sm"
               />
             </div>
-          )}
-
-          {/* SEZNAM SAD / PRÁZDNÝ STAV */}
-          {decks.length === 0 ? (
-            <div className="bg-slate-950/40 border border-slate-800/80 rounded-3xl p-10 text-center space-y-4">
-              <div className="w-16 h-16 bg-cyan-500/10 text-cyan-400 rounded-2xl flex items-center justify-center mx-auto border border-cyan-500/20 shadow-inner">
-                <BrainCircuit className="w-8 h-8" />
-              </div>
-              <div>
-                <h3 className="text-base font-bold text-white">Zatím nemáš žádné sady ani kartičky</h3>
-                <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
-                  Začni vytvořením své první skupiny nebo přímo vytvoř sadu s klasickými či Ano / Ne kartičkami.
-                </p>
-              </div>
-
-              <div className="flex flex-wrap justify-center gap-3 pt-2">
-                <button
-                  onClick={() => setMode('create-group')}
-                  className="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-cyan-300 px-4 py-2.5 rounded-xl text-xs font-semibold border border-cyan-500/30 transition-all"
-                >
-                  <FolderPlus className="w-4 h-4" />
-                  <span>Vytvořit skupinu</span>
-                </button>
-
-                <button
-                  onClick={() => setMode('create-deck')}
-                  className="inline-flex items-center gap-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-lg shadow-cyan-500/20"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Vytvořit první sadu</span>
-                </button>
-              </div>
-            </div>
-          ) : filteredDecks.length === 0 ? (
-            <div className="text-center py-12 text-xs text-slate-500">
-              V této skupině nebo pro daný dotaz nebyly nalezeny žádné sady.
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredDecks.map((deck) => {
-                const group = groups.find((g) => g.id === deck.groupId);
-                const yesNoCardsCount = deck.cards.filter((c) => c.type === 'yesno').length;
-
-                return (
-                  <div
-                    key={deck.id}
-                    onClick={() => handleStartStudy(deck.id)}
-                    className="bg-slate-900/60 border border-slate-800 hover:border-cyan-500/40 rounded-3xl p-5 cursor-pointer transition-all hover:scale-[1.02] hover:bg-slate-850 group relative flex flex-col justify-between shadow-xl"
-                  >
-                    <div>
-                      <div className="flex justify-between items-start mb-3">
-                        {group ? (
-                          <span className={`text-[10px] font-bold text-white bg-gradient-to-r ${group.color} px-3 py-1 rounded-full shadow-sm`}>
-                            {group.name}
-                          </span>
-                        ) : (
-                          <span className="text-[10px] font-bold text-slate-400 bg-slate-800 px-2.5 py-1 rounded-full border border-slate-700">
-                            Bez skupiny
-                          </span>
-                        )}
-
-                        <button
-                          onClick={(e) => handleDeleteDeck(deck.id, e)}
-                          className="opacity-0 group-hover:opacity-100 p-1 text-slate-500 hover:text-red-400 transition-all"
-                          title="Smazat sadu"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-
-                      <h3 className="font-bold text-white text-base mb-1 group-hover:text-cyan-300 transition-colors">
-                        {deck.title}
-                      </h3>
-
-                      <div className="flex items-center gap-3 text-[11px] text-slate-400 mt-2">
-                        <span>{deck.cards.length} kartiček</span>
-                        {yesNoCardsCount > 0 && (
-                          <span className="text-cyan-400 font-medium">({yesNoCardsCount}× Ano/Ne)</span>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2 text-xs font-semibold text-cyan-400 pt-4 mt-4 border-t border-slate-800/80">
-                      <Play className="w-3.5 h-3.5 fill-current" />
-                      <span>Začít se učit</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* REŽIM 2: STUDIUM */}
-      {mode === 'study' && activeDeck && (
-        <div className="max-w-xl mx-auto space-y-6">
-          
-          <div className="flex items-center justify-between text-xs text-slate-400 bg-slate-950 p-3 rounded-2xl border border-slate-800">
-            <span className="truncate max-w-[180px] font-semibold text-white">{activeDeck.title}</span>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={handleShuffle}
-                className="flex items-center gap-1 text-slate-400 hover:text-cyan-400 transition-colors"
-                title="Zamíchat"
+            <div>
+              <label className="block text-xs font-medium text-slate-400 mb-1">Okruh / Předmět</label>
+              <select
+                value={newGroupId}
+                onChange={(e) => setNewGroupId(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 text-sm"
               >
-                <Shuffle className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Zamíchat</span>
-              </button>
-              <span className="font-mono text-cyan-400 font-bold bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-800">
-                {currentCardIndex + 1} / {currentCards.length}
-              </span>
+                {INITIAL_GROUPS.filter((g) => g.id !== 'all').map((g) => (
+                  <option key={g.id} value={g.id}>
+                    {g.name}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
-          <div className="w-full bg-slate-950 rounded-full h-2 overflow-hidden border border-slate-800">
-            <div 
-              className="bg-gradient-to-r from-cyan-500 to-blue-500 h-full transition-all duration-300"
-              style={{ width: `${((currentCardIndex + (isFinished ? 1 : 0)) / currentCards.length) * 100}%` }}
+          <div>
+            <label className="block text-xs font-medium text-slate-400 mb-1">Popis (volitelné)</label>
+            <input
+              type="text"
+              value={newDesc}
+              onChange={(e) => setNewDesc(e.target.value)}
+              placeholder="Krátký popis obsahu..."
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 text-sm"
             />
           </div>
 
-          {!isFinished && currentCards[currentCardIndex] ? (
-            <div className="space-y-6">
-              {(() => {
-                const card = currentCards[currentCardIndex];
-                const isYesNo = card.type === 'yesno';
-                const isCorrectAnswer = userChoice !== null && userChoice === card.correctAnswer;
+          <div className="space-y-3 pt-2">
+            <label className="block text-xs font-medium text-slate-400">Kartičky</label>
+            {newCards.map((card, idx) => (
+              <div key={idx} className="flex items-center gap-3">
+                <input
+                  type="text"
+                  placeholder="Přední strana (otázka)"
+                  value={card.front}
+                  onChange={(e) => handleCardInputChange(idx, 'front', e.target.value)}
+                  className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-indigo-500 text-sm"
+                />
+                <input
+                  type="text"
+                  placeholder="Zadní strana (odpověď)"
+                  value={card.back}
+                  onChange={(e) => handleCardInputChange(idx, 'back', e.target.value)}
+                  className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-indigo-500 text-sm"
+                />
+                {newCards.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveCardInput(idx)}
+                    className="p-2 text-slate-500 hover:text-red-400 transition"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={handleAddCardInput}
+              className="text-xs text-indigo-400 hover:text-indigo-300 font-medium pt-1 inline-block"
+            >
+              + Přidat další kartičku
+            </button>
+          </div>
 
-                return (
-                  <div className="space-y-6">
-                    <div 
-                      onClick={() => !isYesNo && setIsFlipped(!isFlipped)}
-                      style={{ perspective: '1000px' }}
-                      className="w-full min-h-[300px] cursor-pointer group"
-                    >
-                      <div 
-                        className={`w-full min-h-[300px] relative transition-all duration-500 rounded-3xl p-8 flex flex-col items-center justify-center text-center shadow-2xl border ${
-                          userChoice !== null
-                            ? isCorrectAnswer 
-                              ? 'bg-emerald-950/40 border-emerald-500 shadow-emerald-500/20' 
-                              : 'bg-rose-950/40 border-rose-500 shadow-rose-500/20'
-                            : isFlipped 
-                              ? 'bg-slate-900 border-cyan-500/50 shadow-cyan-500/10' 
-                              : 'bg-slate-950 border-slate-800 hover:border-cyan-500/40'
-                        }`}
-                      >
-                        <div className="absolute top-4 left-4 flex items-center gap-
+          <div className="flex justify-end gap-3 pt-4 border-t border-slate-800">
+            <button
+              type="button"
+              onClick={() => setIsCreating(false)}
+              className="px-4 py-2 text-slate-400 hover:text-white transition text-sm"
+            >
+              Zrušit
+            </button>
+            <button
+              type="submit"
+              className="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2 rounded-xl text-sm font-medium transition"
+            >
+              Uložit balíček
+            </button>
+          </div>
+        </form>
+      ) : (
+        /* SEZNAM BALÍČKŮ A VYHLEDÁVÁNÍ */
+        <>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <Search className="w-4 h-4 absolute left-3.5 top-3.5 text-slate-500" />
+              <input
+                type="text"
+                placeholder="Hledat v balíčcích..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500"
+              />
+            </div>
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              {INITIAL_GROUPS.map((group) => (
+                <button
+                  key={group.id}
+                  onClick={() => setSelectedGroupId(group.id)}
+                  className={`px-3.5 py-2.5 rounded-xl text-xs font-medium whitespace-nowrap transition ${
+                    selectedGroupId === group.id
+                      ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30'
+                      : 'bg-slate-900 text-slate-400 border border-slate-800 hover:text-white'
+                  }`}
+                >
+                  {group.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredDecks.map((deck) => (
+              <div
+                key={deck.id}
+                className="bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-2xl p-5 flex flex-col justify-between transition group shadow-sm hover:shadow-md"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[10px] uppercase font-semibold px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">
+                      {deck.groupId}
+                    </span>
+                    <span className="text-xs text-slate-500">
+                      {deck.cards.length} {deck.cards.length === 1 ? 'karta' : 'kartiček'}
+                    </span>
+                  </div>
+                  <h3 className="text-base font-semibold text-white group-hover:text-indigo-300 transition">
+                    {deck.title}
+                  </h3>
+                  <p className="text-slate-400 text-xs mt-1 line-clamp-2">{deck.description}</p>
+                </div>
+
+                <div className="pt-5 mt-4 border-t border-slate-800/80 flex items-center justify-between">
+                  <button
+                    onClick={() => handleStartStudy(deck)}
+                    disabled={deck.cards.length === 0}
+                    className="w-full bg-slate-800 hover:bg-indigo-600 text-white text-xs font-medium py-2 rounded-xl transition flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <BookOpen className="w-3.5 h-3.5" />
+                    Spustit procvičování
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+              }
+
