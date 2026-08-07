@@ -8,9 +8,10 @@ export type KairoState = 'idle' | 'listening' | 'thinking' | 'speaking' | 'happy
 interface KairoAvatarProps {
   state?: KairoState;
   isSpeaking?: boolean;
+  size?: string; // <-- Tento řádek řeší tu chybu
 }
 
-export default function KairoAvatar({ state, isSpeaking }: KairoAvatarProps) {
+export default function KairoAvatar({ state, isSpeaking, size }: KairoAvatarProps) {
   const speakingState = isSpeaking || state === 'speaking';
   return <KairoAvatar3D isSpeaking={speakingState} />;
 }
