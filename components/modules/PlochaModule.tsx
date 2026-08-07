@@ -29,7 +29,7 @@ export interface ModuleOption {
   icon: React.ElementType;
 }
 
-export className ModuleList {
+export class ModuleList {
   static list: ModuleOption[] = [
     { id: 'profile', label: 'Profil', icon: User },
     { id: 'kairo', label: 'Kairo AI', icon: Bot },
@@ -198,5 +198,5 @@ export default function PlochaModule() {
       )}
     </div>
   );
-                                        }
+      }
                                         
