@@ -18,13 +18,15 @@ import {
   ArrowRight,
   Timer,
   FileText,
-  BrainCircuit
+  BrainCircuit,
+  Layers
 } from 'lucide-react';
 import CalendarModule from './modules/CalendarModule';
 import AiSolverModule from './modules/AiSolverModule';
 import FocusTimerModule from './modules/FocusTimerModule';
 import NotesModule from './modules/NotesModule';
 import AITestModule from './modules/AITestModule';
+import FlashcardsModule from './modules/FlashcardsModule';
 
 export default function DashboardShell() {
   const [activeView, setActiveView] = useState('workspace');
@@ -130,16 +132,33 @@ export default function DashboardShell() {
               {/* AI Test karta */}
               <div 
                 onClick={() => setActiveView('ai-test')}
-                className="group relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-7 hover:border-purple-500/50 transition-all duration-300 hover:scale-[1.01] cursor-pointer flex flex-col justify-between md:col-span-2"
+                className="group relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-7 hover:border-purple-500/50 transition-all duration-300 hover:scale-[1.01] cursor-pointer flex flex-col justify-between"
               >
                 <div className="absolute top-0 right-0 w-40 h-40 bg-purple-500/10 rounded-full blur-3xl group-hover:bg-purple-500/20 transition-all" />
                 <div>
                   <BrainCircuit className="w-9 h-9 text-purple-400 mb-4" />
                   <h3 className="text-xl font-bold text-white mb-1">AI Testy</h3>
-                  <p className="text-sm text-slate-400">Otestuj své znalosti (10, 20 nebo 30 otázek) s procentuálním hodnocením.</p>
+                  <p className="text-sm text-slate-400">Otestuj své znalosti s procentuálním hodnocením.</p>
                 </div>
                 <div className="mt-6 flex items-center gap-2 text-xs font-bold text-purple-400 group-hover:translate-x-1 transition-transform">
                   <span>Spustit test</span>
+                  <ArrowRight className="w-4 h-4" />
+                </div>
+              </div>
+
+              {/* Flashcards karta - NOVÁ */}
+              <div 
+                onClick={() => setActiveView('flashcards')}
+                className="group relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-7 hover:border-amber-500/50 transition-all duration-300 hover:scale-[1.01] cursor-pointer flex flex-col justify-between"
+              >
+                <div className="absolute top-0 right-0 w-40 h-40 bg-amber-500/10 rounded-full blur-3xl group-hover:bg-amber-500/20 transition-all" />
+                <div>
+                  <Layers className="w-9 h-9 text-amber-400 mb-4" />
+                  <h3 className="text-xl font-bold text-white mb-1">Kartičky (Flashcards)</h3>
+                  <p className="text-sm text-slate-400">Rychlé opakovací balíčky pro efektivní učení.</p>
+                </div>
+                <div className="mt-6 flex items-center gap-2 text-xs font-bold text-amber-400 group-hover:translate-x-1 transition-transform">
+                  <span>Otevřít kartičky</span>
                   <ArrowRight className="w-4 h-4" />
                 </div>
               </div>
@@ -157,6 +176,8 @@ export default function DashboardShell() {
         return <NotesModule onBack={() => setActiveView('workspace')} />;
       case 'ai-test':
         return <AITestModule onBack={() => setActiveView('workspace')} />;
+      case 'flashcards':
+        return <FlashcardsModule onBack={() => setActiveView('workspace')} />;
       case 'pet':
         return (
           <div className="rounded-[32px] bg-gradient-to-b from-purple-900/20 to-black/40 border border-purple-500/20 p-8 max-w-xl mx-auto text-center space-y-6 backdrop-blur-xl">
@@ -305,7 +326,7 @@ export default function DashboardShell() {
       <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1.5 p-2 rounded-[28px] bg-black/60 backdrop-blur-2xl border border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.8)]">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = activeView === item.id || (['calendar', 'ai-solver', 'focus-timer', 'notes', 'ai-test'].includes(activeView) && item.id === 'workspace');
+          const isActive = activeView === item.id || (['calendar', 'ai-solver', 'focus-timer', 'notes', 'ai-test', 'flashcards'].includes(activeView) && item.id === 'workspace');
           return (
             <button
               key={item.id}
@@ -325,4 +346,5 @@ export default function DashboardShell() {
 
     </div>
   );
-}
+              }
+        
