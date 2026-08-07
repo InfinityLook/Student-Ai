@@ -10,17 +10,15 @@ import {
   LayoutGrid, 
   Zap, 
   Heart, 
-  Settings,
-  Trophy,     // Nová ikona
-  Database    // Nová ikona
+  Settings, 
+  Trophy, 
+  Database 
 } from 'lucide-react';
-import CalendarModule from './modules/CalendarModule';
 
 export default function DashboardShell() {
   const [activeView, setActiveView] = useState('workspace');
   const [userCredits] = useState(250);
 
-  // Aktualizované menu
   const navItems = [
     { id: 'workspace', label: 'Workspace', icon: LayoutGrid },
     { id: 'pet', label: 'Mazlíček', icon: Heart },
@@ -31,97 +29,169 @@ export default function DashboardShell() {
     { id: 'settings', label: 'Nastavení', icon: Settings },
   ];
 
+  // Pomocná komponenta pro brutální kartu
+  const BrutalistCard = ({ children, className = "" }: { children: React.ReactNode, className?: string }) => (
+    <div className={`bg-white border-2 border-black p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] ${className}`}>
+      {children}
+    </div>
+  );
+
   return (
-    <div className="min-h-screen bg-[#020202] text-white font-sans overflow-x-hidden selection:bg-indigo-500/30">
-      <style jsx global>{`
-        @keyframes blob {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          33% { transform: translate(30px, -50px) scale(1.1); }
-          66% { transform: translate(-20px, 20px) scale(0.9); }
-        }
-        .animate-blob { animation: blob 10s infinite; }
-        .animation-delay-2000 { animation-delay: 2s; }
-      `}</style>
-
-      {/* Animované pozadí */}
-      <div className="fixed inset-0 z-0 opacity-40 pointer-events-none">
-        <div className="absolute top-0 -left-4 w-96 h-96 bg-indigo-600 rounded-full mix-blend-screen filter blur-[128px] animate-blob"></div>
-        <div className="absolute top-0 -right-4 w-96 h-96 bg-violet-600 rounded-full mix-blend-screen filter blur-[128px] animate-blob animation-delay-2000"></div>
-      </div>
-
+    <div className="min-h-screen bg-[#FDFBF7] text-black font-sans selection:bg-yellow-300 pb-36">
+      
       {/* Top Bar */}
-      <header className="fixed top-0 w-full z-40 px-6 py-4 flex justify-between items-center bg-gradient-to-b from-[#020202] to-transparent backdrop-blur-sm">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center font-bold text-sm shadow-[0_0_15px_rgba(79,70,229,0.5)]">S</div>
-          <span className="font-bold tracking-wider text-sm">STUDENT AI</span>
+      <header className="border-b-2 border-black px-6 py-4 flex justify-between items-center bg-white sticky top-0 z-40">
+        <div className="font-black text-xl tracking-tight flex items-center gap-2">
+          <span className="bg-black text-white px-2 py-0.5 text-xs">AI</span>
+          STUDENT<span className="text-indigo-600">.</span>
         </div>
-        <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-all hover:bg-white/10">
-          <Zap className="w-3.5 h-3.5 text-indigo-400" />
+        <div 
+          onClick={() => setActiveView('store')}
+          className="border-2 border-black px-4 py-1.5 font-bold text-xs bg-yellow-300 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center gap-1.5 cursor-pointer active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all"
+        >
+          <Zap className="w-3.5 h-3.5 fill-black" />
           <span>{userCredits} Kreditů</span>
         </div>
       </header>
 
-      {/* Hlavní obsah */}
-      <main className="relative z-10 pt-24 pb-36 px-4 md:px-8 max-w-5xl mx-auto min-h-[80vh]">
+      {/* Main Content */}
+      <main className="p-6 md:p-10 max-w-5xl mx-auto space-y-6">
         
-        {/* Renderování obsahu podle aktivního view */}
         {activeView === 'workspace' && (
-          <div className="space-y-8">
-            <h1 className="text-3xl font-black tracking-tight">Studijní Workspace</h1>
+          <div className="space-y-6">
+            <div>
+              <h1 className="text-4xl font-black tracking-tight mb-2">Studijní Workspace</h1>
+              <p className="text-sm font-medium text-slate-600">Vše pro úspěšné zvládnutí studia na jednom místě.</p>
+            </div>
+            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Zde by byl Váš grid */}
-              <div className="p-8 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md">
-                 <h2 className="font-bold mb-2">Kalendář</h2>
-                 <p className="text-slate-400 text-sm">Naplánované úkoly.</p>
+              <div className="bg-indigo-500 text-white border-2 border-black p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between">
+                <div>
+                  <CalendarDays className="w-8 h-8 mb-4" />
+                  <h2 className="text-2xl font-black mb-1">Kalendář & Úkoly</h2>
+                  <p className="text-sm opacity-90">Sledujte nadcházející termíny zkoušek.</p>
+                </div>
+                <button 
+                  onClick={() => setActiveView('workspace')} 
+                  className="mt-6 bg-white text-black font-bold px-4 py-2 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all w-fit text-xs cursor-pointer"
+                >
+                  Otevřít kalendář
+                </button>
+              </div>
+
+              <div className="bg-emerald-400 text-black border-2 border-black p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between">
+                <div>
+                  <Calculator className="w-8 h-8 mb-4" />
+                  <h2 className="text-2xl font-black mb-1">AI Řešitel</h2>
+                  <p className="text-sm opacity-90">Okamžitý výpočet složitých příkladů.</p>
+                </div>
+                <button className="mt-6 bg-black text-white font-bold px-4 py-2 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all w-fit text-xs cursor-pointer">
+                  Spustit řešitel
+                </button>
               </div>
             </div>
           </div>
         )}
 
-        {/* --- NOVÉ SEKCE --- */}
+        {activeView === 'pet' && (
+          <BrutalistCard className="max-w-xl mx-auto text-center space-y-6">
+            <div className="w-20 h-20 mx-auto bg-pink-400 border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center animate-bounce">
+              <Heart className="w-10 h-10 fill-current text-white" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-black">Studijní Mazlíček</h2>
+              <p className="text-xs font-semibold text-slate-600 mt-1">Úroveň 3 • Roste s každým splněným úkolem</p>
+            </div>
+            <div className="border-2 border-black p-4 bg-slate-50 space-y-2 text-left">
+              <div className="flex justify-between text-xs font-bold">
+                <span>XP Progress</span>
+                <span>75 / 100 XP</span>
+              </div>
+              <div className="w-full bg-white border-2 border-black h-4 overflow-hidden">
+                <div className="bg-pink-400 h-full w-[75%]" />
+              </div>
+            </div>
+          </BrutalistCard>
+        )}
 
         {activeView === 'rewards' && (
-          <div className="bg-white/5 border border-white/10 rounded-3xl p-8 backdrop-blur-md max-w-2xl mx-auto text-center space-y-6">
-            <Trophy className="w-16 h-16 text-yellow-400 mx-auto" />
-            <h2 className="text-2xl font-bold">Tvé Odměny</h2>
-            <p className="text-slate-400">Zde uvidíš získané badge a odměny za studium.</p>
-            <div className="grid grid-cols-3 gap-4 mt-8">
-                {[1,2,3].map(i => (
-                    <div key={i} className="aspect-square rounded-2xl bg-white/5 flex items-center justify-center border border-white/5">
-                        <span className="text-2xl">🏆</span>
-                    </div>
-                ))}
+          <BrutalistCard className="max-w-xl mx-auto space-y-6 text-center">
+            <Trophy className="w-12 h-12 text-yellow-500 mx-auto" />
+            <h2 className="text-2xl font-black">Tvé Odměny</h2>
+            <div className="grid grid-cols-3 gap-4">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="aspect-square border-2 border-black bg-yellow-100 flex items-center justify-center text-3xl shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                  🏆
+                </div>
+              ))}
             </div>
-          </div>
+          </BrutalistCard>
+        )}
+
+        {activeView === 'profile' && (
+          <BrutalistCard className="max-w-xl mx-auto space-y-4">
+            <h2 className="text-2xl font-black">Můj Profil</h2>
+            <div className="flex items-center gap-4 border-2 border-black p-4 bg-yellow-50">
+              <div className="w-12 h-12 bg-black text-white font-bold flex items-center justify-center">ST</div>
+              <div>
+                <h3 className="font-bold">Aktivní Student</h3>
+                <p className="text-xs text-slate-600">student@skola.cz</p>
+              </div>
+            </div>
+          </BrutalistCard>
+        )}
+
+        {activeView === 'store' && (
+          <BrutalistCard className="max-w-xl mx-auto space-y-6 text-center bg-indigo-50">
+            <h2 className="text-2xl font-black">Obchod s kredity</h2>
+            <p className="text-xs font-medium text-slate-600">Získejte neomezené možnosti s AI kredity.</p>
+            <div className="border-2 border-black p-6 bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] space-y-4">
+              <h3 className="font-black text-lg">Student Pro Pack</h3>
+              <p className="text-3xl font-black text-indigo-600">500 kreditů</p>
+              <button className="w-full py-3 bg-black text-white font-bold border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all text-xs cursor-pointer">
+                Zakoupit za 199 Kč
+              </button>
+            </div>
+          </BrutalistCard>
         )}
 
         {activeView === 'storage' && (
-          <div className="bg-white/5 border border-white/10 rounded-3xl p-8 backdrop-blur-md max-w-2xl mx-auto space-y-6">
-            <h2 className="text-2xl font-bold flex items-center gap-3">
-                <Database className="text-blue-400" /> Úložiště souborů
+          <BrutalistCard className="max-w-xl mx-auto space-y-6">
+            <h2 className="text-2xl font-black flex items-center gap-3">
+              <Database className="text-blue-600" /> Úložiště souborů
             </h2>
-            <div className="bg-black/40 rounded-2xl p-6 border border-white/5">
-                <div className="flex justify-between mb-2 text-sm">
-                    <span>Využití cloudu</span>
-                    <span>1.2 GB / 5 GB</span>
-                </div>
-                <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden">
-                    <div className="bg-blue-500 h-full w-[24%]" />
-                </div>
+            <div className="border-2 border-black p-4 bg-slate-50 space-y-2">
+              <div className="flex justify-between text-xs font-bold">
+                <span>Využití cloudu</span>
+                <span>1.2 GB / 5 GB</span>
+              </div>
+              <div className="w-full bg-white border-2 border-black h-4 overflow-hidden">
+                <div className="bg-blue-500 h-full w-[24%]" />
+              </div>
             </div>
-          </div>
+          </BrutalistCard>
         )}
 
-        {/* (Ostatní moduly jako pet, profile, store, settings zůstávají stejné jako předtím) */}
-        {activeView === 'pet' && <div className="text-center">Sekce Mazlíček...</div>}
-        {activeView === 'profile' && <div className="text-center">Sekce Profil...</div>}
-        {activeView === 'store' && <div className="text-center">Sekce Obchod...</div>}
-        {activeView === 'settings' && <div className="text-center">Sekce Nastavení...</div>}
+        {activeView === 'settings' && (
+          <BrutalistCard className="max-w-xl mx-auto space-y-4">
+            <h2 className="text-2xl font-black">Nastavení</h2>
+            <div className="space-y-3 text-xs font-bold">
+              <div className="flex justify-between items-center border-2 border-black p-4 bg-slate-50">
+                <span>Vzhled systému</span>
+                <span className="bg-yellow-300 border border-black px-2 py-1">Neo-Brutalism</span>
+              </div>
+              <div className="flex justify-between items-center border-2 border-black p-4 bg-slate-50">
+                <span>Notifikace</span>
+                <span className="bg-emerald-300 border border-black px-2 py-1">Aktivní</span>
+              </div>
+            </div>
+          </BrutalistCard>
+        )}
 
       </main>
 
-      {/* PLOVOUCÍ SPODNÍ DOCK */}
-      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1 p-2 rounded-3xl bg-black/60 backdrop-blur-2xl border border-white/10 shadow-[0_0_40px_rgba(0,0,0,0.6)]">
+      {/* Floating Dock */}
+      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 border-2 border-black bg-white p-2 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex gap-2">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeView === item.id;
@@ -129,8 +199,10 @@ export default function DashboardShell() {
             <button
               key={item.id}
               onClick={() => setActiveView(item.id)}
-              className={`relative flex items-center justify-center p-3 rounded-2xl transition-all duration-300 ease-out ${
-                isActive ? 'bg-white text-black shadow-lg scale-105' : 'text-slate-400 hover:text-white hover:bg-white/10'
+              className={`p-3 border-2 border-black transition-all cursor-pointer ${
+                isActive 
+                  ? 'bg-black text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] translate-x-[1px] translate-y-[1px]' 
+                  : 'bg-white text-black hover:bg-slate-100'
               }`}
               title={item.label}
             >
@@ -139,6 +211,7 @@ export default function DashboardShell() {
           );
         })}
       </nav>
+
     </div>
   );
-}
+            }
