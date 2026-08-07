@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { NotificationProvider } from '@/components/NotificationSystem';
 
 export const metadata: Metadata = {
   title: 'Student AI',
@@ -14,8 +15,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="cs">
-      <body className="bg-slate-900 text-white min-h-screen antialiased">
-        {children}
+      <body className="bg-[#07090E] text-white min-h-screen antialiased">
+        <NotificationProvider>
+          {children}
+        </NotificationProvider>
       </body>
     </html>
   );
