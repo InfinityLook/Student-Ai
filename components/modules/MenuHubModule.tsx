@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useStore, ActiveTab } from '@/store/useStore';
+import { useStore } from '@/store/useStore';
 import { 
   Bot, 
   FileText, 
@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 
 interface ModuleCard {
-  id: ActiveTab;
+  id: string;
   title: string;
   description: string;
   icon: React.ElementType;
@@ -37,7 +37,7 @@ const modules: ModuleCard[] = [
 ];
 
 export default function MenuHubModule() {
-  const setActiveTab = useStore((state) => state.setActiveTab);
+  const setActiveModule = useStore((state) => state.setActiveModule);
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
@@ -52,7 +52,7 @@ export default function MenuHubModule() {
           return (
             <button
               key={mod.id}
-              onClick={() => setActiveTab(mod.id)}
+              onClick={() => setActiveModule(mod.id)}
               className="group relative overflow-hidden rounded-2xl bg-slate-800/60 p-6 text-left border border-slate-700/50 hover:border-slate-500/50 transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
               <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${mod.color} shadow-lg mb-4 text-white`}>
