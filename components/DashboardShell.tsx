@@ -1,232 +1,268 @@
 'use client';
 
-import React, { useEffect } from 'react';
-import { useStore } from '@/store/useStore';
-import MenuHubModule from '@/components/modules/MenuHubModule';
-import PlochaModule from '@/components/modules/PlochaModule';
-import KairoModule from '@/components/modules/KairoModule';
-import PetModule from '@/components/modules/PetModule';
-import SettingsModule from '@/components/modules/SettingsModule';
-import NotesModule from '@/components/modules/NotesModule';
-import FlashcardsModule from '@/components/modules/FlashcardsModule';
-import FocusTimerModule from '@/components/modules/FocusTimerModule';
-import AISolver from '@/components/modules/AISolver';
-import TaskPlannerModule from '@/components/modules/TaskPlannerModule';
-import ProfileModule from '@/components/modules/ProfileModule';
-import ShopModule from '@/components/modules/ShopModule';
-import FileSystemModule from '@/components/modules/FileSystemModule';
-import DocumentEditorModule from '@/components/DocumentEditorModule';
-import NotificationSystem from '@/components/NotificationSystem';
-
+import React, { useState } from 'react';
 import { 
-  LayoutGrid, 
-  Bot, 
-  Grid3X3,
-  Dog,
-  Coins,
-  User,
-  Sparkles,
-  BrainCircuit,
-  FileText,
-  Edit3,
-  Calendar,
-  Timer,
-  Folder,
-  ShoppingBag,
-  Settings
+  Layers, 
+  Calculator, 
+  CalendarDays, 
+  ShoppingBag, 
+  User, 
+  Menu, 
+  X, 
+  Sparkles, 
+  Zap, 
+  Crown,
+  Bell,
+  Search
 } from 'lucide-react';
 
-const sidebarItems = [
-  { id: 'home', label: 'Hub', icon: LayoutGrid },
-  { id: 'plocha', label: 'Plocha', icon: Grid3X3 },
-  { id: 'pets', label: 'Mazlíček', icon: Dog },
-  { id: 'shop', label: 'Obchod', icon: ShoppingBag },
-  { id: 'kairo', label: 'Kairo AI', icon: Bot },
-  { id: 'solver', label: 'AI Řešitel', icon: Sparkles },
-  { id: 'flashcards', label: 'Kartičky', icon: BrainCircuit },
-  { id: 'notes', label: 'Poznámky', icon: FileText },
-  { id: 'editor', label: 'Editor', icon: Edit3 },
-  { id: 'planner', label: 'Plánovač', icon: Calendar },
-  { id: 'timer', label: 'Časovač', icon: Timer },
-  { id: 'files', label: 'Soubory', icon: Folder },
-  { id: 'profile', label: 'Profil', icon: User },
-  { id: 'settings', label: 'Nastavení', icon: Settings },
-];
+import FlashcardsModule from './modules/FlashcardsModule';
+import SolverModule from './modules/SolverModule';
+import CalendarModule from './modules/CalendarModule';
+import StoreModule from './modules/StoreModule';
+import VoiceControl from './VoiceControl';
 
-export default function DashboardShell() {
-  const activeModule = useStore((state) => state.activeModule);
-  const setActiveModule = useStore((state) => state.setActiveModule);
-  const credits = useStore((state) => state.credits);
-  const checkTaskReminders = useStore((state) => state.checkTaskReminders);
-
-  useEffect(() => {
-    checkTaskReminders();
-  }, [checkTaskReminders]);
-
-  const renderModule = () => {
-    switch (activeModule) {
-      case 'home': return <MenuHubModule />;
-      case 'plocha': return <PlochaModule />;
-      case 'pets': return <PetModule />;
-      case 'kairo': return <KairoModule />;
-      case 'notes': return <NotesModule />;
-      case 'flashcards': return <FlashcardsModule />;
-      case 'timer': return <FocusTimerModule />;
-      case 'solver': return <AISolver />;
-      case 'planner': return <TaskPlannerModule />;
-      case 'profile': return <ProfileModule />;
-      case 'shop': return <ShopModule />;
-      case 'files': return <FileSystemModule />;
-      case 'editor': return <DocumentEditorModule />;
-      case 'settings': return <SettingsModule />;
-      default: return <MenuHubModule />;
-    }
-  };
-
+// Náhradní jednoduchý modul profilu pro kompletnost
+function ProfileModule() {
   return (
-    <div className="flex h-screen bg-slate-900 text-slate-100 overflow-hidden relative">
-      <NotificationSystem />
+    <div className="p-4 md:p-8 max-w-4xl mx-auto space-y-6 text-slate-100">
+      <div className="border-b border-slate-800 pb-5">
+        <h1 className="text-2xl font-extrabold text-white flex items-center gap-2.5">
+          <User className="w-7 h-7 text-indigo-400" />
+          <span>Můj Profil</span>
+        </h1>
+        <p className="text-xs text-slate-400 mt-1">Správa vašeho účtu, nastavení a AI předvoleb.</p>
+      </div>
 
-      {/* Desktopové boční menu */}
-      <aside className="hidden md:flex flex-col w-64 bg-slate-950 border-r border-slate-800/80">
-        <div className="p-4 border-b border-slate-800/80 flex items-center justify-between">
-          <button 
-            onClick={() => setActiveModule('home')}
-            className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent"
-          >
-            Student AI
-          </button>
-          <div className="flex items-center gap-1.5 bg-amber-500/10 text-amber-400 px-3 py-1 rounded-full text-xs font-semibold border border-amber-500/20">
-            <Coins className="w-3.5 h-3.5" />
-            <span>{credits}</span>
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-4">
+        <div className="flex items-center gap-4">
+          <div className="w-16 h-16 rounded-2xl bg-indigo-600 flex items-center justify-center text-xl font-bold text-white shadow-lg">
+            ST
+          </div>
+          <div>
+            <h3 className="text-base font-bold text-white">Student AI Uživatel</h3>
+            <p className="text-xs text-slate-400">student@skola.cz</p>
+            <span className="inline-block mt-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+              Free Plan
+            </span>
           </div>
         </div>
-
-        <nav className="flex-1 overflow-y-auto p-3 space-y-1">
-          {sidebarItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeModule === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => setActiveModule(item.id)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                  isActive 
-                    ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-semibold' 
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
-                }`}
-              >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-cyan-400' : ''}`} />
-                <span>{item.label}</span>
-              </button>
-            );
-          })}
-        </nav>
-      </aside>
-
-      {/* Hlavní aplikace */}
-      <div className="flex-1 flex flex-col h-full overflow-hidden">
-        {/* Mobilní hlavička */}
-        <header className="md:hidden flex items-center justify-between px-4 py-3 bg-slate-950/90 backdrop-blur-md border-b border-slate-800/80 z-40">
-          <button 
-            onClick={() => setActiveModule('home')}
-            className="font-bold text-lg bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent"
-          >
-            Student AI
-          </button>
-          <div className="flex items-center gap-1.5 bg-amber-500/10 text-amber-400 px-2.5 py-1 rounded-full text-xs font-semibold border border-amber-500/20">
-            <Coins className="w-3.5 h-3.5" />
-            <span>{credits}</span>
-          </div>
-        </header>
-
-        {/* Zobrazený modul */}
-        <main className="flex-1 overflow-y-auto bg-slate-900 pb-20 md:pb-0">
-          {renderModule()}
-        </main>
-
-        {/* SPODNÍ MENU (HUB, MAZLÍČEK, OBCHOD | PLOCHA UPROSTŘED | KAIRO, PROFIL, NASTAVENÍ) */}
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 backdrop-blur-xl bg-slate-950/95 border-t border-slate-800/80 px-2 py-2 flex justify-between items-center overflow-x-auto">
-          {/* Hub */}
-          <button
-            onClick={() => setActiveModule('home')}
-            className={`flex flex-col items-center justify-center py-1 px-1.5 transition-all min-w-[48px] ${
-              activeModule === 'home' ? 'text-cyan-400 font-semibold scale-105' : 'text-slate-400'
-            }`}
-          >
-            <LayoutGrid className="w-4 h-4" />
-            <span className="text-[9px] mt-0.5">Hub</span>
-          </button>
-
-          {/* Mazlíček */}
-          <button
-            onClick={() => setActiveModule('pets')}
-            className={`flex flex-col items-center justify-center py-1 px-1.5 transition-all min-w-[48px] ${
-              activeModule === 'pets' ? 'text-pink-400 font-semibold scale-105' : 'text-slate-400'
-            }`}
-          >
-            <Dog className="w-4 h-4" />
-            <span className="text-[9px] mt-0.5">Mazlíček</span>
-          </button>
-
-          {/* Obchod */}
-          <button
-            onClick={() => setActiveModule('shop')}
-            className={`flex flex-col items-center justify-center py-1 px-1.5 transition-all min-w-[48px] ${
-              activeModule === 'shop' ? 'text-yellow-400 font-semibold scale-105' : 'text-slate-400'
-            }`}
-          >
-            <ShoppingBag className="w-4 h-4" />
-            <span className="text-[9px] mt-0.5">Obchod</span>
-          </button>
-
-          {/* PLOCHA (Uprostřed) */}
-          <button
-            onClick={() => setActiveModule('plocha')}
-            className={`flex flex-col items-center justify-center p-2 -mt-3 rounded-2xl shadow-lg transition-all border shrink-0 ${
-              activeModule === 'plocha'
-                ? 'bg-gradient-to-tr from-cyan-500 to-blue-600 text-white border-cyan-300 shadow-cyan-500/30 scale-105'
-                : 'bg-slate-800/90 text-cyan-400 border-slate-700/80 hover:bg-slate-800'
-            }`}
-          >
-            <Grid3X3 className="w-5 h-5 stroke-[2.2]" />
-            <span className="text-[9px] font-bold mt-0.5">Plocha</span>
-          </button>
-
-          {/* Kairo AI */}
-          <button
-            onClick={() => setActiveModule('kairo')}
-            className={`flex flex-col items-center justify-center py-1 px-1.5 transition-all min-w-[48px] ${
-              activeModule === 'kairo' ? 'text-cyan-400 font-semibold scale-105' : 'text-slate-400'
-            }`}
-          >
-            <Bot className="w-4 h-4" />
-            <span className="text-[9px] mt-0.5">Kairo</span>
-          </button>
-
-          {/* Profil */}
-          <button
-            onClick={() => setActiveModule('profile')}
-            className={`flex flex-col items-center justify-center py-1 px-1.5 transition-all min-w-[48px] ${
-              activeModule === 'profile' ? 'text-cyan-400 font-semibold scale-105' : 'text-slate-400'
-            }`}
-          >
-            <User className="w-4 h-4" />
-            <span className="text-[9px] mt-0.5">Profil</span>
-          </button>
-
-          {/* Nastavení */}
-          <button
-            onClick={() => setActiveModule('settings')}
-            className={`flex flex-col items-center justify-center py-1 px-1.5 transition-all min-w-[48px] ${
-              activeModule === 'settings' ? 'text-teal-400 font-semibold scale-105' : 'text-slate-400'
-            }`}
-          >
-            <Settings className="w-4 h-4" />
-            <span className="text-[9px] mt-0.5">Nastavení</span>
-          </button>
-        </nav>
       </div>
     </div>
   );
 }
+
+// Náhradní modul kartiček (pokud ještě nemáš vlastní v samostatném souboru)
+function PlaceholderFlashcards() {
+  return (
+    <div className="p-4 md:p-8 max-w-4xl mx-auto space-y-6 text-slate-100">
+      <div className="border-b border-slate-800 pb-5">
+        <h1 className="text-2xl font-extrabold text-white flex items-center gap-2.5">
+          <Layers className="w-7 h-7 text-indigo-400" />
+          <span>Kartičky & Procvičování</span>
+        </h1>
+        <p className="text-xs text-slate-400 mt-1">Interaktivní studijní sady a generování AI kartiček.</p>
+      </div>
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-12 text-center text-slate-400 text-xs">
+        Sekce kartiček je připravena k používání.
+      </div>
+    </div>
+  );
+}
+
+export default function DashboardShell() {
+  const [activeView, setActiveView] = useState('calendar');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userCredits] = useState(250);
+
+  const navSections = [
+    {
+      title: 'Učení & AI',
+      items: [
+        { id: 'flashcards', label: 'Kartičky', icon: Layers },
+        { id: 'solver', label: 'AI Řešitel úloh', icon: Calculator },
+      ]
+    },
+    {
+      title: 'Organizování',
+      items: [
+        { id: 'calendar', label: 'Kalendář zkoušek & akcí', icon: CalendarDays }
+      ]
+    },
+    {
+      title: 'Účet & Systém',
+      items: [
+        { id: 'store', label: 'Obchod & Předplatné', icon: ShoppingBag },
+        { id: 'profile', label: 'Můj profil', icon: User }
+      ]
+    }
+  ];
+
+  return (
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col md:flex-row antialiased selection:bg-indigo-500 selection:text-white">
+      
+      {/* DESKTOPOVÝ SIDEBAR */}
+      <aside className="w-64 bg-slate-900/80 backdrop-blur-xl border-r border-slate-800/80 p-5 flex flex-col justify-between hidden md:flex flex-shrink-0">
+        <div className="space-y-8">
+          
+          {/* Logo */}
+          <div className="flex items-center gap-3 px-2">
+            <div className="w-9 h-9 rounded-2xl bg-indigo-600 flex items-center justify-center font-black text-white text-lg shadow-lg shadow-indigo-600/30 border border-indigo-400/30">
+              S
+            </div>
+            <div>
+              <span className="font-extrabold text-base text-white tracking-tight block">Student AI</span>
+              <span className="text-[10px] text-slate-500 font-medium block -mt-1">Studijní asistent</span>
+            </div>
+          </div>
+
+          {/* Navigační menu */}
+          <nav className="space-y-6">
+            {navSections.map((sec, idx) => (
+              <div key={idx} className="space-y-2">
+                <div className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 px-2">
+                  {sec.title}
+                </div>
+                <div className="space-y-1">
+                  {sec.items.map((item) => {
+                    const Icon = item.icon;
+                    const isActive = activeView === item.id;
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => setActiveView(item.id)}
+                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-xs font-semibold transition-all duration-150 ${
+                          isActive
+                            ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/25 border border-indigo-400/20'
+                            : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                        }`}
+                      >
+                        <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                        <span>{item.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </nav>
+        </div>
+
+        {/* Spodní widget kreditů */}
+        <div className="bg-slate-950 border border-slate-800/80 p-3.5 rounded-2xl space-y-2">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-slate-400 font-medium">Zůstatek kreditů</span>
+            <span className="font-extrabold text-indigo-400 flex items-center gap-1">
+              <Zap className="w-3.5 h-3.5" />
+              {userCredits}
+            </span>
+          </div>
+          <button
+            onClick={() => setActiveView('store')}
+            className="w-full py-2 bg-indigo-600/10 hover:bg-indigo-600/20 border border-indigo-500/20 text-indigo-300 rounded-xl text-[11px] font-bold transition text-center block"
+          >
+            Dobít kredity
+          </button>
+        </div>
+      </aside>
+
+      {/* MOBILNÍ NAVIGACE (HLAVIČKA & DRAWER) */}
+      <div className="md:hidden bg-slate-900 border-b border-slate-800 p-4 flex items-center justify-between sticky top-0 z-40">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center font-bold text-white text-sm">
+            S
+          </div>
+          <span className="font-bold text-sm text-white">Student AI</span>
+        </div>
+
+        <button
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="p-2 text-slate-400 hover:text-white bg-slate-950 border border-slate-800 rounded-xl"
+        >
+          {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        </button>
+      </div>
+
+      {/* Mobilní menu vysouvací vrstva */}
+      {mobileMenuOpen && (
+        <div className="md:hidden fixed inset-0 bg-slate-950/95 backdrop-blur-md z-30 pt-20 p-6 space-y-6 overflow-y-auto">
+          {navSections.map((sec, idx) => (
+            <div key={idx} className="space-y-2">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 px-2">
+                {sec.title}
+              </div>
+              <div className="space-y-1">
+                {sec.items.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => {
+                        setActiveView(item.id);
+                        setMobileMenuOpen(false);
+                      }}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-semibold transition ${
+                        activeView === item.id
+                          ? 'bg-indigo-600 text-white'
+                          : 'text-slate-400 bg-slate-900 border border-slate-800/80'
+                      }`}
+                    >
+                      <Icon className="w-4 h-4" />
+                      <span>{item.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* HLAVNÍ OBSAHOVÁ ČÁST */}
+      <div className="flex-1 flex flex-col min-w-0">
+        
+        {/* HORNÍ LIŠTA OBSAHU (TOPBAR) */}
+        <header className="h-16 border-b border-slate-800/80 px-4 md:px-8 flex items-center justify-between gap-4 bg-slate-950/50 backdrop-blur-sm sticky top-0 z-20">
+          <div className="relative max-w-md w-full hidden sm:block">
+            <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              placeholder="Vyhledat v učivu, kartičkách nebo událostech..."
+              className="w-full bg-slate-900 border border-slate-800/80 rounded-2xl pl-10 pr-4 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition"
+            />
+          </div>
+
+          <div className="flex items-center gap-3 ml-auto">
+            <button
+              onClick={() => setActiveView('store')}
+              className="flex items-center gap-2 px-3 py-1.5 bg-indigo-500/10 border border-indigo-500/20 rounded-xl text-xs text-indigo-300 font-bold hover:bg-indigo-500/20 transition"
+            >
+              <Zap className="w-3.5 h-3.5 text-indigo-400" />
+              <span>{userCredits} kr.</span>
+            </button>
+
+            <button
+              onClick={() => setActiveView('profile')}
+              className="w-9 h-9 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-white transition"
+            >
+              <User className="w-4 h-4" />
+            </button>
+          </div>
+        </header>
+
+        {/* DYNAMICKÝ MODUL */}
+        <main className="flex-1 overflow-y-auto pb-24 md:pb-12">
+          {activeView === 'flashcards' && <PlaceholderFlashcards />}
+          {activeView === 'solver' && <SolverModule />}
+          {activeView === 'calendar' && <CalendarModule />}
+          {activeView === 'store' && <StoreModule />}
+          {activeView === 'profile' && <ProfileModule />}
+        </main>
+      </div>
+
+      {/* GLOBÁLNÍ HLASOVÉ OVLÁDÁNÍ */}
+      <VoiceControl activeView={activeView} setActiveView={setActiveView} />
+
+    </div>
+  );
+      }
