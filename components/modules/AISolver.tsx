@@ -29,7 +29,11 @@ export interface SolutionResult {
   explanationSummary: string;
 }
 
-export default function SolverModule() {
+interface AiSolverModuleProps {
+  onBack?: () => void;
+}
+
+export default function AiSolverModule({ onBack }: AiSolverModuleProps) {
   const [problemText, setProblemText] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('matematika');
   const [isSolving, setIsSolving] = useState(false);
@@ -95,14 +99,24 @@ export default function SolverModule() {
     <div className="p-4 md:p-8 max-w-5xl mx-auto space-y-8 text-slate-100">
       
       {/* HLAVIČKA */}
-      <div className="border-b border-slate-800 pb-5">
-        <h1 className="text-2xl font-extrabold text-white flex items-center gap-2.5">
-          <Calculator className="w-7 h-7 text-indigo-400" />
-          <span>AI Řešitel úloh</span>
-        </h1>
-        <p className="text-xs text-slate-400 mt-1">
-          Vložte matematický příklad, fyzikální úlohu nebo textový dotaz. AI připraví postup krok za krokem.
-        </p>
+      <div className="border-b border-slate-800 pb-5 flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-extrabold text-white flex items-center gap-2.5">
+            <Calculator className="w-7 h-7 text-indigo-400" />
+            <span>AI Řešitel úloh</span>
+          </h1>
+          <p className="text-xs text-slate-400 mt-1">
+            Vložte matematický příklad, fyzikální úlohu nebo textový dotaz. AI připraví postup krok za krokem.
+          </p>
+        </div>
+        {onBack && (
+          <button
+            onClick={onBack}
+            className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs font-bold transition flex items-center gap-2 cursor-pointer text-slate-300"
+          >
+            Zpět
+          </button>
+        )}
       </div>
 
       {!solution && !isSolving ? (
@@ -115,7 +129,7 @@ export default function SolverModule() {
               <select
                 value={selectedSubject}
                 onChange={(e) => setSelectedSubject(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 font-medium"
+                className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 font-medium cursor-pointer"
               >
                 <option value="matematika">Matematika (Algebra, Geometrie, Integrály)</option>
                 <option value="fyzika">Fyzika (Mechanika, Elektřina, Termodynamika)</option>
@@ -127,7 +141,7 @@ export default function SolverModule() {
             <div className="flex flex-col justify-end">
               <button
                 type="button"
-                className="w-full bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 py-3 rounded-2xl text-xs font-semibold transition flex items-center justify-center gap-2"
+                className="w-full bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 py-3 rounded-2xl text-xs font-semibold transition flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Upload className="w-4 h-4 text-indigo-400" />
                 <span>Nahrát fotku příkladu</span>
@@ -150,7 +164,7 @@ export default function SolverModule() {
             <button
               type="submit"
               disabled={!problemText.trim()}
-              className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white px-8 py-3.5 rounded-2xl text-xs font-extrabold transition-all flex items-center gap-2 shadow-lg shadow-indigo-600/25"
+              className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white px-8 py-3.5 rounded-2xl text-xs font-extrabold transition-all flex items-center gap-2 shadow-lg shadow-indigo-600/25 cursor-pointer"
             >
               <Sparkles className="w-4 h-4" />
               <span>Spočítat a vysvětlit</span>
@@ -182,7 +196,7 @@ export default function SolverModule() {
         solution && (
           <div className="space-y-6">
             
-            {/* Kartu s výsledkem */}
+            {/* Karta s výsledkem */}
             <div className="bg-slate-900 border border-emerald-500/40 rounded-3xl p-6 md:p-8 space-y-4 shadow-2xl relative overflow-hidden">
               <div className="flex justify-between items-start gap-4 border-b border-slate-800 pb-4">
                 <div>
@@ -193,7 +207,7 @@ export default function SolverModule() {
                 </div>
                 <button
                   onClick={handleReset}
-                  className="text-slate-400 hover:text-white p-2 bg-slate-950 rounded-xl border border-slate-800 transition flex items-center gap-1.5 text-xs font-semibold"
+                  className="text-slate-400 hover:text-white p-2 bg-slate-950 rounded-xl border border-slate-800 transition flex items-center gap-1.5 text-xs font-semibold cursor-pointer"
                 >
                   <RefreshCw className="w-3.5 h-3.5" />
                   <span>Nová úloha</span>
@@ -252,4 +266,4 @@ export default function SolverModule() {
 
     </div>
   );
-          }
+}
