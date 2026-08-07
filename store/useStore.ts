@@ -43,14 +43,11 @@ interface AppState {
   activeModule: string;
   setActiveModule: (module: string) => void;
 
-  // Mobilní přizpůsobitelné menu (3 sloty)
-  unlockedNavSlots: number[]; // indexy 0 (Zdarma), 1 (50 K), 2 (200 K)
-  customNavSlots: (string | null)[]; // ID modulů přiřazených ke slotům [slot0, slot1, slot2]
-  unlockNavSlot: (slotIndex: number, cost: number) => boolean;
-  setCustomNavSlot: (slotIndex: number, moduleId: string | null) => void;
-
-  favorites: (string | null)[];
-  setFavorite: (slot: number, moduleId: string | null) => void;
+  // Plocha 3x5 (15 slotů)
+  plochaSlots: (string | null)[];
+  unlockedPlochaSlots: number[];
+  unlockPlochaSlot: (slotIndex: number) => boolean;
+  setPlochaSlot: (slotIndex: number, moduleId: string | null) => void;
 
   credits: number;
   totalCreditsEarned: number;
@@ -82,47 +79,48 @@ interface AppState {
   removeNotification: (id: string) => void;
 }
 
+// Výpočet ceny okénka na Ploše (0-8 zdarma, 9 = 50, 10 = 100, 11 = 150...)
+export const getPlochaSlotCost = (index: number): number => {
+  if (index < 9) return 0;
+  return (index - 8) * 50;
+};
+
 export const useStore = create<AppState>()(
   persist(
     (set, get) => ({
       activeModule: "home",
       setActiveModule: (module) => set({ activeModule: module }),
 
-      // Slot 0 je zdarma a odemčený hned v základu
-      unlockedNavSlots: [0],
-      customNavSlots: [null, null, null],
+      // Prvních 9 políček (3 řady) je odemčených v základu
+      unlockedPlochaSlots: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+      plochaSlots: Array(15).fill(null),
 
-      unlockNavSlot: (slotIndex, cost) => {
+      unlockPlochaSlot: (slotIndex) => {
         const state = get();
+        const cost = getPlochaSlotCost(slotIndex);
+
         if (state.credits < cost) {
           state.addNotification(`Nedostatek kreditů! Potřebuješ ${cost} kreditů.`, "error");
           return false;
         }
+
         set({
           credits: state.credits - cost,
-          unlockedNavSlots: [...state.unlockedNavSlots, slotIndex],
+          unlockedPlochaSlots: [...state.unlockedPlochaSlots, slotIndex],
         });
-        state.addNotification(`Slot ${slotIndex + 1} byl úspěšně odemčen!`, "success");
+        state.addNotification(`Políčko ${slotIndex + 1} bylo odemčeno!`, "success");
         return true;
       },
 
-      setCustomNavSlot: (slotIndex, moduleId) =>
+      setPlochaSlot: (slotIndex, moduleId) =>
         set((state) => {
-          const nextSlots = [...state.customNavSlots];
+          const nextSlots = [...state.plochaSlots];
           nextSlots[slotIndex] = moduleId;
-          return { customNavSlots: nextSlots };
+          return { plochaSlots: nextSlots };
         }),
 
-      favorites: [null, null],
-      setFavorite: (slot, moduleId) =>
-        set((state) => {
-          const next = [...state.favorites];
-          next[slot] = moduleId;
-          return { favorites: next };
-        }),
-
-      credits: 50,
-      totalCreditsEarned: 50,
+      credits: 100,
+      totalCreditsEarned: 100,
       addCredits: (amount) =>
         set((state) => ({
           credits: state.credits + amount,
@@ -143,12 +141,6 @@ export const useStore = create<AppState>()(
           id: "1",
           question: "Co je to rekurze v programování?",
           answer: "Funkce, která volá sama sebe.",
-          ...createInitialSpacedRepetitionState(),
-        },
-        {
-          id: "2",
-          question: "Co vyjadřuje derivace funkce?",
-          answer: "Okamžitou změnu hodnoty funkce (směrnici tečny).",
           ...createInitialSpacedRepetitionState(),
         },
       ],
@@ -173,23 +165,7 @@ export const useStore = create<AppState>()(
           totalCreditsEarned: state.totalCreditsEarned + FLASHCARD_REVIEW_REWARD,
         })),
 
-      tasks: [
-        { id: "1", title: "Domácí úkol z algebry", subject: "Matematika", dueDate: todayISO(), completed: false },
-        {
-          id: "2",
-          title: "Dokončit projekt do Programování",
-          subject: "Programování",
-          dueDate: addDays(todayISO(), 1),
-          completed: false,
-        },
-        {
-          id: "3",
-          title: "Přečíst kapitolu 4",
-          subject: "Literatura",
-          dueDate: addDays(todayISO(), 5),
-          completed: true,
-        },
-      ],
+      tasks: [],
       addTask: (title, subject, dueDate) =>
         set((state) => ({
           tasks: [
@@ -216,55 +192,17 @@ export const useStore = create<AppState>()(
       checkTaskReminders: () => {
         const state = get();
         const today = todayISO();
-
         if (state.lastReminderCheckDate === today) return;
-
-        const overdue = state.tasks.filter((t) => !t.completed && t.dueDate && t.dueDate < today);
-        const dueToday = state.tasks.filter((t) => !t.completed && t.dueDate === today);
-
-        overdue.forEach((t) => {
-          state.addNotification(`⏰ Po termínu: "${t.title}"`, "error");
-        });
-
-        dueToday.forEach((t) => {
-          state.addNotification(`📌 Dnes je termín: "${t.title}"`, "info");
-        });
-
         set({ lastReminderCheckDate: today });
       },
 
-      files: [
-        { id: "1", name: "Matematika", type: "folder", parentId: null },
-        { id: "2", name: "Programování", type: "folder", parentId: null },
-        { id: "3", name: "Integrály - poznámky.md", type: "file", parentId: "1" },
-      ],
+      files: [],
       addFileItem: (name, type, parentId) =>
         set((state) => ({
-          files: [
-            ...state.files,
-            {
-              id: Math.random().toString(36).substring(2, 9),
-              name,
-              type,
-              parentId,
-            },
-          ],
+          files: [...state.files, { id: Math.random().toString(36).substring(2, 9), name, type, parentId }],
         })),
       deleteFileItem: (id) =>
-        set((state) => {
-          const toDelete = new Set<string>([id]);
-          let changed = true;
-          while (changed) {
-            changed = false;
-            for (const item of state.files) {
-              if (item.parentId && toDelete.has(item.parentId) && !toDelete.has(item.id)) {
-                toDelete.add(item.id);
-                changed = true;
-              }
-            }
-          }
-          return { files: state.files.filter((item) => !toDelete.has(item.id)) };
-        }),
+        set((state) => ({ files: state.files.filter((item) => item.id !== id) })),
       renameFileItem: (id, name) =>
         set((state) => ({
           files: state.files.map((item) => (item.id === id ? { ...item, name } : item)),
@@ -289,7 +227,7 @@ export const useStore = create<AppState>()(
     }),
     {
       name: "school-ide-storage",
-      version: 1,
+      version: 2,
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => {
         const { notifications, ...rest } = state;
@@ -298,4 +236,4 @@ export const useStore = create<AppState>()(
     }
   )
 );
-          
+        
