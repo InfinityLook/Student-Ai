@@ -305,7 +305,6 @@ export default function DashboardShell() {
 
   return (
     <div className="min-h-screen bg-[#07090E] text-white font-sans overflow-x-hidden selection:bg-pink-500/30 pb-36">
-      
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-purple-600/15 rounded-full blur-[140px]" />
         <div className="absolute bottom-[-10%] right-[10%] w-[500px] h-[500px] bg-pink-600/15 rounded-full blur-[140px]" />
@@ -353,4 +352,16 @@ export default function DashboardShell() {
               onClick={() => setActiveView(item.id)}
               className={`relative flex items-center justify-center p-3.5 rounded-2xl transition-all duration-300 ease-out group cursor-pointer ${
                 isActive 
-                  ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg shadow-pink-500/25 scale
+                  ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg shadow-pink-500/25 scale-105' 
+                  : 'text-slate-400 hover:text-white hover:bg-white/5'
+              }`}
+              title={item.label}
+            >
+              <Icon className="w-5 h-5" />
+            </button>
+          );
+        })}
+      </nav>
+    </div>
+  );
+}
