@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { useStore, getPlochaSlotCost } from '@/store/useStore';
+import React, { useEffect } from 'react';
+import { useStore } from '@/store/useStore';
 import MenuHubModule from '@/components/modules/MenuHubModule';
+import PlochaModule from '@/components/modules/PlochaModule';
 import KairoModule from '@/components/modules/KairoModule';
 import NotesModule from '@/components/modules/NotesModule';
 import FlashcardsModule from '@/components/modules/FlashcardsModule';
@@ -18,34 +19,24 @@ import NotificationSystem from '@/components/NotificationSystem';
 import { 
   LayoutGrid, 
   Bot, 
-  FileText, 
-  BrainCircuit, 
-  Timer, 
-  Sparkles, 
-  Calendar, 
-  User, 
-  ShoppingBag, 
-  Folder,
-  Edit3,
-  Coins,
-  Plus,
-  Lock,
-  X,
-  Trash2,
   Grid3X3,
+  Coins,
+  User,
+  Sparkles,
+  BrainCircuit,
+  FileText,
+  Edit3,
+  Calendar,
+  Timer,
+  Folder,
   Dog,
+  ShoppingBag,
   Settings
 } from 'lucide-react';
 
-interface ModuleOption {
-  id: string;
-  label: string;
-  icon: React.ElementType;
-}
-
-// Všechny dostupné moduly z Hubu k přidání na Plochu
-const hubModules: ModuleOption[] = [
-  { id: 'profile', label: 'Profil', icon: User },
+const sidebarItems = [
+  { id: 'home', label: 'Hub', icon: LayoutGrid },
+  { id: 'plocha', label: 'Plocha', icon: Grid3X3 },
   { id: 'kairo', label: 'Kairo AI', icon: Bot },
   { id: 'solver', label: 'AI Řešitel', icon: Sparkles },
   { id: 'flashcards', label: 'Kartičky', icon: BrainCircuit },
@@ -54,9 +45,8 @@ const hubModules: ModuleOption[] = [
   { id: 'planner', label: 'Plánovač', icon: Calendar },
   { id: 'timer', label: 'Časovač', icon: Timer },
   { id: 'files', label: 'Soubory', icon: Folder },
-  { id: 'pets', label: 'Mazlíčci', icon: Dog },
   { id: 'shop', label: 'Obchod', icon: ShoppingBag },
-  { id: 'settings', label: 'Nastavení', icon: Settings },
+  { id: 'profile', label: 'Profil', icon: User },
 ];
 
 export default function DashboardShell() {
@@ -65,15 +55,6 @@ export default function DashboardShell() {
   const credits = useStore((state) => state.credits);
   const checkTaskReminders = useStore((state) => state.checkTaskReminders);
 
-  const plochaSlots = useStore((state) => state.plochaSlots);
-  const unlockedPlochaSlots = useStore((state) => state.unlockedPlochaSlots);
-  const unlockPlochaSlot = useStore((state) => state.unlockPlochaSlot);
-  const setPlochaSlot = useStore((state) => state.setPlochaSlot);
-
-  // Stav pro otevření okna Plocha a výběr modulu
-  const [isPlochaOpen, setIsPlochaOpen] = useState(false);
-  const [selectedSlotForPicker, setSelectedSlotForPicker] = useState<number | null>(null);
-
   useEffect(() => {
     checkTaskReminders();
   }, [checkTaskReminders]);
@@ -81,6 +62,7 @@ export default function DashboardShell() {
   const renderModule = () => {
     switch (activeModule) {
       case 'home': return <MenuHubModule />;
+      case 'plocha': return <PlochaModule />;
       case 'kairo': return <KairoModule />;
       case 'notes': return <NotesModule />;
       case 'flashcards': return <FlashcardsModule />;
@@ -92,24 +74,6 @@ export default function DashboardShell() {
       case 'files': return <FileSystemModule />;
       case 'editor': return <DocumentEditorModule />;
       default: return <MenuHubModule />;
-    }
-  };
-
-  const handlePlochaTileClick = (index: number) => {
-    const isUnlocked = unlockedPlochaSlots.includes(index);
-    if (!isUnlocked) {
-      // Odemknout políčko
-      unlockPlochaSlot(index);
-    } else {
-      const assignedId = plochaSlots[index];
-      if (assignedId) {
-        // Spustit modul a zavřít Plochu
-        setActiveModule(assignedId);
-        setIsPlochaOpen(false);
-      } else {
-        // Otevřít výběr modulu
-        setSelectedSlotForPicker(index);
-      }
     }
   };
 
@@ -133,7 +97,7 @@ export default function DashboardShell() {
         </div>
 
         <nav className="flex-1 overflow-y-auto p-3 space-y-1">
-          {hubModules.map((item) => {
+          {sidebarItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeModule === item.id;
             return (
@@ -154,9 +118,9 @@ export default function DashboardShell() {
         </nav>
       </aside>
 
-      {/* Hlavní obsahová plocha */}
+      {/* Hlavní aplikace */}
       <div className="flex-1 flex flex-col h-full overflow-hidden">
-        {/* Mobilní horní lišta */}
+        {/* Mobilní hlavička */}
         <header className="md:hidden flex items-center justify-between px-4 py-3 bg-slate-950/90 backdrop-blur-md border-b border-slate-800/80 z-40">
           <button 
             onClick={() => setActiveModule('home')}
@@ -170,17 +134,17 @@ export default function DashboardShell() {
           </div>
         </header>
 
-        {/* Vybraný modul */}
+        {/* Zobrazený modul */}
         <main className="flex-1 overflow-y-auto bg-slate-900 pb-20 md:pb-0">
           {renderModule()}
         </main>
 
-        {/* Mobilní spodní lišta (Hub, Plocha uprostřed, Kairo AI) */}
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 backdrop-blur-xl bg-slate-950/95 border-t border-slate-800/80 px-6 py-2 flex justify-center items-center gap-10">
+        {/* SPODNÍ MENU UPROSTŘED S IKONOU PLOCHA */}
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 backdrop-blur-xl bg-slate-950/95 border-t border-slate-800/80 px-8 py-2 flex justify-around items-center">
           {/* Hub */}
           <button
             onClick={() => setActiveModule('home')}
-            className={`flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all ${
+            className={`flex flex-col items-center justify-center py-1 px-3 transition-all ${
               activeModule === 'home' ? 'text-cyan-400 font-semibold scale-105' : 'text-slate-400'
             }`}
           >
@@ -190,8 +154,12 @@ export default function DashboardShell() {
 
           {/* PLOCHA (Uprostřed) */}
           <button
-            onClick={() => setIsPlochaOpen(true)}
-            className="flex flex-col items-center justify-center p-2.5 -mt-4 bg-gradient-to-tr from-cyan-500 to-blue-600 text-white rounded-2xl shadow-lg shadow-cyan-500/25 active:scale-95 transition-transform border border-cyan-400/30"
+            onClick={() => setActiveModule('plocha')}
+            className={`flex flex-col items-center justify-center p-2.5 -mt-4 rounded-2xl shadow-lg transition-all border ${
+              activeModule === 'plocha'
+                ? 'bg-gradient-to-tr from-cyan-500 to-blue-600 text-white border-cyan-300 shadow-cyan-500/30 scale-105'
+                : 'bg-slate-800/90 text-cyan-400 border-slate-700/80 hover:bg-slate-800'
+            }`}
           >
             <Grid3X3 className="w-6 h-6 stroke-[2.2]" />
             <span className="text-[10px] font-bold mt-0.5">Plocha</span>
@@ -200,7 +168,7 @@ export default function DashboardShell() {
           {/* Kairo AI */}
           <button
             onClick={() => setActiveModule('kairo')}
-            className={`flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all ${
+            className={`flex flex-col items-center justify-center py-1 px-3 transition-all ${
               activeModule === 'kairo' ? 'text-cyan-400 font-semibold scale-105' : 'text-slate-400'
             }`}
           >
@@ -209,144 +177,6 @@ export default function DashboardShell() {
           </button>
         </nav>
       </div>
-
-      {/* OKNO PLOCHY (3x5 Mřížka s vypnutým scrollem) */}
-      {isPlochaOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex flex-col justify-end sm:justify-center items-center p-3 sm:p-4 overflow-hidden">
-          <div className="bg-slate-900 border border-slate-800 w-full max-w-md rounded-3xl p-5 space-y-4 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            {/* Hlavička Plochy */}
-            <div className="flex justify-between items-center border-b border-slate-800 pb-3 flex-shrink-0">
-              <div>
-                <h3 className="font-bold text-lg text-white flex items-center gap-2">
-                  <Grid3X3 className="w-5 h-5 text-cyan-400" />
-                  <span>Moje Plocha (3×5)</span>
-                </h3>
-                <p className="text-xs text-slate-400">Rychlé zkratky na tvoje oblíbené moduly</p>
-              </div>
-              <button
-                onClick={() => setIsPlochaOpen(false)}
-                className="p-1.5 rounded-xl text-slate-400 hover:text-white bg-slate-800/80"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Mřížka 3x5 – Zakázaný scroll (`overflow-hidden`) */}
-            <div className="grid grid-cols-3 gap-2.5 flex-1 overflow-hidden p-1">
-              {Array.from({ length: 15 }).map((_, index) => {
-                const isUnlocked = unlockedPlochaSlots.includes(index);
-                const cost = getPlochaSlotCost(index);
-                const assignedId = plochaSlots[index];
-                const assignedModule = hubModules.find((m) => m.id === assignedId);
-
-                return (
-                  <button
-                    key={index}
-                    onClick={() => handlePlochaTileClick(index)}
-                    onContextMenu={(e) => {
-                      e.preventDefault();
-                      if (isUnlocked && assignedId) {
-                        setSelectedSlotForPicker(index);
-                      }
-                    }}
-                    className={`relative flex flex-col items-center justify-center p-2 rounded-2xl border transition-all duration-200 aspect-square overflow-hidden ${
-                      !isUnlocked
-                        ? 'bg-slate-950/60 border-amber-500/30 text-amber-400 hover:border-amber-500/60'
-                        : assignedModule
-                        ? 'bg-slate-800/90 border-cyan-500/40 text-cyan-400 hover:bg-slate-800 shadow-md'
-                        : 'bg-slate-800/30 border-dashed border-slate-700/80 text-slate-500 hover:border-slate-500 hover:text-slate-300'
-                    }`}
-                  >
-                    {!isUnlocked ? (
-                      <>
-                        <Lock className="w-5 h-5 mb-1 text-amber-400" />
-                        <span className="text-[10px] font-bold text-amber-400">{cost} K</span>
-                      </>
-                    ) : assignedModule ? (
-                      <>
-                        <assignedModule.icon className="w-6 h-6 mb-1 text-cyan-400" />
-                        <span className="text-[11px] font-medium text-slate-200 truncate max-w-full px-1">
-                          {assignedModule.label}
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <Plus className="w-6 h-6 text-slate-400 mb-0.5" />
-                        <span className="text-[9px] text-slate-500 font-medium">Přidat</span>
-                      </>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-
-            <p className="text-[11px] text-center text-slate-500 flex-shrink-0 pt-1">
-              První 3 řady jsou zdarma. Podržením políčka ho změníš.
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL PRO VÝBĚR MODULU DO POLÍČKA PLOCHY */}
-      {selectedSlotForPicker !== null && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-3xl p-5 space-y-4 shadow-2xl">
-            <div className="flex justify-between items-center border-b border-slate-800 pb-3">
-              <div>
-                <h3 className="font-bold text-base text-white">
-                  Vyber modul na Políčko {selectedSlotForPicker + 1}
-                </h3>
-                <p className="text-xs text-slate-400">Co má toto tlačítko otevírat?</p>
-              </div>
-              <button
-                onClick={() => setSelectedSlotForPicker(null)}
-                className="p-1 rounded-lg text-slate-400 hover:text-white bg-slate-800"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Výběr modulů z Hubu */}
-            <div className="grid grid-cols-3 gap-2 max-h-64 overflow-y-auto p-1">
-              {hubModules.map((mod) => {
-                const Icon = mod.icon;
-                const isSelected = plochaSlots[selectedSlotForPicker] === mod.id;
-                return (
-                  <button
-                    key={mod.id}
-                    onClick={() => {
-                      setPlochaSlot(selectedSlotForPicker, mod.id);
-                      setSelectedSlotForPicker(null);
-                    }}
-                    className={`flex flex-col items-center p-3 rounded-2xl border text-center transition-all ${
-                      isSelected
-                        ? 'bg-cyan-500/20 border-cyan-500 text-cyan-400 font-semibold'
-                        : 'bg-slate-800/60 border-slate-700/60 hover:bg-slate-800 text-slate-300'
-                    }`}
-                  >
-                    <Icon className="w-5 h-5 mb-1.5" />
-                    <span className="text-[11px] font-medium">{mod.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {plochaSlots[selectedSlotForPicker] && (
-              <button
-                onClick={() => {
-                  setPlochaSlot(selectedSlotForPicker, null);
-                  setSelectedSlotForPicker(null);
-                }}
-                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-red-500/30 bg-red-500/10 text-red-400 text-xs font-medium hover:bg-red-500/20 transition-colors"
-              >
-                <Trash2 className="w-4 h-4" />
-                <span>Odebrat modul z políčka</span>
-              </button>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
-        }
-                
+}
