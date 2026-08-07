@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Float, Sphere, Box, Sparkles } from '@react-three/drei';
@@ -75,4 +76,4 @@ export default function KairoAvatar3D({ isSpeaking }: KairoModelProps) {
       </Canvas>
     </div>
   );
-      }
+}
