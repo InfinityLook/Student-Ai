@@ -2,57 +2,85 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useStore } from '@/store/useStore';
-import { Send, Volume2, VolumeX, Bot, User, Sparkles, Loader2 } from 'lucide-react';
+import { Send, Volume2, VolumeX, Bot, User, Loader2, Play } from 'lucide-react';
 
 interface Message {
+  id: string;
   role: 'user' | 'assistant' | 'system';
   content: string;
 }
 
 export default function KairoModule() {
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: 'Ahoj! Jsem Kairo, tvůj AI studijní asistent. S čím ti dnes pomůžu?' }
+    { 
+      id: '1', 
+      role: 'assistant', 
+      content: 'Ahoj! Jsem Kairo, tvůj AI studijní asistent. S čím ti dnes pomůžu?' 
+    }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [activeSpeakingId, setActiveSpeakingId] = useState<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const addCredits = useStore((state) => state.addCredits);
 
-  // Automatické skrolování dolů při nové zprávě
+  // Automatické skrolovaní
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, loading]);
 
-  // Funkce pro přečtení textu hlasem (Text-to-Speech)
-  const speakText = (text: string) => {
-    if (isMuted || typeof window === 'undefined' || !('speechSynthesis' in window)) {
-      return;
+  // Načtení hlasů v prohlížeči (řeší asynchronní načítání v Chrome/Safari)
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      const loadVoices = () => {
+        window.speechSynthesis.getVoices();
+      };
+      loadVoices();
+      window.speechSynthesis.onvoiceschanged = loadVoices;
     }
+  }, []);
 
-    // Zrušit předchozí řeč, pokud ještě mluví
+  // Funkce pro přečtení konkrétního textu
+  const speakText = (text: string, messageId?: string) => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+
+    // Zrušit předchozí čtení
     window.speechSynthesis.cancel();
 
-    // Odstranění Markdown značek (hvězdičky, mřížky) pro plynulejší čtení
+    if (isMuted && !messageId) return;
+
+    // Odstranění Markdown značek pro čistý přednes
     const cleanText = text.replace(/[*_#`~]/g, '');
 
     const utterance = new SpeechSynthesisUtterance(cleanText);
     utterance.lang = 'cs-CZ';
-    utterance.rate = 1.0; // Rychlost
-    utterance.pitch = 1.0; // Výška hlasu
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
 
-    // Najít český hlas v systému, pokud je k dispozici
+    // Najít český hlas
     const voices = window.speechSynthesis.getVoices();
     const csVoice = voices.find((v) => v.lang.includes('cs') || v.lang.includes('CS'));
     if (csVoice) {
       utterance.voice = csVoice;
     }
 
-    utterance.onstart = () => setIsSpeaking(true);
-    utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => setIsSpeaking(false);
+    utterance.onstart = () => {
+      setIsSpeaking(true);
+      if (messageId) setActiveSpeakingId(messageId);
+    };
+
+    utterance.onend = () => {
+      setIsSpeaking(false);
+      setActiveSpeakingId(null);
+    };
+
+    utterance.onerror = () => {
+      setIsSpeaking(false);
+      setActiveSpeakingId(null);
+    };
 
     window.speechSynthesis.speak(utterance);
   };
@@ -61,15 +89,21 @@ export default function KairoModule() {
     if (e) e.preventDefault();
     if (!input.trim() || loading) return;
 
+    // DŮLEŽITÉ: Odemčení zvukového kontextu přímou interakcí na stisk tlačítka
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.resume();
+    }
+
     const userMessage = input.trim();
     setInput('');
 
-    const newMessages: Message[] = [
+    const newMsgId = Math.random().toString(36).substring(2, 9);
+    const updatedMessages: Message[] = [
       ...messages,
-      { role: 'user', content: userMessage }
+      { id: newMsgId, role: 'user', content: userMessage }
     ];
 
-    setMessages(newMessages);
+    setMessages(updatedMessages);
     setLoading(true);
 
     try {
@@ -80,9 +114,9 @@ export default function KairoModule() {
           messages: [
             {
               role: 'system',
-              content: 'Jsi Kairo, přátelský, chytrý a motivující AI studijní asistent pro studenty. Odpovídej věcně, srozumitelně a v češtině.'
+              content: 'Jsi Kairo, přátelský, chytrý a motivující AI studijní asistent pro studenty. Odpovídej věcně, stručně a v češtině.'
             },
-            ...newMessages
+            ...updatedMessages.map(({ role, content }) => ({ role, content }))
           ]
         })
       });
@@ -91,20 +125,23 @@ export default function KairoModule() {
 
       if (data.choices && data.choices[0]?.message?.content) {
         const reply = data.choices[0].message.content;
-        setMessages((prev) => [...prev, { role: 'assistant', content: reply }]);
+        const replyId = Math.random().toString(36).substring(2, 9);
 
-        // Odměna za aktivní komunikaci
+        setMessages((prev) => [...prev, { id: replyId, role: 'assistant', content: reply }]);
         addCredits(2);
 
-        // Přečíst odpověď hlasem
-        speakText(reply);
+        // Přečtení odpovědi
+        if (!isMuted) {
+          speakText(reply, replyId);
+        }
       } else {
-        throw new Error('Neplatná odpověď z API');
+        throw new Error('Chyba odpovědi');
       }
     } catch (err) {
-      const errorReply = 'Omlouvám se, ale nepodařilo se mi spojit se serverem. Zkontroluj API klíč nebo připojení.';
-      setMessages((prev) => [...prev, { role: 'assistant', content: errorReply }]);
-      speakText(errorReply);
+      const errorReply = 'Omlouvám se, ale nepodařilo se mi spojit se serverem. Zkontroluj API klíč na Vercelu.';
+      const errId = Math.random().toString(36).substring(2, 9);
+      setMessages((prev) => [...prev, { id: errId, role: 'assistant', content: errorReply }]);
+      if (!isMuted) speakText(errorReply, errId);
     } finally {
       setLoading(false);
     }
@@ -114,13 +151,14 @@ export default function KairoModule() {
     if (isSpeaking) {
       window.speechSynthesis.cancel();
       setIsSpeaking(false);
+      setActiveSpeakingId(null);
     }
     setIsMuted(!isMuted);
   };
 
   return (
     <div className="flex flex-col h-full max-w-4xl mx-auto p-4 space-y-4">
-      {/* Hlavička Kairo AI */}
+      {/* Hlavička */}
       <div className="flex items-center justify-between p-4 bg-slate-800/80 rounded-2xl border border-slate-700/50 backdrop-blur-sm">
         <div className="flex items-center gap-3">
           <div className="relative">
@@ -143,7 +181,7 @@ export default function KairoModule() {
           </div>
         </div>
 
-        {/* Tlačítko pro vypnutí / zapnutí zvuku */}
+        {/* Tlačítko zvuku */}
         <button
           onClick={toggleMute}
           className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
@@ -153,15 +191,15 @@ export default function KairoModule() {
           }`}
         >
           {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-          <span>{isMuted ? 'Zvuk vypnut' : 'Zvuk zapnut'}</span>
+          <span>{isMuted ? 'Hlas vypnut' : 'Hlas zapnut'}</span>
         </button>
       </div>
 
       {/* Zprávy */}
       <div className="flex-1 overflow-y-auto space-y-4 pr-2">
-        {messages.map((msg, index) => (
+        {messages.map((msg) => (
           <div
-            key={index}
+            key={msg.id}
             className={`flex items-start gap-3 ${
               msg.role === 'user' ? 'justify-end' : 'justify-start'
             }`}
@@ -172,14 +210,31 @@ export default function KairoModule() {
               </div>
             )}
 
-            <div
-              className={`max-w-[80%] p-4 rounded-2xl text-sm leading-relaxed ${
-                msg.role === 'user'
-                  ? 'bg-cyan-600 text-white rounded-tr-none'
-                  : 'bg-slate-800 text-slate-200 border border-slate-700/60 rounded-tl-none'
-              }`}
-            >
-              {msg.content}
+            <div className="group relative max-w-[80%]">
+              <div
+                className={`p-4 rounded-2xl text-sm leading-relaxed ${
+                  msg.role === 'user'
+                    ? 'bg-cyan-600 text-white rounded-tr-none'
+                    : 'bg-slate-800 text-slate-200 border border-slate-700/60 rounded-tl-none'
+                }`}
+              >
+                {msg.content}
+              </div>
+
+              {/* Tlačítko pro manuální přehrání hlasem u AI zpráv */}
+              {msg.role === 'assistant' && (
+                <button
+                  onClick={() => speakText(msg.content, msg.id)}
+                  className={`mt-1 flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md transition-colors ${
+                    activeSpeakingId === msg.id
+                      ? 'text-cyan-400 font-bold'
+                      : 'text-slate-400 hover:text-cyan-300'
+                  }`}
+                >
+                  <Play className="w-3 h-3 fill-current" />
+                  <span>{activeSpeakingId === msg.id ? 'Přehrává se...' : 'Přehrát hlasem'}</span>
+                </button>
+              )}
             </div>
 
             {msg.role === 'user' && (
@@ -223,4 +278,4 @@ export default function KairoModule() {
       </form>
     </div>
   );
-}
+                    }
