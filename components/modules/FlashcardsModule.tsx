@@ -18,12 +18,9 @@ import {
   Check, 
   RefreshCw, 
   Shuffle, 
-  Star, 
   Search,
   HelpCircle,
-  Tag,
-  CheckCircle,
-  XCircle as XIcon
+  CheckCircle
 } from 'lucide-react';
 
 export type CardType = 'standard' | 'yesno';
@@ -33,9 +30,11 @@ export interface Card {
   type: CardType;
   front: string;
   back: string;
-  correctAnswer?: boolean; // Pouze pro typ 'yesno' (true = ANO, false = NE)
+  correctAnswer?: boolean;
   starred?: boolean;
 }
+
+export type NewCardInput = Omit<Card, 'id'>;
 
 export interface Group {
   id: string;
@@ -61,7 +60,7 @@ const GROUP_COLORS = [
 export default function FlashcardsModule() {
   const addNotification = useStore((state) => state.addNotification);
 
-  // Hlavní stavy (na začátku vše prázdné)
+  // Hlavní stavy
   const [groups, setGroups] = useState<Group[]>([]);
   const [decks, setDecks] = useState<Deck[]>([]);
   const [selectedGroupId, setSelectedGroupId] = useState<string>('all');
@@ -87,7 +86,7 @@ export default function FlashcardsModule() {
   // Stavy pro tvorbu nové sady
   const [newDeckTitle, setNewDeckTitle] = useState('');
   const [newDeckGroupId, setNewDeckGroupId] = useState('');
-  const [newCards, setNewCards] = useState<Omit<Card, 'id'>[]>([
+  const [newCards, setNewCards] = useState<NewCardInput[]>([
     { type: 'standard', front: '', back: '' }
   ]);
 
@@ -113,7 +112,6 @@ export default function FlashcardsModule() {
   const handleDeleteGroup = (groupId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     setGroups(groups.filter((g) => g.id !== groupId));
-    // Odstranit skupiny u sad
     setDecks(decks.map((d) => d.groupId === groupId ? { ...d, groupId: '' } : d));
     if (selectedGroupId === groupId) setSelectedGroupId('all');
     addNotification('Skupina byla smazána', 'info');
@@ -183,7 +181,6 @@ export default function FlashcardsModule() {
     setMode('study');
   };
 
-  // Volba Ano / Ne u karty
   const handleYesNoChoice = (choice: boolean) => {
     if (userChoice !== null) return;
     setUserChoice(choice);
@@ -196,13 +193,11 @@ export default function FlashcardsModule() {
       setUnknownCards((prev) => [...prev, card.id]);
     }
 
-    // Plynulé otočení karty s náhledem odpovedi
     setTimeout(() => {
       setIsFlipped(true);
     }, 200);
   };
 
-  // Hodnocení u klasické karty
   const handleStandardAnswer = (known: boolean) => {
     const card = currentCards[currentCardIndex];
     if (known) {
@@ -213,7 +208,6 @@ export default function FlashcardsModule() {
     handleNextCard();
   };
 
-  // Přechod na další kartu
   const handleNextCard = () => {
     setIsFlipped(false);
     setUserChoice(null);
@@ -237,7 +231,6 @@ export default function FlashcardsModule() {
     addNotification('Kartičky byly zamíchány', 'info');
   };
 
-  // Filtrované sady
   const filteredDecks = decks.filter((deck) => {
     const matchesSearch = deck.title.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesGroup = selectedGroupId === 'all' || deck.groupId === selectedGroupId;
@@ -408,7 +401,6 @@ export default function FlashcardsModule() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredDecks.map((deck) => {
                 const group = groups.find((g) => g.id === deck.groupId);
-                const stdCardsCount = deck.cards.filter((c) => c.type === 'standard').length;
                 const yesNoCardsCount = deck.cards.filter((c) => c.type === 'yesno').length;
 
                 return (
@@ -462,11 +454,10 @@ export default function FlashcardsModule() {
         </div>
       )}
 
-      {/* REŽIM 2: STUDIUM S DVA TYPY KARTIČEK */}
+      {/* REŽIM 2: STUDIUM */}
       {mode === 'study' && activeDeck && (
         <div className="max-w-xl mx-auto space-y-6">
           
-          {/* Lišta průběhu */}
           <div className="flex items-center justify-between text-xs text-slate-400 bg-slate-950 p-3 rounded-2xl border border-slate-800">
             <span className="truncate max-w-[180px] font-semibold text-white">{activeDeck.title}</span>
             <div className="flex items-center gap-3">
@@ -493,8 +484,6 @@ export default function FlashcardsModule() {
 
           {!isFinished && currentCards[currentCardIndex] ? (
             <div className="space-y-6">
-              
-              {/* KARTA S 3D FLIP EFEKTEM */}
               {(() => {
                 const card = currentCards[currentCardIndex];
                 const isYesNo = card.type === 'yesno';
@@ -505,11 +494,17 @@ export default function FlashcardsModule() {
                     <div 
                       onClick={() => !isYesNo && setIsFlipped(!isFlipped)}
                       style={{ perspective: '1000px' }}
-                      className={`w-full min-h-[300px] cursor-pointer group`}
+                      className="w-full min-h-[300px] cursor-pointer group"
                     >
                       <div 
                         className={`w-full min-h-[300px] relative transition-all duration-500 rounded-3xl p-8 flex flex-col items-center justify-center text-center shadow-2xl border ${
                           userChoice !== null
                             ? isCorrectAnswer 
                               ? 'bg-emerald-950/40 border-emerald-500 shadow-emerald-500/20' 
-       
+                              : 'bg-rose-950/40 border-rose-500 shadow-rose-500/20'
+                            : isFlipped 
+                              ? 'bg-slate-900 border-cyan-500/50 shadow-cyan-500/10' 
+                              : 'bg-slate-950 border-slate-800 hover:border-cyan-500/40'
+                        }`}
+                      >
+                        <div className="absolute top-4 left-4 flex items-center gap-1.5 text-[10px] font-bold text-slate-4
