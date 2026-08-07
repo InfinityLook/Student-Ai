@@ -5,6 +5,7 @@ import { useStore } from '@/store/useStore';
 import MenuHubModule from '@/components/modules/MenuHubModule';
 import PlochaModule from '@/components/modules/PlochaModule';
 import KairoModule from '@/components/modules/KairoModule';
+import PetModule from '@/components/modules/PetModule';
 import NotesModule from '@/components/modules/NotesModule';
 import FlashcardsModule from '@/components/modules/FlashcardsModule';
 import FocusTimerModule from '@/components/modules/FocusTimerModule';
@@ -20,6 +21,7 @@ import {
   LayoutGrid, 
   Bot, 
   Grid3X3,
+  Dog,
   Coins,
   User,
   Sparkles,
@@ -29,14 +31,13 @@ import {
   Calendar,
   Timer,
   Folder,
-  Dog,
-  ShoppingBag,
-  Settings
+  ShoppingBag
 } from 'lucide-react';
 
 const sidebarItems = [
   { id: 'home', label: 'Hub', icon: LayoutGrid },
   { id: 'plocha', label: 'Plocha', icon: Grid3X3 },
+  { id: 'pets', label: 'Mazlíček', icon: Dog },
   { id: 'kairo', label: 'Kairo AI', icon: Bot },
   { id: 'solver', label: 'AI Řešitel', icon: Sparkles },
   { id: 'flashcards', label: 'Kartičky', icon: BrainCircuit },
@@ -63,6 +64,7 @@ export default function DashboardShell() {
     switch (activeModule) {
       case 'home': return <MenuHubModule />;
       case 'plocha': return <PlochaModule />;
+      case 'pets': return <PetModule />;
       case 'kairo': return <KairoModule />;
       case 'notes': return <NotesModule />;
       case 'flashcards': return <FlashcardsModule />;
@@ -139,17 +141,28 @@ export default function DashboardShell() {
           {renderModule()}
         </main>
 
-        {/* SPODNÍ MENU UPROSTŘED S IKONOU PLOCHA */}
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 backdrop-blur-xl bg-slate-950/95 border-t border-slate-800/80 px-8 py-2 flex justify-around items-center">
+        {/* SPODNÍ MENU UPROSTŘED S MAZLÍČKEM A PLOCHOU */}
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 backdrop-blur-xl bg-slate-950/95 border-t border-slate-800/80 px-4 py-2 flex justify-around items-center">
           {/* Hub */}
           <button
             onClick={() => setActiveModule('home')}
-            className={`flex flex-col items-center justify-center py-1 px-3 transition-all ${
+            className={`flex flex-col items-center justify-center py-1 px-2.5 transition-all ${
               activeModule === 'home' ? 'text-cyan-400 font-semibold scale-105' : 'text-slate-400'
             }`}
           >
             <LayoutGrid className="w-5 h-5" />
             <span className="text-[10px] mt-1">Hub</span>
+          </button>
+
+          {/* Mazlíček */}
+          <button
+            onClick={() => setActiveModule('pets')}
+            className={`flex flex-col items-center justify-center py-1 px-2.5 transition-all ${
+              activeModule === 'pets' ? 'text-pink-400 font-semibold scale-105' : 'text-slate-400'
+            }`}
+          >
+            <Dog className="w-5 h-5" />
+            <span className="text-[10px] mt-1">Mazlíček</span>
           </button>
 
           {/* PLOCHA (Uprostřed) */}
@@ -168,15 +181,27 @@ export default function DashboardShell() {
           {/* Kairo AI */}
           <button
             onClick={() => setActiveModule('kairo')}
-            className={`flex flex-col items-center justify-center py-1 px-3 transition-all ${
+            className={`flex flex-col items-center justify-center py-1 px-2.5 transition-all ${
               activeModule === 'kairo' ? 'text-cyan-400 font-semibold scale-105' : 'text-slate-400'
             }`}
           >
             <Bot className="w-5 h-5" />
             <span className="text-[10px] mt-1">Kairo</span>
           </button>
+
+          {/* Profil */}
+          <button
+            onClick={() => setActiveModule('profile')}
+            className={`flex flex-col items-center justify-center py-1 px-2.5 transition-all ${
+              activeModule === 'profile' ? 'text-cyan-400 font-semibold scale-105' : 'text-slate-400'
+            }`}
+          >
+            <User className="w-5 h-5" />
+            <span className="text-[10px] mt-1">Profil</span>
+          </button>
         </nav>
       </div>
     </div>
   );
 }
+  
