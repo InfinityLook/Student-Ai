@@ -19,7 +19,8 @@ import {
   Timer,
   FileText,
   BrainCircuit,
-  Layers
+  Layers,
+  BarChart3
 } from 'lucide-react';
 import CalendarModule from './modules/CalendarModule';
 import AiSolverModule from './modules/AiSolverModule';
@@ -27,6 +28,9 @@ import FocusTimerModule from './modules/FocusTimerModule';
 import NotesModule from './modules/NotesModule';
 import AITestModule from './modules/AITestModule';
 import FlashcardsModule from './modules/FlashcardsModule';
+import SettingsModule from './modules/SettingsModule';
+import AnalyticsModule from './modules/AnalyticsModule';
+import StudyPlanModule from './modules/StudyPlanModule';
 import LevelBadge from './LevelBadge';
 
 export default function DashboardShell() {
@@ -42,6 +46,8 @@ export default function DashboardShell() {
     { id: 'storage', label: 'Úložiště', icon: Database },
     { id: 'settings', label: 'Nastavení', icon: Settings },
   ];
+
+  const subViews = ['calendar', 'ai-solver', 'focus-timer', 'notes', 'ai-test', 'flashcards', 'analytics', 'study-plan'];
 
   const renderView = () => {
     switch (activeView) {
@@ -167,6 +173,40 @@ export default function DashboardShell() {
                 </div>
               </div>
 
+              {/* Analytics karta */}
+              <div 
+                onClick={() => setActiveView('analytics')}
+                className="group relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-7 hover:border-cyan-500/50 transition-all duration-300 hover:scale-[1.01] cursor-pointer flex flex-col justify-between"
+              >
+                <div className="absolute top-0 right-0 w-40 h-40 bg-cyan-500/10 rounded-full blur-3xl group-hover:bg-cyan-500/25 transition-all" />
+                <div>
+                  <BarChart3 className="w-9 h-9 text-cyan-400 mb-4" />
+                  <h3 className="text-xl font-bold text-white mb-1">Statistiky & Analytika</h3>
+                  <p className="text-sm text-slate-400">Sleduj svůj pokrok, průměrné skóre a čas v učení.</p>
+                </div>
+                <div className="mt-6 flex items-center gap-2 text-xs font-bold text-cyan-400 group-hover:translate-x-1 transition-transform">
+                  <span>Zobrazit statistiky</span>
+                  <ArrowRight className="w-4 h-4" />
+                </div>
+              </div>
+
+              {/* Studijní plánovač karta */}
+              <div 
+                onClick={() => setActiveView('study-plan')}
+                className="group relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-7 hover:border-pink-500/50 transition-all duration-300 hover:scale-[1.01] cursor-pointer flex flex-col justify-between"
+              >
+                <div className="absolute top-0 right-0 w-40 h-40 bg-pink-500/10 rounded-full blur-3xl group-hover:bg-pink-500/25 transition-all" />
+                <div>
+                  <Sparkles className="w-9 h-9 text-pink-400 mb-4" />
+                  <h3 className="text-xl font-bold text-white mb-1">AI Studijní Plánovač</h3>
+                  <p className="text-sm text-slate-400">Rozvrhni si přípravu na zkoušky a testy.</p>
+                </div>
+                <div className="mt-6 flex items-center gap-2 text-xs font-bold text-pink-400 group-hover:translate-x-1 transition-transform">
+                  <span>Otevřít plánovač</span>
+                  <ArrowRight className="w-4 h-4" />
+                </div>
+              </div>
+
             </div>
           </div>
         );
@@ -182,6 +222,12 @@ export default function DashboardShell() {
         return <AITestModule onBack={() => setActiveView('workspace')} />;
       case 'flashcards':
         return <FlashcardsModule onBack={() => setActiveView('workspace')} />;
+      case 'analytics':
+        return <AnalyticsModule onBack={() => setActiveView('workspace')} />;
+      case 'study-plan':
+        return <StudyPlanModule onBack={() => setActiveView('workspace')} />;
+      case 'settings':
+        return <SettingsModule onBack={() => setActiveView('workspace')} />;
       case 'pet':
         return (
           <div className="rounded-[32px] bg-gradient-to-b from-purple-900/20 to-black/40 border border-purple-500/20 p-8 max-w-xl mx-auto text-center space-y-6 backdrop-blur-xl">
@@ -262,22 +308,6 @@ export default function DashboardShell() {
             </div>
           </div>
         );
-      case 'settings':
-        return (
-          <div className="rounded-[32px] bg-white/[0.03] border border-white/10 p-8 max-w-xl mx-auto space-y-6 backdrop-blur-xl">
-            <h2 className="text-2xl font-black text-white">Nastavení</h2>
-            <div className="space-y-3 text-xs">
-              <div className="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/10">
-                <span className="text-slate-300 font-medium">Vibe režim</span>
-                <span className="text-pink-400 font-bold">Ultra Dark 🌌</span>
-              </div>
-              <div className="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/10">
-                <span className="text-slate-300 font-medium">Notifikace</span>
-                <span className="text-emerald-400 font-bold">Zapnuté</span>
-              </div>
-            </div>
-          </div>
-        );
       default:
         return null;
     }
@@ -330,25 +360,4 @@ export default function DashboardShell() {
       <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1.5 p-2 rounded-[28px] bg-black/60 backdrop-blur-2xl border border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.8)]">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = activeView === item.id || (['calendar', 'ai-solver', 'focus-timer', 'notes', 'ai-test', 'flashcards'].includes(activeView) && item.id === 'workspace');
-          return (
-            <button
-              key={item.id}
-              onClick={() => setActiveView(item.id)}
-              className={`relative flex items-center justify-center p-3.5 rounded-2xl transition-all duration-300 ease-out group cursor-pointer ${
-                isActive 
-                  ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg shadow-pink-500/25 scale-105' 
-                  : 'text-slate-400 hover:text-white hover:bg-white/5'
-              }`}
-              title={item.label}
-            >
-              <Icon className="w-5 h-5" />
-            </button>
-          );
-        })}
-      </nav>
-
-    </div>
-  );
-                  }
-              
+          const isActive = ac
