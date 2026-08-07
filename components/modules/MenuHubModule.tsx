@@ -1,123 +1,71 @@
-"use client";
-import React from "react";
+'use client';
 
-interface ModuleItem {
-  id: string;
+import React from 'react';
+import { useStore, ActiveTab } from '@/store/useStore';
+import { 
+  Bot, 
+  FileText, 
+  BrainCircuit, 
+  Timer, 
+  Sparkles, 
+  Calendar, 
+  User, 
+  ShoppingBag, 
+  Folder,
+  Edit3
+} from 'lucide-react';
+
+interface ModuleCard {
+  id: ActiveTab;
   title: string;
   description: string;
-  icon: string;
-  group: string;
+  icon: React.ElementType;
+  color: string;
 }
 
-const modulesList: ModuleItem[] = [
-  {
-    id: "notes",
-    title: "Poznámky",
-    description: "Rychlé poznámky a zápisky ze předmětů.",
-    icon: "📝",
-    group: "Studium",
-  },
-  {
-    id: "tasks",
-    title: "Úkoly a plánovač",
-    description: "Správa úkolů, deadlinů a harmonogramu.",
-    icon: "✅",
-    group: "Studium",
-  },
-  {
-    id: "flashcards",
-    title: "Kartičky na učení",
-    description: "Efektivní opakování metodou aktivního vzpomínání.",
-    icon: "🎴",
-    group: "Studium",
-  },
-  {
-    id: "ai-solver",
-    title: "AI Asistent & Solver",
-    description: "Inteligentní řešení příkladů a vysvětlování látky.",
-    icon: "🤖",
-    group: "AI Nástroje",
-  },
-  {
-    id: "ai-tests",
-    title: "AI Testy",
-    description: "Generování cvičných testů na míru podle předmětu.",
-    icon: "📋",
-    group: "AI Nástroje",
-  },
-  {
-    id: "focus-timer",
-    title: "Pomodoro Časovač",
-    description: "Měření času na soustředěné studium a přestávky.",
-    icon: "⏳",
-    group: "Nástroje",
-  },
-  {
-    id: "file-system",
-    title: "Správce souborů",
-    description: "Organizace studijních materiálů a dokumentů.",
-    icon: "📁",
-    group: "Nástroje",
-  },
-  // Zde je nově přidán Editor dokumentů do skupiny Editory:
-  {
-    id: "document-editor",
-    title: "Editor dokumentů",
-    description: "Pokročilý textový editor pro seminární práce, eseje a projekty.",
-    icon: "📄",
-    group: "Editory",
-  },
+const modules: ModuleCard[] = [
+  { id: 'kairo', title: 'Kairo AI', description: 'Osobní AI asistent a kouč', icon: Bot, color: 'from-purple-500 to-indigo-600' },
+  { id: 'solver', title: 'AI Řešitel', description: 'Pomocník pro úkoly a výpočty', icon: Sparkles, color: 'from-amber-500 to-orange-600' },
+  { id: 'notes', title: 'Poznámky', description: 'Chytrá správa učebních materiálů', icon: FileText, color: 'from-blue-500 to-cyan-600' },
+  { id: 'flashcards', title: 'Kartičky', description: 'Efektivní opakování učiva', icon: BrainCircuit, color: 'from-emerald-500 to-teal-600' },
+  { id: 'timer', title: 'Časovač', description: 'Pomodoro a soustředění', icon: Timer, color: 'from-rose-500 to-pink-600' },
+  { id: 'planner', title: 'Plánovač', description: 'Úkoly a rozvrh studia', icon: Calendar, color: 'from-violet-500 to-purple-600' },
+  { id: 'files', title: 'Soubory', description: 'Správce složek a podkladů', icon: Folder, color: 'from-sky-500 to-blue-600' },
+  { id: 'editor', title: 'Editor', description: 'Tvorba a úprava dokumentů', icon: Edit3, color: 'from-fuchsia-500 to-pink-600' },
+  { id: 'shop', title: 'Obchod', description: 'Odměny a vylepšení profilu', icon: ShoppingBag, color: 'from-yellow-500 to-amber-600' },
+  { id: 'profile', title: 'Profil', description: 'Statistiky a úroveň', icon: User, color: 'from-slate-600 to-slate-800' },
 ];
 
-interface MenuHubModuleProps {
-  onSelectModule: (id: string) => void;
-}
-
-export default function MenuHubModule({ onSelectModule }: MenuHubModuleProps) {
-  const groups = Array.from(new Set(modulesList.map((m) => m.group)));
+export default function MenuHubModule() {
+  const setActiveTab = useStore((state) => state.setActiveTab);
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 p-4">
-      <div className="bg-white/5 border border-white/10 p-6 rounded-3xl backdrop-blur-xl shadow-lg">
-        <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-          <span>🧭</span> Hlavní menu
-        </h2>
-        <p className="text-gray-400 text-sm mt-1">Vyberte si modul, který chcete otevřít.</p>
+    <div className="p-6 max-w-7xl mx-auto space-y-6">
+      <div className="text-center md:text-left">
+        <h1 className="text-3xl font-bold tracking-tight text-white">Student AI Hub</h1>
+        <p className="text-slate-400 mt-1">Vyber si modul a začni pracovat.</p>
       </div>
 
-      {groups.map((group) => (
-        <div key={group} className="space-y-4">
-          <h3 className="text-lg font-semibold text-cyan-400 border-b border-white/10 pb-2">
-            {group}
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {modulesList
-              .filter((m) => m.group === group)
-              .map((mod) => (
-                <div
-                  key={mod.id}
-                  onClick={() => onSelectModule(mod.id)}
-                  className="bg-white/5 border border-white/10 p-5 rounded-3xl backdrop-blur-xl shadow-lg flex flex-col justify-between group transition-all hover:bg-white/10 hover:border-cyan-500/30 cursor-pointer"
-                >
-                  <div>
-                    <div className="text-3xl mb-3">{mod.icon}</div>
-                    <h4 className="font-semibold text-white group-hover:text-cyan-400 transition-colors text-base mb-1">
-                      {mod.title}
-                    </h4>
-                    <p className="text-gray-400 text-xs leading-relaxed">
-                      {mod.description}
-                    </p>
-                  </div>
-                  <div className="mt-4 pt-3 border-t border-white/10 flex justify-end items-center">
-                    <span className="text-xs font-semibold text-cyan-500 group-hover:translate-x-1 transition-transform">
-                      Otevřít →
-                    </span>
-                  </div>
-                </div>
-              ))}
-          </div>
-        </div>
-      ))}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {modules.map((mod) => {
+          const Icon = mod.icon;
+          return (
+            <button
+              key={mod.id}
+              onClick={() => setActiveTab(mod.id)}
+              className="group relative overflow-hidden rounded-2xl bg-slate-800/60 p-6 text-left border border-slate-700/50 hover:border-slate-500/50 transition-all hover:scale-[1.02] active:scale-[0.98]"
+            >
+              <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${mod.color} shadow-lg mb-4 text-white`}>
+                <Icon className="w-6 h-6" />
+              </div>
+              <h2 className="text-xl font-semibold text-white group-hover:text-cyan-400 transition-colors">
+                {mod.title}
+              </h2>
+              <p className="text-sm text-slate-400 mt-1">{mod.description}</p>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
