@@ -8,10 +8,11 @@ import {
   CheckCircle2, 
   RefreshCw, 
   BookOpen, 
-  ArrowRight,
-  HelpCircle,
-  FileCode2,
-  Lightbulb
+  ArrowLeft,
+  Copy,
+  Check,
+  Zap,
+  HelpCircle
 } from 'lucide-react';
 
 export interface SolutionStep {
@@ -37,8 +38,17 @@ export default function AiSolverModule({ onBack }: AiSolverModuleProps) {
   const [problemText, setProblemText] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('matematika');
   const [isSolving, setIsSolving] = useState(false);
-  const [solvingProgress, setSolvingProgress] = useState('Připravuje se AI model...');
+  const [solvingProgress, setSolvingProgress] = useState('Inicializace AI modelu...');
   const [solution, setSolution] = useState<SolutionResult | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const subjects = [
+    { id: 'matematika', label: 'Matematika', icon: '📐' },
+    { id: 'fyzika', label: 'Fyzika', icon: '⚡' },
+    { id: 'chemie', label: 'Chemie', icon: '🧪' },
+    { id: 'programovani', label: 'Programování', icon: '💻' },
+    { id: 'obecne', label: 'Logika & Věda', icon: '🧠' }
+  ];
 
   const handleSolve = (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,47 +57,45 @@ export default function AiSolverModule({ onBack }: AiSolverModuleProps) {
     setIsSolving(true);
     setSolution(null);
 
-    // Simulace kroků přípravy řešení
-    setSolvingProgress('Připravuje se AI model...');
+    setSolvingProgress('Inicializace AI modelu...');
     
     setTimeout(() => {
       setSolvingProgress('Analýza zadání a rozpoznávání vzorců...');
-    }, 1000);
+    }, 900);
 
     setTimeout(() => {
-      setSolvingProgress('Generování postupu krok za krokem...');
-    }, 2200);
+      setSolvingProgress('Generování detailního postupu krok za krokem...');
+    }, 2000);
 
     setTimeout(() => {
-      // Vygenerované ukázkové řešení
       setSolution({
         title: 'Řešení kvadratické rovnice',
         subject: selectedSubject.toUpperCase(),
         finalAnswer: 'x₁ = 2,  x₂ = -3',
-        explanationSummary: 'Rovnici jsme vyřešili pomocí diskriminantu D = b² - 4ac a následného dosazení do vzorce pro kořeny.',
+        explanationSummary: 'Příklad jsme úspěšně rozebrali, převedli do základního tvaru a vyřešili pomocí diskriminantu.',
         steps: [
           {
             stepNumber: 1,
-            title: 'Úprava rovnice do základního tvaru',
-            explanation: 'Převedeme všechny členy na levou stranu, aby rovnice byla ve tvaru ax² + bx + c = 0.',
-            formula: 'x² + x - 6 = 0  ⇒  a = 1, b = 1, c = -6'
+            title: 'Úprava do standardního tvaru',
+            explanation: 'Převedeme všechny členy na levou stranu, aby rovnice splňovala tvar ax² + bx + c = 0.',
+            formula: 'x² + x - 6 = 0  (kde a = 1, b = 1, c = -6)'
           },
           {
             stepNumber: 2,
-            title: 'Výpočet diskriminantu (D)',
-            explanation: 'Použijeme vzorec D = b² - 4ac. Jelikož D > 0, rovnice má 2 reálné kořeny.',
+            title: 'Výpočet diskriminantu',
+            explanation: 'Aplikujeme vzorec D = b² - 4ac. Protože je D větší než nula, rovnice má dva reálné kořeny.',
             formula: 'D = 1² - 4 · 1 · (-6) = 1 + 24 = 25'
           },
           {
             stepNumber: 3,
-            title: 'Výpočet kořenů x₁ a x₂',
-            explanation: 'Dosadíme do vzorce x = (-b ± √D) / 2a.',
+            title: 'Výpočet výsledných kořenů',
+            explanation: 'Dosadíme hodnoty do vzorce pro kořeny kvadratické rovnice x = (-b ± √D) / 2a.',
             formula: 'x₁ = (-1 + 5) / 2 = 2  |  x₂ = (-1 - 5) / 2 = -3'
           }
         ]
       });
       setIsSolving(false);
-    }, 3500);
+    }, 3200);
   };
 
   const handleReset = () => {
@@ -95,162 +103,198 @@ export default function AiSolverModule({ onBack }: AiSolverModuleProps) {
     setProblemText('');
   };
 
+  const handleCopy = () => {
+    if (!solution) return;
+    const textToCopy = `${solution.title}\nVýsledek: ${solution.finalAnswer}\n\nPostup:\n` + 
+      solution.steps.map(s => `${s.stepNumber}. ${s.title}\n${s.explanation}\n${s.formula || ''}`).join('\n\n');
+    navigator.clipboard.writeText(textToCopy);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
-    <div className="p-4 md:p-8 max-w-5xl mx-auto space-y-8 text-slate-100">
+    <div className="space-y-6 max-w-4xl mx-auto pb-12">
       
-      {/* HLAVIČKA */}
-      <div className="border-b border-slate-800 pb-5 flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-extrabold text-white flex items-center gap-2.5">
-            <Calculator className="w-7 h-7 text-indigo-400" />
-            <span>AI Řešitel úloh</span>
-          </h1>
-          <p className="text-xs text-slate-400 mt-1">
-            Vložte matematický příklad, fyzikální úlohu nebo textový dotaz. AI připraví postup krok za krokem.
-          </p>
-        </div>
-        {onBack && (
-          <button
-            onClick={onBack}
-            className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs font-bold transition flex items-center gap-2 cursor-pointer text-slate-300"
-          >
-            Zpět
-          </button>
-        )}
-      </div>
+      {/* Horní lišta / Zpět */}
+      {onBack && (
+        <button 
+          onClick={onBack}
+          className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold transition flex items-center gap-2 cursor-pointer w-fit text-slate-300"
+        >
+          <ArrowLeft className="w-4 h-4" /> Zpět na Workspace
+        </button>
+      )}
 
       {!solution && !isSolving ? (
-        /* VSTUPNÍ FORMULÁŘ */
-        <form onSubmit={handleSolve} className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 space-y-6 shadow-xl">
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="md:col-span-2">
-              <label className="block text-xs font-semibold text-slate-400 mb-2">Předmět / Okruh</label>
-              <select
-                value={selectedSubject}
-                onChange={(e) => setSelectedSubject(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 font-medium cursor-pointer"
-              >
-                <option value="matematika">Matematika (Algebra, Geometrie, Integrály)</option>
-                <option value="fyzika">Fyzika (Mechanika, Elektřina, Termodynamika)</option>
-                <option value="chemie">Chemie (Rovnice, Stechiometrie)</option>
-                <option value="obecne">Obecný logický / vědecký dotaz</option>
-              </select>
+        
+        /* HLAVNÍ FORMULÁŘ */
+        <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-6 md:p-8 backdrop-blur-xl shadow-2xl space-y-6">
+          <div className="absolute top-0 right-0 w-60 h-60 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+
+          {/* Hlavička modulu */}
+          <div className="flex items-center gap-3.5 pb-4 border-b border-white/10">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+              <Calculator className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-black text-white">AI Řešitel Úloh</h1>
+              <p className="text-xs text-cyan-400">Zadej příklad a získej okamžitý postup s vysvětlením ⚡</p>
+            </div>
+          </div>
+
+          <form onSubmit={handleSolve} className="space-y-6">
+            
+            {/* Výběr předmětu - moderní pill tlačítka */}
+            <div className="space-y-2">
+              <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">Vyber předmět</label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
+                {subjects.map((sub) => (
+                  <button
+                    key={sub.id}
+                    type="button"
+                    onClick={() => setSelectedSubject(sub.id)}
+                    className={`p-3 rounded-2xl border text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer ${
+                      selectedSubject === sub.id 
+                        ? 'bg-gradient-to-r from-cyan-500 to-indigo-600 border-transparent text-white shadow-lg shadow-cyan-500/25 scale-[1.02]' 
+                        : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10'
+                    }`}
+                  >
+                    <span>{sub.icon}</span>
+                    <span>{sub.label}</span>
+                  </button>
+                ))}
+              </div>
             </div>
 
-            <div className="flex flex-col justify-end">
+            {/* Vstupní textové pole */}
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">Zadání příkladu</label>
+                <button
+                  type="button"
+                  className="text-[11px] text-cyan-400 hover:text-cyan-300 font-bold flex items-center gap-1 cursor-pointer transition"
+                >
+                  <Upload className="w-3.5 h-3.5" /> Nahrát fotku
+                </button>
+              </div>
+              <textarea
+                rows={5}
+                value={problemText}
+                onChange={(e) => setProblemText(e.target.value)}
+                placeholder="Napiš zadání příkladu (např. Vyřeš rovnici x^2 + x - 6 = 0 nebo spočítej dráhu tělesa)..."
+                className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-sm text-white placeholder-slate-500 outline-none focus:border-cyan-500 transition font-mono resize-none shadow-inner"
+              />
+            </div>
+
+            {/* Odesílací tlačítko */}
+            <div className="flex justify-end pt-2">
               <button
-                type="button"
-                className="w-full bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 py-3 rounded-2xl text-xs font-semibold transition flex items-center justify-center gap-2 cursor-pointer"
+                type="submit"
+                disabled={!problemText.trim()}
+                className="w-full sm:w-auto bg-gradient-to-r from-cyan-500 to-indigo-600 hover:opacity-90 disabled:opacity-40 text-black font-extrabold px-8 py-4 rounded-2xl text-xs transition shadow-xl shadow-cyan-500/20 flex items-center justify-center gap-2 cursor-pointer"
               >
-                <Upload className="w-4 h-4 text-indigo-400" />
-                <span>Nahrát fotku příkladu</span>
+                <Sparkles className="w-4 h-4 text-black" />
+                <span>Spočítat a vysvětlit krok za krokem</span>
               </button>
             </div>
-          </div>
+          </form>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-400 mb-2">Zadání úlohy</label>
-            <textarea
-              rows={5}
-              value={problemText}
-              onChange={(e) => setProblemText(e.target.value)}
-              placeholder="Vložte zadání (např. Vyřeš kvadratickou rovnici x^2 + x - 6 = 0 nebo Spočítej rychlost automobilu...)"
-              className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-4 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 resize-none font-mono"
-            />
-          </div>
+        </div>
 
-          <div className="flex justify-end pt-2">
-            <button
-              type="submit"
-              disabled={!problemText.trim()}
-              className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white px-8 py-3.5 rounded-2xl text-xs font-extrabold transition-all flex items-center gap-2 shadow-lg shadow-indigo-600/25 cursor-pointer"
-            >
-              <Sparkles className="w-4 h-4" />
-              <span>Spočítat a vysvětlit</span>
-            </button>
-          </div>
-        </form>
       ) : isSolving ? (
         
-        /* STAV: PŘIPRAVUJE SE ŘEŠENÍ */
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-12 text-center space-y-6 shadow-2xl max-w-xl mx-auto my-8">
-          <div className="relative w-16 h-16 mx-auto flex items-center justify-center">
-            <div className="absolute inset-0 rounded-full border-4 border-indigo-500/20 border-t-indigo-500 animate-spin" />
-            <Sparkles className="w-6 h-6 text-indigo-400 animate-pulse" />
+        /* STAV: AI PŘEMÝŠLÍ */
+        <div className="rounded-[32px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-12 backdrop-blur-xl text-center space-y-6 shadow-2xl max-w-lg mx-auto my-12">
+          <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
+            <div className="absolute inset-0 rounded-full border-4 border-cyan-500/20 border-t-cyan-400 animate-spin" />
+            <Sparkles className="w-8 h-8 text-cyan-400 animate-pulse" />
           </div>
 
           <div className="space-y-2">
-            <h3 className="text-lg font-bold text-white">Připravuje se řešení...</h3>
-            <p className="text-xs text-indigo-300 font-medium animate-pulse">{solvingProgress}</p>
+            <h3 className="text-xl font-black text-white">AI analyzuje zadání...</h3>
+            <p className="text-xs text-cyan-300 font-semibold animate-pulse">{solvingProgress}</p>
           </div>
 
-          <div className="w-full bg-slate-950 h-2 rounded-full overflow-hidden border border-slate-800">
-            <div className="bg-indigo-600 h-full rounded-full animate-pulse w-3/4" />
+          <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden border border-white/10 p-0.5">
+            <div className="bg-gradient-to-r from-cyan-400 to-indigo-500 h-full rounded-full animate-pulse w-3/4" />
           </div>
         </div>
 
       ) : (
 
-        /* ZOBRAZENÍ VÝSLEDKU A POSTUPU */
+        /* VÝSLEDEK A POSTUP */
         solution && (
           <div className="space-y-6">
             
             {/* Karta s výsledkem */}
-            <div className="bg-slate-900 border border-emerald-500/40 rounded-3xl p-6 md:p-8 space-y-4 shadow-2xl relative overflow-hidden">
-              <div className="flex justify-between items-start gap-4 border-b border-slate-800 pb-4">
-                <div>
-                  <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800">
+            <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-emerald-500/10 via-white/[0.05] to-white/[0.02] border border-emerald-500/40 p-6 md:p-8 backdrop-blur-xl shadow-2xl space-y-6">
+              
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-white/10">
+                <div className="space-y-1">
+                  <span className="text-[10px] uppercase font-bold tracking-wider px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                     {solution.subject}
                   </span>
-                  <h2 className="text-xl font-bold text-white mt-2">{solution.title}</h2>
+                  <h2 className="text-xl md:text-2xl font-black text-white pt-1">{solution.title}</h2>
                 </div>
-                <button
-                  onClick={handleReset}
-                  className="text-slate-400 hover:text-white p-2 bg-slate-950 rounded-xl border border-slate-800 transition flex items-center gap-1.5 text-xs font-semibold cursor-pointer"
-                >
-                  <RefreshCw className="w-3.5 h-3.5" />
-                  <span>Nová úloha</span>
-                </button>
+
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <button
+                    onClick={handleCopy}
+                    className="flex-1 sm:flex-initial px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-bold text-slate-300 transition flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                    <span>{copied ? 'Skopírováno' : 'Kopírovat'}</span>
+                  </button>
+                  <button
+                    onClick={handleReset}
+                    className="flex-1 sm:flex-initial px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-bold text-slate-300 transition flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                    <span>Nová úloha</span>
+                  </button>
+                </div>
               </div>
 
-              <div className="bg-emerald-950/30 border border-emerald-500/30 rounded-2xl p-4 flex items-center justify-between">
+              {/* Box výsledku */}
+              <div className="bg-emerald-950/40 border border-emerald-500/30 rounded-2xl p-5 flex items-center justify-between shadow-inner">
                 <div>
-                  <div className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">Výsledek</div>
-                  <div className="text-xl font-extrabold text-white font-mono mt-0.5">{solution.finalAnswer}</div>
+                  <div className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">Konečný výsledek</div>
+                  <div className="text-2xl font-black text-white font-mono mt-1">{solution.finalAnswer}</div>
                 </div>
-                <CheckCircle2 className="w-8 h-8 text-emerald-400" />
+                <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-lg">
+                  <CheckCircle2 className="w-6 h-6" />
+                </div>
               </div>
 
-              <p className="text-xs text-slate-300 leading-relaxed pt-1">
+              <p className="text-xs text-slate-300 leading-relaxed font-medium">
                 {solution.explanationSummary}
               </p>
             </div>
 
             {/* Postup krok za krokem */}
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 space-y-6">
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-indigo-400" />
+            <div className="rounded-[32px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-6 md:p-8 backdrop-blur-xl shadow-2xl space-y-6">
+              <h3 className="text-lg font-black text-white flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-cyan-400" />
                 <span>Postup řešení krok za krokem</span>
               </h3>
 
               <div className="space-y-4">
                 {solution.steps.map((step) => (
-                  <div key={step.stepNumber} className="bg-slate-950 border border-slate-800/80 rounded-2xl p-5 space-y-2">
+                  <div key={step.stepNumber} className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-3 hover:bg-white/[0.07] transition">
                     <div className="flex items-center gap-3">
-                      <span className="w-6 h-6 rounded-lg bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center text-xs font-bold">
+                      <span className="w-7 h-7 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 flex items-center justify-center text-xs font-bold shadow-sm">
                         {step.stepNumber}
                       </span>
                       <h4 className="text-sm font-bold text-white">{step.title}</h4>
                     </div>
 
-                    <p className="text-xs text-slate-400 leading-relaxed pl-9">
+                    <p className="text-xs text-slate-300 leading-relaxed pl-10">
                       {step.explanation}
                     </p>
 
                     {step.formula && (
-                      <div className="pl-9 pt-1">
-                        <div className="bg-slate-900 border border-slate-800 px-4 py-2.5 rounded-xl font-mono text-xs text-indigo-300 inline-block">
+                      <div className="pl-10 pt-1">
+                        <div className="bg-black/40 border border-white/10 px-4 py-2.5 rounded-xl font-mono text-xs text-cyan-300 inline-block shadow-inner">
                           {step.formula}
                         </div>
                       </div>
