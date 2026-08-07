@@ -6,6 +6,7 @@ import MenuHubModule from '@/components/modules/MenuHubModule';
 import PlochaModule from '@/components/modules/PlochaModule';
 import KairoModule from '@/components/modules/KairoModule';
 import PetModule from '@/components/modules/PetModule';
+import SettingsModule from '@/components/modules/SettingsModule';
 import NotesModule from '@/components/modules/NotesModule';
 import FlashcardsModule from '@/components/modules/FlashcardsModule';
 import FocusTimerModule from '@/components/modules/FocusTimerModule';
@@ -31,13 +32,15 @@ import {
   Calendar,
   Timer,
   Folder,
-  ShoppingBag
+  ShoppingBag,
+  Settings
 } from 'lucide-react';
 
 const sidebarItems = [
   { id: 'home', label: 'Hub', icon: LayoutGrid },
   { id: 'plocha', label: 'Plocha', icon: Grid3X3 },
   { id: 'pets', label: 'Mazlíček', icon: Dog },
+  { id: 'shop', label: 'Obchod', icon: ShoppingBag },
   { id: 'kairo', label: 'Kairo AI', icon: Bot },
   { id: 'solver', label: 'AI Řešitel', icon: Sparkles },
   { id: 'flashcards', label: 'Kartičky', icon: BrainCircuit },
@@ -46,8 +49,8 @@ const sidebarItems = [
   { id: 'planner', label: 'Plánovač', icon: Calendar },
   { id: 'timer', label: 'Časovač', icon: Timer },
   { id: 'files', label: 'Soubory', icon: Folder },
-  { id: 'shop', label: 'Obchod', icon: ShoppingBag },
   { id: 'profile', label: 'Profil', icon: User },
+  { id: 'settings', label: 'Nastavení', icon: Settings },
 ];
 
 export default function DashboardShell() {
@@ -75,6 +78,7 @@ export default function DashboardShell() {
       case 'shop': return <ShopModule />;
       case 'files': return <FileSystemModule />;
       case 'editor': return <DocumentEditorModule />;
+      case 'settings': return <SettingsModule />;
       default: return <MenuHubModule />;
     }
   };
@@ -141,67 +145,88 @@ export default function DashboardShell() {
           {renderModule()}
         </main>
 
-        {/* SPODNÍ MENU UPROSTŘED S MAZLÍČKEM A PLOCHOU */}
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 backdrop-blur-xl bg-slate-950/95 border-t border-slate-800/80 px-4 py-2 flex justify-around items-center">
+        {/* SPODNÍ MENU (HUB, MAZLÍČEK, OBCHOD | PLOCHA UPROSTŘED | KAIRO, PROFIL, NASTAVENÍ) */}
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 backdrop-blur-xl bg-slate-950/95 border-t border-slate-800/80 px-2 py-2 flex justify-between items-center overflow-x-auto">
           {/* Hub */}
           <button
             onClick={() => setActiveModule('home')}
-            className={`flex flex-col items-center justify-center py-1 px-2.5 transition-all ${
+            className={`flex flex-col items-center justify-center py-1 px-1.5 transition-all min-w-[48px] ${
               activeModule === 'home' ? 'text-cyan-400 font-semibold scale-105' : 'text-slate-400'
             }`}
           >
-            <LayoutGrid className="w-5 h-5" />
-            <span className="text-[10px] mt-1">Hub</span>
+            <LayoutGrid className="w-4 h-4" />
+            <span className="text-[9px] mt-0.5">Hub</span>
           </button>
 
           {/* Mazlíček */}
           <button
             onClick={() => setActiveModule('pets')}
-            className={`flex flex-col items-center justify-center py-1 px-2.5 transition-all ${
+            className={`flex flex-col items-center justify-center py-1 px-1.5 transition-all min-w-[48px] ${
               activeModule === 'pets' ? 'text-pink-400 font-semibold scale-105' : 'text-slate-400'
             }`}
           >
-            <Dog className="w-5 h-5" />
-            <span className="text-[10px] mt-1">Mazlíček</span>
+            <Dog className="w-4 h-4" />
+            <span className="text-[9px] mt-0.5">Mazlíček</span>
+          </button>
+
+          {/* Obchod */}
+          <button
+            onClick={() => setActiveModule('shop')}
+            className={`flex flex-col items-center justify-center py-1 px-1.5 transition-all min-w-[48px] ${
+              activeModule === 'shop' ? 'text-yellow-400 font-semibold scale-105' : 'text-slate-400'
+            }`}
+          >
+            <ShoppingBag className="w-4 h-4" />
+            <span className="text-[9px] mt-0.5">Obchod</span>
           </button>
 
           {/* PLOCHA (Uprostřed) */}
           <button
             onClick={() => setActiveModule('plocha')}
-            className={`flex flex-col items-center justify-center p-2.5 -mt-4 rounded-2xl shadow-lg transition-all border ${
+            className={`flex flex-col items-center justify-center p-2 -mt-3 rounded-2xl shadow-lg transition-all border shrink-0 ${
               activeModule === 'plocha'
                 ? 'bg-gradient-to-tr from-cyan-500 to-blue-600 text-white border-cyan-300 shadow-cyan-500/30 scale-105'
                 : 'bg-slate-800/90 text-cyan-400 border-slate-700/80 hover:bg-slate-800'
             }`}
           >
-            <Grid3X3 className="w-6 h-6 stroke-[2.2]" />
-            <span className="text-[10px] font-bold mt-0.5">Plocha</span>
+            <Grid3X3 className="w-5 h-5 stroke-[2.2]" />
+            <span className="text-[9px] font-bold mt-0.5">Plocha</span>
           </button>
 
           {/* Kairo AI */}
           <button
             onClick={() => setActiveModule('kairo')}
-            className={`flex flex-col items-center justify-center py-1 px-2.5 transition-all ${
+            className={`flex flex-col items-center justify-center py-1 px-1.5 transition-all min-w-[48px] ${
               activeModule === 'kairo' ? 'text-cyan-400 font-semibold scale-105' : 'text-slate-400'
             }`}
           >
-            <Bot className="w-5 h-5" />
-            <span className="text-[10px] mt-1">Kairo</span>
+            <Bot className="w-4 h-4" />
+            <span className="text-[9px] mt-0.5">Kairo</span>
           </button>
 
           {/* Profil */}
           <button
             onClick={() => setActiveModule('profile')}
-            className={`flex flex-col items-center justify-center py-1 px-2.5 transition-all ${
+            className={`flex flex-col items-center justify-center py-1 px-1.5 transition-all min-w-[48px] ${
               activeModule === 'profile' ? 'text-cyan-400 font-semibold scale-105' : 'text-slate-400'
             }`}
           >
-            <User className="w-5 h-5" />
-            <span className="text-[10px] mt-1">Profil</span>
+            <User className="w-4 h-4" />
+            <span className="text-[9px] mt-0.5">Profil</span>
+          </button>
+
+          {/* Nastavení */}
+          <button
+            onClick={() => setActiveModule('settings')}
+            className={`flex flex-col items-center justify-center py-1 px-1.5 transition-all min-w-[48px] ${
+              activeModule === 'settings' ? 'text-teal-400 font-semibold scale-105' : 'text-slate-400'
+            }`}
+          >
+            <Settings className="w-4 h-4" />
+            <span className="text-[9px] mt-0.5">Nastavení</span>
           </button>
         </nav>
       </div>
     </div>
   );
 }
-  
