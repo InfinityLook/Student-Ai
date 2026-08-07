@@ -1,114 +1,48 @@
-"use client";
-import React from "react";
-import KairoAvatar3D from "@/components/KairoAvatar";
+'use client';
+
+import React, { useState } from 'react';
 import KairoAvatar from './KairoAvatar';
+import KairoModule from './modules/KairoModule';
 
-interface DashboardShellProps {
-  activeModule: string;
-  setActiveModule: (id: string) => void;
-  children: React.ReactNode;
-}
+export default function DashboardShell() {
+  const [activeModule, setActiveModule] = useState<'kairo' | string>('kairo');
 
-export default function DashboardShell({
-  activeModule,
-  setActiveModule,
-  children,
-}: DashboardShellProps) {
   return (
-    <div className="min-h-screen bg-[#050508] text-white flex flex-col pb-28">
-      {/* Horní navigační lišta */}
-      <header className="border-b border-white/10 bg-black/40 backdrop-blur-xl px-6 py-4 flex items-center justify-between sticky top-0 z-40">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setActiveModule("menu")}
-            className="text-lg font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent hover:opacity-80 transition cursor-pointer flex items-center gap-2"
-          >
-            <span>🎓</span> Student AI
-          </button>
+    <div className="flex h-screen bg-slate-950 text-white overflow-hidden">
+      {/* Boční panel / Navigation */}
+      <aside className="w-20 bg-slate-900 border-r border-slate-800 flex flex-col items-center py-6 gap-6 shadow-xl z-10">
+        <div className="text-xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
+          AI
         </div>
+        
+        <button 
+          onClick={() => setActiveModule('kairo')}
+          className={`flex flex-col items-center justify-center p-2 rounded-xl transition-all ${
+            activeModule === 'kairo' 
+              ? 'bg-blue-600/20 border border-blue-500/50 text-blue-400 shadow-md' 
+              : 'text-slate-400 hover:text-white hover:bg-slate-800'
+          }`}
+          title="Kairo Asistent"
+        >
+          <div className="w-10 h-10 flex items-center justify-center overflow-hidden rounded-full">
+            <KairoAvatar size="sm" />
+          </div>
+          <span className="text-[10px] font-medium mt-1">Kairo</span>
+        </button>
+      </aside>
 
-        {activeModule !== "menu" && (
-          <button
-            onClick={() => setActiveModule("menu")}
-            className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer text-gray-300"
-          >
-            <span>←</span> Zpět do menu
-          </button>
-        )}
-      </header>
+      {/* Hlavní obsahová část */}
+      <main className="flex-1 overflow-y-auto p-6 bg-slate-950">
+        <header className="flex justify-between items-center mb-8 border-b border-slate-800 pb-4">
+          <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
+            Studijní Asistent Kairo
+          </h1>
+        </header>
 
-      {/* Hlavní obsah */}
-      <main className="flex-1 p-4 md:p-8 max-w-6xl mx-auto w-full">
-        {children}
+        <div className="max-w-4xl mx-auto">
+          {activeModule === 'kairo' && <KairoModule />}
+        </div>
       </main>
-
-      {/* Spodní plovoucí navigační panel */}
-      <nav className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 bg-black/85 backdrop-blur-2xl border border-white/15 px-4 py-2.5 rounded-2xl shadow-2xl flex items-center gap-3 md:gap-6">
-        {/* 1. Profil */}
-        <button
-          onClick={() => setActiveModule("profile")}
-          className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition cursor-pointer ${
-            activeModule === "profile"
-              ? "bg-cyan-500/20 text-cyan-400"
-              : "text-gray-400 hover:text-white hover:bg-white/5"
-          }`}
-        >
-          <span className="text-lg">👤</span>
-          <span className="text-[10px] font-medium">Profil</span>
-        </button>
-
-        {/* 2. Kairo */}
-        <button
-          onClick={() => setActiveModule("kairo")}
-          className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition cursor-pointer ${
-            activeModule === "kairo"
-              ? "bg-cyan-500/20 text-cyan-400"
-              : "text-gray-400 hover:text-white hover:bg-white/5"
-          }`}
-        >
-          <KairoAvatar size="sm" />
-          <span className="text-[10px] font-medium">Kairo</span>
-        </button>
-
-        {/* 3. Menu */}
-        <button
-          onClick={() => setActiveModule("menu")}
-          className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition cursor-pointer ${
-            activeModule === "menu"
-              ? "bg-cyan-500/20 text-cyan-400"
-              : "text-gray-400 hover:text-white hover:bg-white/5"
-          }`}
-        >
-          <span className="text-lg">🏠</span>
-          <span className="text-[10px] font-medium">Menu</span>
-        </button>
-
-        {/* 4. Obchod */}
-        <button
-          onClick={() => setActiveModule("shop")}
-          className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition cursor-pointer ${
-            activeModule === "shop"
-              ? "bg-cyan-500/20 text-cyan-400"
-              : "text-gray-400 hover:text-white hover:bg-white/5"
-          }`}
-        >
-          <span className="text-lg">🛒</span>
-          <span className="text-[10px] font-medium">Obchod</span>
-        </button>
-
-        {/* 5. Nastavení */}
-        <button
-          onClick={() => setActiveModule("profile")}
-          className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition cursor-pointer ${
-            activeModule === "settings"
-              ? "bg-cyan-500/20 text-cyan-400"
-              : "text-gray-400 hover:text-white hover:bg-white/5"
-          }`}
-        >
-          <span className="text-lg">⚙️</span>
-          <span className="text-[10px] font-medium">Nastavení</span>
-        </button>
-      </nav>
     </div>
   );
 }
