@@ -1,22 +1,10 @@
-import type { Metadata, Viewport } from "next";
-import "./globals.css";
-import PwaRegister from "@/components/PwaRegister";
+import type { Metadata } from 'next';
+import './globals.css';
 
 export const metadata: Metadata = {
-  title: "Student AI",
-  description: "Tvůj AI asistent pro školu",
-  manifest: "/manifest.json",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "black-translucent",
-    title: "Student AI",
-  },
-};
-
-export const viewport: Viewport = {
-  themeColor: "#12101C",
-  width: "device-width",
-  initialScale: 1,
+  title: 'Student AI',
+  description: 'AI studijní asistent',
+  manifest: '/manifest.json',
 };
 
 export default function RootLayout({
@@ -26,16 +14,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="cs">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-      <body>
-        <PwaRegister />
+      <body className="bg-slate-900 text-white min-h-screen antialiased">
         {children}
       </body>
     </html>
