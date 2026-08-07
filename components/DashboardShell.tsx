@@ -17,6 +17,7 @@ import {
   Sparkles,
   Flame
 } from 'lucide-react';
+import CalendarModule from './modules/CalendarModule';
 
 export default function DashboardShell() {
   const [activeView, setActiveView] = useState('workspace');
@@ -37,34 +38,19 @@ export default function DashboardShell() {
       case 'workspace':
         return (
           <div className="space-y-6">
-            <div className="flex justify-between items-end">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div>
                 <span className="text-xs font-bold px-3 py-1 rounded-full bg-pink-500/10 text-pink-400 border border-pink-500/20 inline-flex items-center gap-1.5 mb-3">
                   <Flame className="w-3.5 h-3.5 text-pink-400" /> 3 denní streak! 🔥
                 </span>
                 <h1 className="text-3xl md:text-4xl font-black tracking-tight text-white">
-                  Vítej zpět, <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400">studente</span> ⚡
+                  Studijní <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400">Workspace</span> ⚡
                 </h1>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              {/* Karta 1 */}
-              <div className="group relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-7 hover:border-pink-500/50 transition-all duration-300 hover:scale-[1.01] cursor-pointer">
-                <div className="absolute top-0 right-0 w-40 h-40 bg-pink-500/10 rounded-full blur-3xl group-hover:bg-pink-500/20 transition-all" />
-                <CalendarDays className="w-9 h-9 text-pink-400 mb-4" />
-                <h3 className="text-xl font-bold text-white mb-1">Kalendář & Zkoušky</h3>
-                <p className="text-sm text-slate-400">Máš 2 testy tento týden. Makej! 🚀</p>
-              </div>
-
-              {/* Karta 2 */}
-              <div className="group relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-7 hover:border-cyan-500/50 transition-all duration-300 hover:scale-[1.01] cursor-pointer">
-                <div className="absolute top-0 right-0 w-40 h-40 bg-cyan-500/10 rounded-full blur-3xl group-hover:bg-cyan-500/20 transition-all" />
-                <Calculator className="w-9 h-9 text-cyan-400 mb-4" />
-                <h3 className="text-xl font-bold text-white mb-1">AI Řešitel Úloh</h3>
-                <p className="text-sm text-slate-400">Zasekl ses na příkladu? Nech si ho vysvětlit.</p>
-              </div>
-            </div>
+            {/* Vložený modul kalendáře a zkoušek */}
+            <CalendarModule />
           </div>
         );
       case 'pet':
@@ -92,7 +78,7 @@ export default function DashboardShell() {
         return (
           <div className="rounded-[32px] bg-white/[0.03] border border-white/10 p-8 max-w-2xl mx-auto text-center space-y-6 backdrop-blur-xl">
             <Trophy className="w-16 h-16 text-yellow-400 mx-auto animate-bounce" />
-            <h2 className="text-2xl font-black text-white">Sínň slávy & Odměny</h2>
+            <h2 className="text-2xl font-black text-white">Síň slávy & Odměny</h2>
             <div className="grid grid-cols-3 gap-4">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="aspect-square rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-3xl hover:bg-white/10 transition cursor-pointer">
@@ -124,7 +110,7 @@ export default function DashboardShell() {
             <div className="bg-gradient-to-br from-pink-500/10 via-purple-500/10 to-indigo-500/10 border border-pink-500/30 p-6 rounded-[28px] space-y-4">
               <h3 className="font-bold text-white text-lg">Mega Boost Pack</h3>
               <p className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400">500 kreditů</p>
-              <button className="w-full py-3.5 bg-gradient-to-r from-pink-500 to-purple-600 hover:opacity-90 text-white font-bold rounded-2xl text-xs transition shadow-lg shadow-pink-500/25">
+              <button className="w-full py-3.5 bg-gradient-to-r from-pink-500 to-purple-600 hover:opacity-90 text-white font-bold rounded-2xl text-xs transition shadow-lg shadow-pink-500/25 cursor-pointer">
                 Koupit za 199 Kč 🚀
               </button>
             </div>
@@ -173,7 +159,7 @@ export default function DashboardShell() {
       
       {/* Glow mesh pozadí */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        <div className="absolute top-[-20%] left--[10%] w-[500px] h-[500px] bg-purple-600/15 rounded-full blur-[140px]" />
+        <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-purple-600/15 rounded-full blur-[140px]" />
         <div className="absolute bottom-[-10%] right-[10%] w-[500px] h-[500px] bg-pink-600/15 rounded-full blur-[140px]" />
       </div>
 
@@ -197,7 +183,7 @@ export default function DashboardShell() {
       </header>
 
       {/* Hlavní obsah s animací */}
-      <main className="relative z-10 pt-28 px-4 md:px-8 max-w-4xl mx-auto min-h-[75vh]">
+      <main className="relative z-10 pt-28 px-4 md:px-8 max-w-5xl mx-auto min-h-[75vh]">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeView}
@@ -220,7 +206,7 @@ export default function DashboardShell() {
             <button
               key={item.id}
               onClick={() => setActiveView(item.id)}
-              className={`relative flex items-center justify-center p-3.5 rounded-2xl transition-all duration-300 ease-out group ${
+              className={`relative flex items-center justify-center p-3.5 rounded-2xl transition-all duration-300 ease-out group cursor-pointer ${
                 isActive 
                   ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg shadow-pink-500/25 scale-105' 
                   : 'text-slate-400 hover:text-white hover:bg-white/5'
@@ -235,4 +221,4 @@ export default function DashboardShell() {
 
     </div>
   );
-            }
+    }
