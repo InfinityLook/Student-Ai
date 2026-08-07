@@ -10,7 +10,6 @@ import {
   Highlighter, 
   Bold, 
   Italic, 
-  List, 
   Tag, 
   Clock, 
   Sparkles,
@@ -27,28 +26,11 @@ interface Note {
 
 const CATEGORIES = ['Vše', 'Matematika', 'Český jazyk', 'Dějepis', 'Fyzika', 'Osobní'];
 
-const INITIAL_NOTES: Note[] = [
-  {
-    id: '1',
-    title: 'Kvadratické rovnice - Vzorce',
-    content: 'Obecný tvar: ax² + bx + c = 0.<br><br>Diskriminant se spočítá jako: <mark class="bg-amber-400/30 text-amber-200 px-1.5 py-0.5 rounded font-semibold border border-amber-400/40">D = b² - 4ac</mark>.<br><br>Pokud je D > 0, rovnice má <mark class="bg-emerald-400/30 text-emerald-200 px-1.5 py-0.5 rounded font-semibold border border-emerald-400/40">dva reálné kořeny</mark>.<br>Pokud je D = 0, rovnice má <b>jeden kořen</b>.',
-    category: 'Matematika',
-    updatedAt: 'Dnes, 14:20'
-  },
-  {
-    id: '2',
-    title: 'Národní obrození - 2. fáze',
-    content: 'Hlavní představitelé obrozenecké fáze:<br>• <mark class="bg-cyan-400/30 text-cyan-200 px-1.5 py-0.5 rounded font-semibold border border-cyan-400/40">Josef Jungmann</mark> - autor Česko-německého slovníku.<br>• František Palacký - historik a politik.<br><br>Cílem bylo <mark class="bg-pink-400/30 text-pink-200 px-1.5 py-0.5 rounded font-semibold border border-pink-400/40">rozšíření českého jazyka</mark> do vědy a literatury.',
-    category: 'Dějepis',
-    updatedAt: 'Včera, 09:15'
-  }
-];
-
 export default function NotesModule() {
   const addNotification = useStore((state) => state.addNotification);
 
-  const [notes, setNotes] = useState<Note[]>(INITIAL_NOTES);
-  const [selectedNoteId, setSelectedNoteId] = useState<string>(INITIAL_NOTES[0]?.id || '');
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [selectedNoteId, setSelectedNoteId] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Vše');
 
@@ -74,8 +56,8 @@ export default function NotesModule() {
   const handleDeleteNote = (id: string) => {
     const filtered = notes.filter((n) => n.id !== id);
     setNotes(filtered);
-    if (selectedNoteId === id && filtered.length > 0) {
-      setSelectedNoteId(filtered[0].id);
+    if (selectedNoteId === id) {
+      setSelectedNoteId(filtered.length > 0 ? filtered[0].id : '');
     }
     addNotification('Poznámka byla smazána', 'info');
   };
@@ -185,7 +167,7 @@ export default function NotesModule() {
         <div className="flex-1 overflow-y-auto p-3 space-y-2">
           {filteredNotes.length === 0 ? (
             <div className="text-center py-8 text-xs text-slate-500">
-              Žádné poznámky nenalezeny.
+              {notes.length === 0 ? 'Zatím nemáš žádné poznámky.' : 'Žádná poznámka neodpovídá filtru.'}
             </div>
           ) : (
             filteredNotes.map((note) => {
@@ -361,10 +343,10 @@ export default function NotesModule() {
       ) : (
         <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-slate-500">
           <FileText className="w-12 h-12 mb-3 text-slate-700" />
-          <p className="text-sm">Vyber nebo vytvoř poznámku pro úpravu</p>
+          <p className="text-sm">Vytvoř svou první poznámku kliknutím na tlačítko <b>Přidat</b></p>
         </div>
       )}
 
     </div>
   );
-                    }
+}
