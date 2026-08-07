@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import KairoAvatar3D from "@/components/KairoAvatar";
+import KairoAvatar from './KairoAvatar';
 
 interface DashboardShellProps {
   activeModule: string;
