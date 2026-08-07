@@ -8,7 +8,6 @@ import {
   RotateCw, 
   CheckCircle2, 
   XCircle, 
-  Sparkles, 
   Trash2, 
   ArrowLeft, 
   FolderPlus, 
@@ -103,7 +102,7 @@ export default function FlashcardsModule() {
       name: newGroupName,
       color: newGroupColor
     };
-    setGroups([...groups, createdGroup]);
+    setGroups((prev) => [...prev, createdGroup]);
     setNewGroupName('');
     setMode('overview');
     addNotification(`Skupina "${createdGroup.name}" byla vytvořena`, 'success');
@@ -111,16 +110,16 @@ export default function FlashcardsModule() {
 
   const handleDeleteGroup = (groupId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setGroups(groups.filter((g) => g.id !== groupId));
-    setDecks(decks.map((d) => d.groupId === groupId ? { ...d, groupId: '' } : d));
+    setGroups((prev) => prev.filter((g) => g.id !== groupId));
+    setDecks((prev) => prev.map((d) => (d.groupId === groupId ? { ...d, groupId: '' } : d)));
     if (selectedGroupId === groupId) setSelectedGroupId('all');
     addNotification('Skupina byla smazána', 'info');
   };
 
   // --- SPRÁVA SAD A KARTIČEK ---
   const handleAddCardToNewDeck = (type: CardType) => {
-    setNewCards([
-      ...newCards,
+    setNewCards((prev) => [
+      ...prev,
       type === 'standard'
         ? { type: 'standard', front: '', back: '' }
         : { type: 'yesno', front: '', back: '', correctAnswer: true }
@@ -149,7 +148,7 @@ export default function FlashcardsModule() {
       }))
     };
 
-    setDecks([createdDeck, ...decks]);
+    setDecks((prev) => [createdDeck, ...prev]);
     setNewDeckTitle('');
     setNewCards([{ type: 'standard', front: '', back: '' }]);
     setMode('overview');
@@ -158,7 +157,7 @@ export default function FlashcardsModule() {
 
   const handleDeleteDeck = (deckId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setDecks(decks.filter((d) => d.id !== deckId));
+    setDecks((prev) => prev.filter((d) => d.id !== deckId));
     addNotification('Sada byla smazána', 'info');
   };
 
@@ -507,4 +506,4 @@ export default function FlashcardsModule() {
                               : 'bg-slate-950 border-slate-800 hover:border-cyan-500/40'
                         }`}
                       >
-                        <div className="absolute top-4 left-4 flex items-center gap-1.5 text-[10px] font-bold text-slate-4
+                        <div className="absolute top-4 left-4 flex items-center gap-
