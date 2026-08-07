@@ -15,10 +15,12 @@ import {
   Database,
   Sparkles,
   Flame,
-  ArrowRight
+  ArrowRight,
+  Timer
 } from 'lucide-react';
 import CalendarModule from './modules/CalendarModule';
-import AiSolver from './modules/AiSolver';
+import AiSolverModule from './modules/AiSolverModule';
+import FocusTimerModule from './modules/FocusTimerModule';
 
 export default function DashboardShell() {
   const [activeView, setActiveView] = useState('workspace');
@@ -50,8 +52,9 @@ export default function DashboardShell() {
               </div>
             </div>
 
-            {/* Hlavní karty ve Workspace */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {/* Hlavní karty ve Workspace (3 sloupce) */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              
               {/* Kalendář karta */}
               <div 
                 onClick={() => setActiveView('calendar')}
@@ -61,7 +64,7 @@ export default function DashboardShell() {
                 <div>
                   <CalendarDays className="w-9 h-9 text-pink-400 mb-4" />
                   <h3 className="text-xl font-bold text-white mb-1">Kalendář & Zkoušky</h3>
-                  <p className="text-sm text-slate-400">Správa termínů a zkoušek. Zobrazit detail. 🚀</p>
+                  <p className="text-sm text-slate-400">Správa termínů a zkoušek. 🚀</p>
                 </div>
                 <div className="mt-6 flex items-center gap-2 text-xs font-bold text-pink-400 group-hover:translate-x-1 transition-transform">
                   <span>Otevřít kalendář</span>
@@ -69,7 +72,7 @@ export default function DashboardShell() {
                 </div>
               </div>
 
-              {/* AI Řešitel karta - nyní plně napojená */}
+              {/* AI Řešitel karta */}
               <div 
                 onClick={() => setActiveView('ai-solver')}
                 className="group relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-7 hover:border-cyan-500/50 transition-all duration-300 hover:scale-[1.01] cursor-pointer flex flex-col justify-between"
@@ -85,6 +88,24 @@ export default function DashboardShell() {
                   <ArrowRight className="w-4 h-4" />
                 </div>
               </div>
+
+              {/* Focus Timer karta - NOVÁ */}
+              <div 
+                onClick={() => setActiveView('focus-timer')}
+                className="group relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-7 hover:border-purple-500/50 transition-all duration-300 hover:scale-[1.01] cursor-pointer flex flex-col justify-between"
+              >
+                <div className="absolute top-0 right-0 w-40 h-40 bg-purple-500/10 rounded-full blur-3xl group-hover:bg-purple-500/20 transition-all" />
+                <div>
+                  <Timer className="w-9 h-9 text-purple-400 mb-4" />
+                  <h3 className="text-xl font-bold text-white mb-1">Focus Timer</h3>
+                  <p className="text-sm text-slate-400">Pomodoro časomíra pro soustředěné učení.</p>
+                </div>
+                <div className="mt-6 flex items-center gap-2 text-xs font-bold text-purple-400 group-hover:translate-x-1 transition-transform">
+                  <span>Spustit timer</span>
+                  <ArrowRight className="w-4 h-4" />
+                </div>
+              </div>
+
             </div>
           </div>
         );
@@ -92,6 +113,8 @@ export default function DashboardShell() {
         return <CalendarModule onBack={() => setActiveView('workspace')} />;
       case 'ai-solver':
         return <AiSolverModule onBack={() => setActiveView('workspace')} />;
+      case 'focus-timer':
+        return <FocusTimerModule onBack={() => setActiveView('workspace')} />;
       case 'pet':
         return (
           <div className="rounded-[32px] bg-gradient-to-b from-purple-900/20 to-black/40 border border-purple-500/20 p-8 max-w-xl mx-auto text-center space-y-6 backdrop-blur-xl">
@@ -240,7 +263,7 @@ export default function DashboardShell() {
       <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1.5 p-2 rounded-[28px] bg-black/60 backdrop-blur-2xl border border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.8)]">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = activeView === item.id || ((activeView === 'calendar' || activeView === 'ai-solver') && item.id === 'workspace');
+          const isActive = activeView === item.id || ((activeView === 'calendar' || activeView === 'ai-solver' || activeView === 'focus-timer') && item.id === 'workspace');
           return (
             <button
               key={item.id}
@@ -260,5 +283,5 @@ export default function DashboardShell() {
 
     </div>
   );
-            }
+                }
                       
