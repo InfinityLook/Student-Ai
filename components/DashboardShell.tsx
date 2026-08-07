@@ -1,51 +1,161 @@
 'use client';
 
-import React, { ReactNode, Dispatch, SetStateAction } from 'react';
-import KairoAvatar from './KairoAvatar';
+import React from 'react';
+import { useStore, ActiveTab } from '@/store/useStore';
+import MenuHubModule from '@/components/modules/MenuHubModule';
+import KairoModule from '@/components/modules/KairoModule';
+import NotesModule from '@/components/modules/NotesModule';
+import FlashcardsModule from '@/components/modules/FlashcardsModule';
+import FocusTimerModule from '@/components/modules/FocusTimerModule';
+import AISolver from '@/components/modules/AISolver';
+import TaskPlannerModule from '@/components/modules/TaskPlannerModule';
+import ProfileModule from '@/components/modules/ProfileModule';
+import ShopModule from '@/components/modules/ShopModule';
+import FileSystemModule from '@/components/modules/FileSystemModule';
+import DocumentEditorModule from '@/components/DocumentEditorModule';
 
-interface DashboardShellProps {
-  children: ReactNode;
-  activeModule: string;
-  setActiveModule: Dispatch<SetStateAction<string>>;
+import { 
+  LayoutGrid, 
+  Bot, 
+  FileText, 
+  BrainCircuit, 
+  Timer, 
+  Sparkles, 
+  Calendar, 
+  User, 
+  ShoppingBag, 
+  Folder,
+  Edit3,
+  Coins
+} from 'lucide-react';
+
+interface NavItem {
+  id: ActiveTab;
+  label: string;
+  icon: React.ElementType;
 }
 
-export default function DashboardShell({ children, activeModule, setActiveModule }: DashboardShellProps) {
+const navItems: NavItem[] = [
+  { id: 'hub', label: 'Hub', icon: LayoutGrid },
+  { id: 'kairo', label: 'Kairo AI', icon: Bot },
+  { id: 'solver', label: 'AI Řešitel', icon: Sparkles },
+  { id: 'notes', label: 'Poznámky', icon: FileText },
+  { id: 'flashcards', label: 'Kartičky', icon: BrainCircuit },
+  { id: 'timer', label: 'Časovač', icon: Timer },
+  { id: 'planner', label: 'Plánovač', icon: Calendar },
+  { id: 'files', label: 'Soubory', icon: Folder },
+  { id: 'editor', label: 'Editor', icon: Edit3 },
+  { id: 'shop', label: 'Obchod', icon: ShoppingBag },
+  { id: 'profile', label: 'Profil', icon: User },
+];
+
+export default function DashboardShell() {
+  const activeTab = useStore((state) => state.activeTab);
+  const setActiveTab = useStore((state) => state.setActiveTab);
+  const coins = useStore((state) => state.coins);
+  const level = useStore((state) => state.level);
+
+  const renderModule = () => {
+    switch (activeTab) {
+      case 'hub': return <MenuHubModule />;
+      case 'kairo': return <KairoModule />;
+      case 'notes': return <NotesModule />;
+      case 'flashcards': return <FlashcardsModule />;
+      case 'timer': return <FocusTimerModule />;
+      case 'solver': return <AISolver />;
+      case 'planner': return <TaskPlannerModule />;
+      case 'profile': return <ProfileModule />;
+      case 'shop': return <ShopModule />;
+      case 'files': return <FileSystemModule />;
+      case 'editor': return <DocumentEditorModule />;
+      default: return <MenuHubModule />;
+    }
+  };
+
   return (
-    <div className="flex h-screen bg-slate-950 text-white overflow-hidden">
-      {/* Boční panel / Navigation */}
-      <aside className="w-20 bg-slate-900 border-r border-slate-800 flex flex-col items-center py-6 gap-6 shadow-xl z-10">
-        <div className="text-xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
-          AI
-        </div>
-        
-        <button 
-          onClick={() => setActiveModule('kairo')}
-          className={`flex flex-col items-center justify-center p-2 rounded-xl transition-all ${
-            activeModule === 'kairo' 
-              ? 'bg-blue-600/20 border border-blue-500/50 text-blue-400 shadow-md' 
-              : 'text-slate-400 hover:text-white hover:bg-slate-800'
-          }`}
-          title="Kairo Asistent"
-        >
-          <div className="w-10 h-10 flex items-center justify-center overflow-hidden rounded-full">
-            <KairoAvatar size="sm" />
+    <div className="flex h-screen bg-slate-900 text-slate-100 overflow-hidden">
+      {/* Boční navigace pro desktopy */}
+      <aside className="hidden md:flex flex-col w-64 bg-slate-950 border-r border-slate-800">
+        <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+          <button 
+            onClick={() => setActiveTab('hub')}
+            className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent"
+          >
+            Student AI
+          </button>
+          <div className="flex items-center gap-1 bg-amber-500/10 text-amber-400 px-2.5 py-1 rounded-full text-xs font-semibold border border-amber-500/20">
+            <Coins className="w-3.5 h-3.5" />
+            <span>{coins}</span>
           </div>
-          <span className="text-[10px] font-medium mt-1">Kairo</span>
-        </button>
+        </div>
+
+        <nav className="flex-1 overflow-y-auto p-3 space-y-1">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                  isActive 
+                    ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' 
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                }`}
+              >
+                <Icon className="w-4 h-4" />
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
+        </nav>
+
+        <div className="p-4 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+          <span>Úroveň {level}</span>
+          <span className="bg-slate-800 px-2 py-0.5 rounded">v1.0</span>
+        </div>
       </aside>
 
       {/* Hlavní obsahová část */}
-      <main className="flex-1 overflow-y-auto p-6 bg-slate-950">
-        <header className="flex justify-between items-center mb-8 border-b border-slate-800 pb-4">
-          <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
-            Studijní Asistent Kairo
-          </h1>
+      <div className="flex-1 flex flex-col h-full overflow-hidden">
+        {/* Mobilní hlavička */}
+        <header className="md:hidden flex items-center justify-between p-4 bg-slate-950 border-b border-slate-800">
+          <button 
+            onClick={() => setActiveTab('hub')}
+            className="font-bold text-lg text-cyan-400"
+          >
+            Student AI
+          </button>
+          <div className="flex items-center gap-1 bg-amber-500/10 text-amber-400 px-2 py-1 rounded-full text-xs font-semibold">
+            <Coins className="w-3 h-3" />
+            <span>{coins}</span>
+          </div>
         </header>
 
-        <div className="max-w-4xl mx-auto">
-          {children}
-        </div>
-      </main>
+        {/* Dynamicky vložený modul */}
+        <main className="flex-1 overflow-y-auto bg-slate-900">
+          {renderModule()}
+        </main>
+
+        {/* Mobilní spodní lišta */}
+        <nav className="md:hidden border-t border-slate-800 bg-slate-950 flex justify-around p-2">
+          {navItems.slice(0, 5).map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`flex flex-col items-center p-2 text-xs ${
+                  isActive ? 'text-cyan-400' : 'text-slate-400'
+                }`}
+              >
+                <Icon className="w-5 h-5" />
+              </button>
+            );
+          })}
+        </nav>
+      </div>
     </div>
   );
 }
