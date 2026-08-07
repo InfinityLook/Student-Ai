@@ -27,6 +27,7 @@ import FocusTimerModule from './modules/FocusTimerModule';
 import NotesModule from './modules/NotesModule';
 import AITestModule from './modules/AITestModule';
 import FlashcardsModule from './modules/FlashcardsModule';
+import LevelBadge from './LevelBadge';
 
 export default function DashboardShell() {
   const [activeView, setActiveView] = useState('workspace');
@@ -55,6 +56,9 @@ export default function DashboardShell() {
                 <h1 className="text-3xl md:text-4xl font-black tracking-tight text-white">
                   Studijní <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400">Workspace</span> ⚡
                 </h1>
+              </div>
+              <div className="w-full md:w-72">
+                <LevelBadge level={4} currentXp={85} maxXp={100} />
               </div>
             </div>
 
@@ -146,7 +150,7 @@ export default function DashboardShell() {
                 </div>
               </div>
 
-              {/* Flashcards karta - NOVÁ */}
+              {/* Flashcards karta */}
               <div 
                 onClick={() => setActiveView('flashcards')}
                 className="group relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-7 hover:border-amber-500/50 transition-all duration-300 hover:scale-[1.01] cursor-pointer flex flex-col justify-between"
@@ -346,5 +350,5 @@ export default function DashboardShell() {
 
     </div>
   );
-              }
-        
+                  }
+              
