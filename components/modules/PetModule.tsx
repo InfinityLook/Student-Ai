@@ -1,227 +1,198 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useStore } from '@/store/useStore';
-import { 
-  Dog, 
-  Heart, 
-  Zap, 
-  Smile, 
-  Utensils, 
-  Gamepad2, 
-  Moon, 
-  Sparkles, 
-  Coins, 
-  Award,
-  TrendingUp,
-  RefreshCw
-} from 'lucide-react';
+import { ArrowLeft, Heart, Sparkles, Zap, Utensils, Smile, Trophy } from 'lucide-react';
+import { useNotification } from '../NotificationSystem';
+import { motion } from 'framer-motion';
 
-export default function PetModule() {
-  const credits = useStore((state) => state.credits);
-  const deductCredits = useStore((state) => state.deductCredits);
-  const addNotification = useStore((state) => state.addNotification);
+export default function PetModule({ onBack }: { onBack: () => void }) {
+  const { addNotification } = useNotification();
+  const [happiness, setHappiness] = useState(80);
+  const [hunger, setHunger] = useState(65);
+  const [petLevel, setPetLevel] = useState(4);
+  const [xp, setXp] = useState(85);
+  const [isClicked, setIsClicked] = useState(false);
 
-  // Stav mazlíčka
-  const [petName, setPetName] = useState('Byte');
-  const [level, setLevel] = useState(3);
-  const [xp, setXp] = useState(65);
-  const maxXp = 100;
-
-  const [hunger, setHunger] = useState(70); // 0-100 (100 = najedený)
-  const [happiness, setHappiness] = useState(85); // 0-100
-  const [energy, setEnergy] = useState(60); // 0-100
-
-  // Krmení mazlíčka
   const handleFeed = () => {
-    const cost = 15;
-    if (credits < cost) {
-      addNotification(`Nedostatek kreditů! Potřebuješ ${cost} K.`, 'error');
-      return;
-    }
     if (hunger >= 100) {
-      addNotification(`${petName} už nemá hlad!`, 'info');
+      addNotification('info', 'Mazlíček má plné bříško! 🍔');
       return;
     }
-
-    deductCredits(cost);
-    setHunger((prev) => Math.min(100, prev + 25));
-    setHappiness((prev) => Math.min(100, prev + 5));
-    addNotification(`${petName} se napapal! (+25% Jídlo)`, 'success');
+    setHunger(prev => Math.min(100, prev + 20));
+    setHappiness(prev => Math.min(100, prev + 10));
+    addNotification('success', 'Nakrmil jsi mazlíčka! +10 XP ✨');
   };
 
-  // Hraní si s mazlíčkem
+  const handlePet = () => {
+    setIsClicked(true);
+    setTimeout(() => setIsClicked(false), 400);
+    setHappiness(prev => Math.min(100, prev + 15));
+    addNotification('success', 'Mazlíček radostně poskočil a vrní! ❤️');
+  };
+
   const handlePlay = () => {
-    if (energy < 15) {
-      addNotification(`${petName} je příliš unavený na hraní!`, 'error');
-      return;
-    }
-
-    setEnergy((prev) => Math.max(0, prev - 15));
-    setHappiness((prev) => Math.min(100, prev + 20));
-
-    // Přidání XP
-    const newXp = xp + 15;
-    if (newXp >= maxXp) {
-      setLevel((prev) => prev + 1);
-      setXp(newXp - maxXp);
-      addNotification(`🎉 ${petName} postoupil na Level ${level + 1}!`, 'success');
-    } else {
-      setXp(newXp);
-      addNotification(`Aktivita dokončena! (+15 XP)`, 'success');
-    }
-  };
-
-  // Odpočinek
-  const handleRest = () => {
-    if (energy >= 100) {
-      addNotification(`${petName} je plný energie!`, 'info');
-      return;
-    }
-    setEnergy(100);
-    setHunger((prev) => Math.max(0, prev - 10));
-    addNotification(`${petName} se vyspal a nabral sílu!`, 'success');
+    setHappiness(prev => Math.min(100, prev + 25));
+    setHunger(prev => Math.max(0, prev - 15));
+    setXp(prev => {
+      const nextXp = prev + 15;
+      if (nextXp >= 100) {
+        setPetLevel(l => l + 1);
+        addNotification('success', `Gratulace! Tvůj mazlíček postoupil na Level ${petLevel + 1}! 🚀`);
+        return nextXp - 100;
+      }
+      return nextXp;
+    });
+    addNotification('success', 'Hráli jste si spolu! +15 XP 🎾');
   };
 
   return (
-    <div className="p-4 md:p-8 max-w-4xl mx-auto space-y-6">
-      {/* Hlavička */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
-        <div>
-          <h1 className="text-2xl font-extrabold text-white flex items-center gap-2.5">
-            <Dog className="w-7 h-7 text-pink-400" />
-            <span>Studijní Mazlíček</span>
-          </h1>
-          <p className="text-xs text-slate-400 mt-1">
-            Staraj se o svého parťáka za kredity získané ze studia.
-          </p>
-        </div>
+    <div className="space-y-6 max-w-3xl mx-auto">
+      <button 
+        onClick={onBack}
+        className="flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-white transition cursor-pointer bg-white/5 px-4 py-2 rounded-xl border border-white/10"
+      >
+        <ArrowLeft className="w-4 h-4" /> Zpět do Workspace
+      </button>
 
-        <div className="flex items-center gap-2 self-start sm:self-auto bg-amber-500/10 text-amber-400 px-3 py-1.5 rounded-xl text-xs font-semibold border border-amber-500/20">
-          <Coins className="w-4 h-4" />
-          <span>{credits} K</span>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Heart className="w-8 h-8 text-pink-400" />
+          <h1 className="text-3xl font-black text-white">AI Mazlíček</h1>
+        </div>
+        <div className="bg-pink-500/10 border border-pink-500/20 px-4 py-1.5 rounded-full text-xs font-bold text-pink-400 flex items-center gap-1.5 shadow-lg shadow-pink-500/10">
+          <Sparkles className="w-3.5 h-3.5" /> Level {petLevel}
         </div>
       </div>
 
-      {/* Kartu Mazlíčka */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Vizualizace Mazlíčka */}
-        <div className="md:col-span-1 bg-gradient-to-b from-pink-900/20 to-slate-900 border border-pink-500/20 rounded-3xl p-6 flex flex-col items-center justify-center text-center relative overflow-hidden">
-          {/* Odznak Levelu */}
-          <div className="absolute top-4 left-4 bg-pink-500/20 border border-pink-500/30 text-pink-300 text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
-            <Award className="w-3.5 h-3.5" />
-            <span>LVL {level}</span>
-          </div>
+      {/* Main 3D Pet Showcase Card */}
+      <div className="relative overflow-hidden rounded-[36px] bg-gradient-to-b from-purple-950/40 via-black/60 to-black/80 border border-purple-500/30 p-8 text-center space-y-6 backdrop-blur-2xl shadow-[0_20px_60px_rgba(0,0,0,0.8)]">
+        {/* Glow Effects */}
+        <div className="absolute top-0 right-1/4 w-72 h-72 bg-pink-500/15 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute bottom-0 left-1/4 w-72 h-72 bg-purple-600/15 rounded-full blur-[100px] pointer-events-none" />
 
-          {/* Avatar / Ikona */}
-          <div className="relative my-6 group">
-            <div className="absolute -inset-4 bg-pink-500/20 rounded-full blur-xl group-hover:bg-pink-500/30 transition-all"></div>
-            <div className="relative w-28 h-28 bg-slate-800 border-2 border-pink-400/50 rounded-full flex items-center justify-center shadow-2xl">
-              <Dog className="w-16 h-16 text-pink-400 animate-bounce" />
+        {/* 3D Cute Pet Container */}
+        <div className="py-8 flex justify-center items-center perspective-[1000px]">
+          <motion.div 
+            animate={{ 
+              y: [0, -12, 0],
+              rotateX: [0, 5, 0],
+              rotateY: [0, 8, 0],
+              scale: isClicked ? [1, 0.9, 1.12, 1] : 1 
+            }}
+            transition={{ 
+              y: { repeat: Infinity, duration: 3.5, ease: "easeInOut" },
+              rotateX: { repeat: Infinity, duration: 4, ease: "easeInOut" },
+              rotateY: { repeat: Infinity, duration: 5, ease: "easeInOut" }
+            }}
+            onClick={handlePet}
+            style={{ transformStyle: 'preserve-3d' }}
+            className="relative w-44 h-44 cursor-pointer group"
+          >
+            {/* Floating 3D Orbits / Rings */}
+            <div className="absolute -inset-4 rounded-full border border-pink-500/20 animate-spin duration-1000 pointer-events-none" style={{ animationDuration: '12s' }} />
+            <div className="absolute -inset-8 rounded-full border border-purple-500/15 pointer-events-none" style={{ transform: 'rotateX(60deg) rotateY(30deg)' }} />
+
+            {/* Cute 3D Sphere Body */}
+            <div className="absolute inset-0 rounded-[48px] bg-gradient-to-tr from-pink-600 via-purple-600 to-indigo-500 shadow-[inset_-12px_-12px_30px_rgba(0,0,0,0.5),0_20px_40px_rgba(236,72,153,0.3)] flex flex-col items-center justify-center relative overflow-hidden group-hover:scale-105 transition-transform">
+              
+              {/* 3D Highlight reflection */}
+              <div className="absolute top-3 left-4 w-12 h-6 bg-white/30 rounded-full blur-[2px] transform -rotate-45" />
+
+              {/* Cute Cat / Cyber Ears */}
+              <div className="absolute -top-3 left-7 w-8 h-8 bg-gradient-to-br from-pink-500 to-purple-600 rounded-lg transform -rotate-12 shadow-md border border-white/20" />
+              <div className="absolute -top-3 right-7 w-8 h-8 bg-gradient-to-bl from-pink-500 to-purple-600 rounded-lg transform rotate-12 shadow-md border border-white/20" />
+
+              {/* Cute Blinking / Happy Eyes */}
+              <div className="flex gap-6 items-center z-10 mt-1">
+                <div className="w-4 h-5 bg-white rounded-full relative shadow-[0_0_10px_rgba(255,255,255,0.8)] flex items-center justify-center">
+                  <div className="w-2 h-2.5 bg-slate-900 rounded-full absolute bottom-0.5 right-0.5" />
+                </div>
+                <div className="w-4 h-5 bg-white rounded-full relative shadow-[0_0_10px_rgba(255,255,255,0.8)] flex items-center justify-center">
+                  <div className="w-2 h-2.5 bg-slate-900 rounded-full absolute bottom-0.5 right-0.5" />
+                </div>
+              </div>
+
+              {/* Cute Blushing Cheeks */}
+              <div className="flex gap-12 mt-2 z-10">
+                <div className="w-3.5 h-1.5 bg-pink-300/60 rounded-full blur-[1px]" />
+                <div className="w-3.5 h-1.5 bg-pink-300/60 rounded-full blur-[1px]" />
+              </div>
+
+              {/* Cute Smile / Mouth */}
+              <div className="w-3 h-1.5 border-b-2 border-white/90 rounded-full mt-1.5 z-10" />
+
+              {/* Little 3D Core Energy Sparkle */}
+              <div className="absolute bottom-3 w-6 h-1.5 bg-pink-300/40 rounded-full blur-sm" />
+            </div>
+
+            {/* Floating Status Tag */}
+            <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-black/80 backdrop-blur-md border border-white/15 px-3 py-1 rounded-full text-[10px] font-bold text-pink-300 flex items-center gap-1 shadow-xl whitespace-nowrap">
+              <span>✨ Interaktivní</span>
+            </div>
+          </motion.div>
+        </div>
+
+        <div>
+          <h2 className="text-2xl font-black text-white tracking-wide">CyberPet "Aura"</h2>
+          <p className="text-xs text-purple-300 mt-1 font-medium">Klikni na mazlíčka pro pohlazení! 💖</p>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+          <div className="bg-white/[0.04] p-4 rounded-2xl border border-white/10 space-y-2 backdrop-blur-md">
+            <div className="flex justify-between text-xs font-bold text-slate-300">
+              <span className="flex items-center gap-1.5"><Smile className="w-3.5 h-3.5 text-pink-400" /> Štěstí</span>
+              <span>{happiness}%</span>
+            </div>
+            <div className="w-full bg-white/10 h-2.5 rounded-full overflow-hidden p-0.5">
+              <div className="bg-gradient-to-r from-pink-500 to-purple-500 h-full rounded-full transition-all duration-300 shadow-[0_0_10px_rgba(236,72,153,0.5)]" style={{ width: `${happiness}%` }} />
             </div>
           </div>
 
-          {/* Jméno a XP Bar */}
-          <h2 className="text-xl font-bold text-white">{petName}</h2>
-          <p className="text-xs text-slate-400 mb-4">Virtuální studijní společník</p>
-
-          <div className="w-full space-y-1.5">
-            <div className="flex justify-between text-[11px] font-semibold text-slate-400">
-              <span className="flex items-center gap-1">
-                <TrendingUp className="w-3 h-3 text-pink-400" /> Zkušenosti (XP)
-              </span>
-              <span>{xp} / {maxXp}</span>
+          <div className="bg-white/[0.04] p-4 rounded-2xl border border-white/10 space-y-2 backdrop-blur-md">
+            <div className="flex justify-between text-xs font-bold text-slate-300">
+              <span className="flex items-center gap-1.5"><Utensils className="w-3.5 h-3.5 text-amber-400" /> Sytost</span>
+              <span>{hunger}%</span>
             </div>
-            <div className="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden border border-slate-700/50">
-              <div 
-                className="bg-gradient-to-r from-pink-500 to-purple-500 h-full rounded-full transition-all duration-300"
-                style={{ width: `${(xp / maxXp) * 100}%` }}
-              ></div>
+            <div className="w-full bg-white/10 h-2.5 rounded-full overflow-hidden p-0.5">
+              <div className="bg-gradient-to-r from-amber-500 to-orange-500 h-full rounded-full transition-all duration-300 shadow-[0_0_10px_rgba(245,158,11,0.5)]" style={{ width: `${hunger}%` }} />
             </div>
           </div>
         </div>
 
-        {/* Statistiky a Akce */}
-        <div className="md:col-span-2 space-y-6 flex flex-col justify-between">
-          {/* Statistiky potřeba */}
-          <div className="bg-slate-800/50 border border-slate-800 rounded-2xl p-5 space-y-4">
-            <h3 className="text-sm font-bold text-white flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-cyan-400" />
-              <span>Stav mazlíčka</span>
-            </h3>
-
-            {/* Jídlo / Hlad */}
-            <div className="space-y-1.5">
-              <div className="flex justify-between text-xs font-medium text-slate-300">
-                <span className="flex items-center gap-1.5">
-                  <Utensils className="w-3.5 h-3.5 text-amber-400" /> Sytost
-                </span>
-                <span className="font-bold">{hunger}%</span>
-              </div>
-              <div className="w-full bg-slate-900 h-2 rounded-full overflow-hidden">
-                <div className="bg-amber-400 h-full rounded-full transition-all duration-300" style={{ width: `${hunger}%` }}></div>
-              </div>
-            </div>
-
-            {/* Spokojenost */}
-            <div className="space-y-1.5">
-              <div className="flex justify-between text-xs font-medium text-slate-300">
-                <span className="flex items-center gap-1.5">
-                  <Smile className="w-3.5 h-3.5 text-emerald-400" /> Nálada
-                </span>
-                <span className="font-bold">{happiness}%</span>
-              </div>
-              <div className="w-full bg-slate-900 h-2 rounded-full overflow-hidden">
-                <div className="bg-emerald-400 h-full rounded-full transition-all duration-300" style={{ width: `${happiness}%` }}></div>
-              </div>
-            </div>
-
-            {/* Energie */}
-            <div className="space-y-1.5">
-              <div className="flex justify-between text-xs font-medium text-slate-300">
-                <span className="flex items-center gap-1.5">
-                  <Zap className="w-3.5 h-3.5 text-cyan-400" /> Energie
-                </span>
-                <span className="font-bold">{energy}%</span>
-              </div>
-              <div className="w-full bg-slate-900 h-2 rounded-full overflow-hidden">
-                <div className="bg-cyan-400 h-full rounded-full transition-all duration-300" style={{ width: `${energy}%` }}></div>
-              </div>
-            </div>
+        {/* XP Progress Bar */}
+        <div className="bg-white/[0.04] p-4 rounded-2xl border border-white/10 space-y-2 text-left backdrop-blur-md">
+          <div className="flex justify-between text-xs font-bold text-slate-300">
+            <span className="flex items-center gap-1.5"><Trophy className="w-3.5 h-3.5 text-yellow-400" /> Postup do Levelu {petLevel + 1}</span>
+            <span>{xp} / 100 XP</span>
           </div>
-
-          {/* Tlačítka Akcí */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <button
-              onClick={handleFeed}
-              className="flex flex-col items-center justify-center p-4 bg-slate-800/80 border border-amber-500/30 hover:border-amber-500 rounded-2xl transition-all group hover:bg-slate-800"
-            >
-              <Utensils className="w-6 h-6 text-amber-400 mb-2 group-hover:scale-110 transition-transform" />
-              <span className="text-xs font-bold text-white">Nakrmit</span>
-              <span className="text-[10px] text-amber-400 font-semibold mt-0.5">15 Kreditů</span>
-            </button>
-
-            <button
-              onClick={handlePlay}
-              className="flex flex-col items-center justify-center p-4 bg-slate-800/80 border border-emerald-500/30 hover:border-emerald-500 rounded-2xl transition-all group hover:bg-slate-800"
-            >
-              <Gamepad2 className="w-6 h-6 text-emerald-400 mb-2 group-hover:scale-110 transition-transform" />
-              <span className="text-xs font-bold text-white">Hrát si</span>
-              <span className="text-[10px] text-emerald-400 font-semibold mt-0.5">+15 XP (-15% Energ.)</span>
-            </button>
-
-            <button
-              onClick={handleRest}
-              className="flex flex-col items-center justify-center p-4 bg-slate-800/80 border border-cyan-500/30 hover:border-cyan-500 rounded-2xl transition-all group hover:bg-slate-800"
-            >
-              <Moon className="w-6 h-6 text-cyan-400 mb-2 group-hover:scale-110 transition-transform" />
-              <span className="text-xs font-bold text-white">Spánek</span>
-              <span className="text-[10px] text-cyan-400 font-semibold mt-0.5">Obnoví Energii</span>
-            </button>
+          <div className="w-full bg-white/10 h-3 rounded-full overflow-hidden p-0.5">
+            <div className="bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 h-full rounded-full transition-all duration-300 shadow-[0_0_12px_rgba(234,179,8,0.5)]" style={{ width: `${xp}%` }} />
           </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="grid grid-cols-3 gap-3 pt-2">
+          <button 
+            onClick={handleFeed}
+            className="py-3.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold rounded-2xl text-xs transition flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-95"
+          >
+            <Utensils className="w-4 h-4 text-amber-400" /> Nakrmit
+          </button>
+          <button 
+            onClick={handlePet}
+            className="py-3.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold rounded-2xl text-xs transition flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-95"
+          >
+            <Heart className="w-4 h-4 text-pink-400" /> Pohladit
+          </button>
+          <button 
+            onClick={handlePlay}
+            className="py-3.5 bg-gradient-to-r from-pink-500 to-purple-600 hover:opacity-90 text-white font-bold rounded-2xl text-xs transition flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-pink-500/25 active:scale-95"
+          >
+            <Zap className="w-4 h-4 text-white" /> Hrát si
+          </button>
         </div>
       </div>
     </div>
   );
-  }
-  
+            }
