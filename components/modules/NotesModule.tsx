@@ -1,352 +1,211 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
-import { useStore } from '@/store/useStore';
-import { 
-  FileText, 
-  Plus, 
-  Search, 
-  Trash2, 
-  Highlighter, 
-  Bold, 
-  Italic, 
-  Tag, 
-  Clock, 
-  Sparkles,
-  CheckCircle2
-} from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { FileText, Plus, Trash2, ArrowLeft, Check } from 'lucide-react';
 
 interface Note {
   id: string;
   title: string;
-  content: string; // HTML obsah se zvýrazněním
-  category: string;
-  updatedAt: string;
+  content: string;
+  date: string;
 }
 
-const CATEGORIES = ['Vše', 'Matematika', 'Český jazyk', 'Dějepis', 'Fyzika', 'Osobní'];
+interface NotesModuleProps {
+  onBack?: () => void;
+}
 
-export default function NotesModule() {
-  const addNotification = useStore((state) => state.addNotification);
-
+export default function NotesModule({ onBack }: NotesModuleProps) {
   const [notes, setNotes] = useState<Note[]>([]);
-  const [selectedNoteId, setSelectedNoteId] = useState<string>('');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('Vše');
+  const [activeNoteId, setActiveNoteId] = useState<string | null>(null);
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [savedIndicator, setSavedIndicator] = useState(false);
 
-  const editorRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const saved = localStorage.getItem('student_ai_notes');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        setNotes(parsed);
+        if (parsed.length > 0) {
+          setActiveNoteId(parsed[0].id);
+          setTitle(parsed[0].title);
+          setContent(parsed[0].content);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    } else {
+      const initial: Note[] = [{
+        id: '1',
+        title: 'Vítej v poznámkách 📝',
+        content: 'Zde si můžeš psát rychlé poznámky k předmětům, taháky nebo úkoly.',
+        date: new Date().toLocaleDateString('cs-CZ')
+      }];
+      setNotes(initial);
+      setActiveNoteId('1');
+      setTitle(initial[0].title);
+      setContent(initial[0].content);
+      localStorage.setItem('student_ai_notes', JSON.stringify(initial));
+    }
+  }, []);
 
-  const currentNote = notes.find((n) => n.id === selectedNoteId);
+  const saveNotes = (updatedNotes: Note[]) => {
+    setNotes(updatedNotes);
+    localStorage.setItem('student_ai_notes', JSON.stringify(updatedNotes));
+    setSavedIndicator(true);
+    setTimeout(() => setSavedIndicator(false), 1500);
+  };
 
-  // Vytvoření nové poznámky
-  const handleCreateNote = () => {
+  const handleSelectNote = (note: Note) => {
+    setActiveNoteId(note.id);
+    setTitle(note.title);
+    setContent(note.content);
+  };
+
+  const handleCreateNew = () => {
     const newNote: Note = {
       id: Date.now().toString(),
       title: 'Nová poznámka',
-      content: 'Zde začni psát své poznámky...',
-      category: selectedCategory === 'Vše' ? 'Osobní' : selectedCategory,
-      updatedAt: 'Právě teď'
+      content: '',
+      date: new Date().toLocaleDateString('cs-CZ')
     };
-    setNotes([newNote, ...notes]);
-    setSelectedNoteId(newNote.id);
-    addNotification('Nová poznámka byla vytvořena', 'success');
+    const updated = [newNote, ...notes];
+    saveNotes(updated);
+    setActiveNoteId(newNote.id);
+    setTitle(newNote.title);
+    setContent(newNote.content);
   };
 
-  // Smazání poznámky
-  const handleDeleteNote = (id: string) => {
-    const filtered = notes.filter((n) => n.id !== id);
-    setNotes(filtered);
-    if (selectedNoteId === id) {
-      setSelectedNoteId(filtered.length > 0 ? filtered[0].id : '');
-    }
-    addNotification('Poznámka byla smazána', 'info');
-  };
-
-  // Aktualizace titulu / kategorie / obsahu
-  const handleUpdateNote = (field: keyof Note, value: string) => {
-    setNotes((prev) =>
-      prev.map((n) => {
-        if (n.id === selectedNoteId) {
-          return { ...n, [field]: value, updatedAt: 'Právě teď' };
-        }
-        return n;
-      })
-    );
-  };
-
-  // Aplikování zvýraznění na označený text
-  const applyHighlight = (colorStyle: string) => {
-    const selection = window.getSelection();
-    if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
-      addNotification('Nejprve označ text, který chceš zvýraznit', 'info');
-      return;
-    }
-
-    const range = selection.getRangeAt(0);
-    const span = document.createElement('mark');
-    span.className = `${colorStyle} px-1.5 py-0.5 rounded font-semibold transition-all`;
-    
-    try {
-      range.surroundContents(span);
-      if (editorRef.current) {
-        handleUpdateNote('content', editorRef.current.innerHTML);
+  const handleDelete = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const updated = notes.filter(n => n.id !== id);
+    saveNotes(updated);
+    if (activeNoteId === id) {
+      if (updated.length > 0) {
+        setActiveNoteId(updated[0].id);
+        setTitle(updated[0].title);
+        setContent(updated[0].content);
+      } else {
+        setActiveNoteId(null);
+        setTitle('');
+        setContent('');
       }
-    } catch {
-      addNotification('Označ pouze text uvnitř jednoho odstavce', 'error');
     }
   };
 
-  // Formátování písma (Tučné, Kurzíva)
-  const applyFormat = (command: string) => {
-    document.execCommand(command, false);
-    if (editorRef.current) {
-      handleUpdateNote('content', editorRef.current.innerHTML);
-    }
+  const handleUpdateContent = (newTitle: string, newContent: string) => {
+    setTitle(newTitle);
+    setContent(newContent);
+    if (!activeNoteId) return;
+    const updated = notes.map(n => n.id === activeNoteId ? {
+      ...n,
+      title: newTitle || 'Bez názvu',
+      content: newContent,
+      date: new Date().toLocaleDateString('cs-CZ')
+    } : n);
+    saveNotes(updated);
   };
-
-  // Filtrované poznámky
-  const filteredNotes = notes.filter((note) => {
-    const matchesSearch = note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          note.content.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'Vše' || note.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
 
   return (
-    <div className="h-full max-h-[calc(100vh-70px)] flex flex-col md:flex-row bg-slate-900 text-slate-100 overflow-hidden">
-      
-      {/* BOČNÍ PANEL: SEZNAM POZNÁMEK */}
-      <div className="w-full md:w-80 border-r border-slate-800 flex flex-col h-1/2 md:h-full bg-slate-950/50">
-        
-        {/* Vyhledávání a Nová poznámka */}
-        <div className="p-4 space-y-3 border-b border-slate-800">
-          <div className="flex items-center justify-between">
-            <h2 className="font-bold text-white flex items-center gap-2">
-              <FileText className="w-5 h-5 text-amber-400" />
-              <span>Moje Poznámky</span>
-            </h2>
+    <div className="space-y-6 max-w-5xl mx-auto pb-12">
+      {onBack && (
+        <button 
+          onClick={onBack}
+          className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold transition flex items-center gap-2 cursor-pointer w-fit text-slate-300"
+        >
+          <ArrowLeft className="w-4 h-4" /> Zpět na Workspace
+        </button>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+        {/* Seznam poznámek (sidebar) */}
+        <div className="md:col-span-4 rounded-[32px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-5 backdrop-blur-xl shadow-2xl flex flex-col h-[600px]">
+          <div className="flex justify-between items-center mb-4 pb-3 border-b border-white/10">
+            <div className="flex items-center gap-2">
+              <FileText className="w-5 h-5 text-indigo-400" />
+              <h2 className="font-bold text-white text-base">Poznámky</h2>
+            </div>
             <button
-              onClick={handleCreateNote}
-              className="p-2 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-xl transition-all flex items-center gap-1 text-xs font-semibold"
+              onClick={handleCreateNew}
+              className="p-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:opacity-90 text-white transition shadow-md shadow-indigo-500/20 cursor-pointer"
+              title="Nová poznámka"
             >
               <Plus className="w-4 h-4" />
-              <span>Přidat</span>
             </button>
           </div>
 
-          <div className="relative">
-            <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Hledat v poznámkách..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500/50"
-            />
-          </div>
-
-          {/* Filtry Předmětů */}
-          <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar">
-            {CATEGORIES.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`text-[11px] px-2.5 py-1 rounded-lg whitespace-nowrap transition-all ${
-                  selectedCategory === cat
-                    ? 'bg-amber-500/20 text-amber-300 font-semibold border border-amber-500/30'
-                    : 'bg-slate-900 text-slate-400 hover:bg-slate-800'
+          <div className="flex-1 overflow-y-auto space-y-2 pr-1">
+            {notes.map((note) => (
+              <div
+                key={note.id}
+                onClick={() => handleSelectNote(note)}
+                className={`p-3.5 rounded-2xl border transition cursor-pointer flex justify-between items-start group ${
+                  activeNoteId === note.id
+                    ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border-indigo-500/50 shadow-lg'
+                    : 'bg-white/5 border-white/10 hover:bg-white/10 text-slate-300'
                 }`}
               >
-                {cat}
-              </button>
+                <div className="space-y-1 overflow-hidden">
+                  <h4 className="text-xs font-bold text-white truncate">{note.title || 'Bez názvu'}</h4>
+                  <p className="text-[11px] text-slate-400 truncate">{note.content || 'Prázdná poznámka...'}</p>
+                  <span className="text-[9px] text-indigo-300 block">{note.date}</span>
+                </div>
+                <button
+                  onClick={(e) => handleDelete(note.id, e)}
+                  className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-red-500/20 text-slate-400 hover:text-red-400 transition cursor-pointer"
+                  title="Smazat"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
             ))}
+            {notes.length === 0 && (
+              <div className="text-center py-12 text-slate-500 text-xs">
+                Žádné poznámky. Vytvoř první! ✨
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Seznam Karet */}
-        <div className="flex-1 overflow-y-auto p-3 space-y-2">
-          {filteredNotes.length === 0 ? (
-            <div className="text-center py-8 text-xs text-slate-500">
-              {notes.length === 0 ? 'Zatím nemáš žádné poznámky.' : 'Žádná poznámka neodpovídá filtru.'}
+        {/* Editor poznámky */}
+        <div className="md:col-span-8 rounded-[32px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-6 md:p-8 backdrop-blur-xl shadow-2xl flex flex-col h-[600px] relative">
+          <div className="absolute top-0 right-0 w-60 h-60 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+
+          {activeNoteId ? (
+            <div className="flex flex-col h-full space-y-4">
+              <div className="flex justify-between items-center pb-4 border-b border-white/10">
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(e) => handleUpdateContent(e.target.value, content)}
+                  placeholder="Název poznámky..."
+                  className="bg-transparent font-black text-xl text-white outline-none w-full placeholder-slate-500"
+                />
+                <div className="flex items-center gap-2 shrink-0">
+                  {savedIndicator && (
+                    <span className="text-[10px] font-bold text-emerald-400 flex items-center gap-1 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
+                      <Check className="w-3 h-3" /> Uloženo
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <textarea
+                value={content}
+                onChange={(e) => handleUpdateContent(title, e.target.value)}
+                placeholder="Začni psát text poznámky..."
+                className="flex-1 bg-white/5 border border-white/10 rounded-2xl p-4 text-sm text-white placeholder-slate-500 outline-none focus:border-indigo-500 transition resize-none shadow-inner leading-relaxed"
+              />
             </div>
           ) : (
-            filteredNotes.map((note) => {
-              const isSelected = note.id === selectedNoteId;
-              return (
-                <div
-                  key={note.id}
-                  onClick={() => setSelectedNoteId(note.id)}
-                  className={`p-3 rounded-2xl border transition-all cursor-pointer relative group ${
-                    isSelected
-                      ? 'bg-slate-800/90 border-amber-500/40 shadow-lg'
-                      : 'bg-slate-900/60 border-slate-800 hover:border-slate-700'
-                  }`}
-                >
-                  <div className="flex justify-between items-start mb-1">
-                    <h3 className="font-semibold text-sm text-white truncate max-w-[180px]">
-                      {note.title || 'Bez názvu'}
-                    </h3>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteNote(note.id);
-                      }}
-                      className="opacity-0 group-hover:opacity-100 p-1 text-slate-500 hover:text-red-400 transition-all"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-
-                  <p 
-                    className="text-xs text-slate-400 line-clamp-2 mb-2"
-                    dangerouslySetInnerHTML={{ __html: note.content.replace(/<[^>]*>?/gm, ' ') }}
-                  />
-
-                  <div className="flex items-center justify-between text-[10px] text-slate-500">
-                    <span className="flex items-center gap-1 bg-slate-800 px-2 py-0.5 rounded-md border border-slate-700/50 text-slate-300">
-                      <Tag className="w-2.5 h-2.5 text-amber-400" />
-                      {note.category}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-2.5 h-2.5" />
-                      {note.updatedAt}
-                    </span>
-                  </div>
-                </div>
-              );
-            })
+            <div className="flex flex-col items-center justify-center h-full text-center space-y-3 text-slate-400">
+              <FileText className="w-12 h-12 text-slate-600" />
+              <p className="text-sm">Vyber poznámku v levém panelu nebo vytvoř novou.</p>
+            </div>
           )}
         </div>
       </div>
-
-      {/* HLAVNÍ EDITOR / NÁHLED POZNÁMKY */}
-      {currentNote ? (
-        <div className="flex-1 flex flex-col h-1/2 md:h-full bg-slate-900">
-          
-          {/* Hlavička a Nástrojová lišta */}
-          <div className="p-4 border-b border-slate-800 bg-slate-950/40 space-y-3">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              {/* Název Poznámky */}
-              <input
-                type="text"
-                value={currentNote.title}
-                onChange={(e) => handleUpdateNote('title', e.target.value)}
-                placeholder="Název poznámky..."
-                className="bg-transparent text-xl font-bold text-white focus:outline-none placeholder-slate-600 w-full"
-              />
-
-              {/* Výběr Předmětu */}
-              <select
-                value={currentNote.category}
-                onChange={(e) => handleUpdateNote('category', e.target.value)}
-                className="bg-slate-800 border border-slate-700 text-xs text-amber-300 font-semibold px-3 py-1.5 rounded-xl focus:outline-none cursor-pointer self-start sm:self-auto"
-              >
-                {CATEGORIES.filter((c) => c !== 'Vše').map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Zvýrazňovače a Formátování */}
-            <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-slate-800/80">
-              <span className="text-[11px] text-slate-400 font-medium mr-1 flex items-center gap-1">
-                <Highlighter className="w-3.5 h-3.5 text-amber-400" /> Zvýraznění:
-              </span>
-
-              {/* Žlutý zvýrazňovač */}
-              <button
-                onClick={() => applyHighlight('bg-amber-400/30 text-amber-200 border border-amber-400/40')}
-                className="px-2 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 rounded-lg text-xs font-medium transition-all"
-                title="Žluté zvýraznění"
-              >
-                Žlutá
-              </button>
-
-              {/* Zelený zvýrazňovač */}
-              <button
-                onClick={() => applyHighlight('bg-emerald-400/30 text-emerald-200 border border-emerald-400/40')}
-                className="px-2 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 rounded-lg text-xs font-medium transition-all"
-                title="Zelené zvýraznění"
-              >
-                Zelená
-              </button>
-
-              {/* Modrý zvýrazňovač */}
-              <button
-                onClick={() => applyHighlight('bg-cyan-400/30 text-cyan-200 border border-cyan-400/40')}
-                className="px-2 py-1 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 rounded-lg text-xs font-medium transition-all"
-                title="Modré zvýraznění"
-              >
-                Modrá
-              </button>
-
-              {/* Růžový zvýrazňovač */}
-              <button
-                onClick={() => applyHighlight('bg-pink-400/30 text-pink-200 border border-pink-400/40')}
-                className="px-2 py-1 bg-pink-500/20 hover:bg-pink-500/30 text-pink-300 border border-pink-500/40 rounded-lg text-xs font-medium transition-all"
-                title="Růžové zvýraznění"
-              >
-                Růžová
-              </button>
-
-              <div className="h-4 w-px bg-slate-800 mx-1"></div>
-
-              {/* Tučné */}
-              <button
-                onClick={() => applyFormat('bold')}
-                className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs transition-all"
-                title="Tučné písmo"
-              >
-                <Bold className="w-3.5 h-3.5" />
-              </button>
-
-              {/* Kurzíva */}
-              <button
-                onClick={() => applyFormat('italic')}
-                className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs transition-all"
-                title="Kurzíva"
-              >
-                <Italic className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          </div>
-
-          {/* Vlastní Editor s živým náhledem */}
-          <div className="flex-1 p-6 overflow-y-auto">
-            <div
-              ref={editorRef}
-              contentEditable
-              suppressContentEditableWarning
-              onInput={() => {
-                if (editorRef.current) {
-                  handleUpdateNote('content', editorRef.current.innerHTML);
-                }
-              }}
-              dangerouslySetInnerHTML={{ __html: currentNote.content }}
-              className="w-full min-h-[300px] text-slate-200 text-sm leading-relaxed focus:outline-none prose prose-invert max-w-none"
-            />
-          </div>
-
-          {/* Patka s informací */}
-          <div className="p-3 border-t border-slate-800 bg-slate-950/20 flex items-center justify-between text-[11px] text-slate-500 px-6">
-            <span className="flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Označ text myší a klikni na barvu pro zvýraznění
-            </span>
-            <span className="flex items-center gap-1 text-emerald-400 font-medium">
-              <CheckCircle2 className="w-3.5 h-3.5" /> Automaticky uloženo
-            </span>
-          </div>
-
-        </div>
-      ) : (
-        <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-slate-500">
-          <FileText className="w-12 h-12 mb-3 text-slate-700" />
-          <p className="text-sm">Vytvoř svou první poznámku kliknutím na tlačítko <b>Přidat</b></p>
-        </div>
-      )}
-
     </div>
   );
-}
+      }
