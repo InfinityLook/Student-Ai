@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import { useStore } from "@/store/useStore";
+import React, { useState } from 'react';
+import { BrainCircuit, ArrowLeft, Save, Check, RefreshCw, Trophy } from 'lucide-react';
 
 interface Question {
   id: number;
@@ -10,158 +10,136 @@ interface Question {
   correct: number;
 }
 
-export default function AITestModule() {
-  const { addNotification, credits, deductCredits } = useStore();
-  const [topic, setTopic] = useState("");
-  const [generating, setGenerating] = useState(false);
+interface TestResult {
+  date: string;
+  topic: string;
+  score: number;
+  totalQuestions: number;
+}
 
-  const [test, setTest] = useState<Question[] | null>(null);
+export default function AITestModule({ onBack }: { onBack?: () => void }) {
+  const [step, setStep] = useState<'setup' | 'testing' | 'result'>('setup');
+  const [topic, setTopic] = useState('');
+  const [count, setCount] = useState(10);
+  const [questions, setQuestions] = useState<Question[]>([]);
   const [answers, setAnswers] = useState<Record<number, number>>({});
-  const [submitted, setSubmitted] = useState(false);
-  const [score, setScore] = useState(0);
+  const [result, setResult] = useState<number | null>(null);
 
-  const handleGenerateTest = () => {
-    if (!topic.trim()) {
-      addNotification("Zadej téma pro vygenerování testu!", "error");
-      return;
-    }
-
-    if (credits < 10) {
-      addNotification("Nemáš dostatek kreditů (vyžadováno 10 🪙). Navštiv Obchod!", "error");
-      return;
-    }
-
-    setGenerating(true);
-
-    setTimeout(() => {
-      deductCredits(10);
-      setTest([
-        {
-          id: 1,
-          question: `Co je hlavním principem v tématice: ${topic}?`,
-          options: ["Efektivní modularita", "Náhodná exekuce", "Statická struktura", "Žádná z možností"],
-          correct: 0,
-        },
-        {
-          id: 2,
-          question: "Která technologie se nejčastěji používá pro tento účel?",
-          options: ["JQuery", "Next.js & React", "MS-DOS", "Turbo Pascal"],
-          correct: 1,
-        },
-      ]);
-      setAnswers({});
-      setSubmitted(false);
-      setGenerating(false);
-      addNotification("Test úspěšně vygenerován! (-10 🪙)", "success");
-    }, 1500);
+  const startTest = () => {
+    // Simulace generování otázek
+    const mockQuestions: Question[] = Array.from({ length: count }, (_, i) => ({
+      id: i,
+      question: `Otázka číslo ${i + 1} k tématu: ${topic}`,
+      options: ['Možnost A', 'Možnost B', 'Možnost C', 'Možnost D'],
+      correct: 0,
+    }));
+    setQuestions(mockQuestions);
+    setAnswers({});
+    setStep('testing');
   };
 
-  const handleSelectOption = (qId: number, optIndex: number) => {
-    if (submitted) return;
-    setAnswers({ ...answers, [qId]: optIndex });
-  };
-
-  const handleSubmitTest = () => {
-    if (!test) return;
-    let correctCount = 0;
-    test.forEach((q) => {
-      if (answers[q.id] === q.correct) {
-        correctCount++;
-      }
+  const finishTest = () => {
+    let score = 0;
+    questions.forEach((q) => {
+      if (answers[q.id] === q.correct) score++;
     });
-    setScore(correctCount);
-    setSubmitted(true);
-    addNotification(`Test vyhodnocen! Získal jsi ${correctCount} z ${test.length} bodů.`, "success");
+    const percentage = Math.round((score / count) * 100);
+    setResult(percentage);
+    setStep('result');
+  };
+
+  const saveResult = () => {
+    const history = JSON.parse(localStorage.getItem('student_ai_tests') || '[]');
+    const newTest: TestResult = {
+      date: new Date().toLocaleDateString('cs-CZ'),
+      topic,
+      score: result || 0,
+      totalQuestions: count,
+    };
+    localStorage.setItem('student_ai_tests', JSON.stringify([newTest, ...history]));
+    alert('Výsledek testu uložen!');
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="bg-surface p-6 rounded-2xl border border-edge shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-display font-bold text-ink">📝 AI Test Generator</h2>
-          <p className="text-muted text-sm mt-1">Vygeneruj si cvičné kvízy na míru z libovolného tématu.</p>
-        </div>
-      </div>
+    <div className="space-y-6 max-w-3xl mx-auto pb-12">
+      {onBack && (
+        <button onClick={onBack} className="text-xs font-bold text-slate-400 hover:text-white flex items-center gap-2 transition">
+          <ArrowLeft className="w-4 h-4" /> Zpět
+        </button>
+      )}
 
-      {!test && (
-        <div className="bg-surface p-6 rounded-2xl border border-edge shadow-sm space-y-4">
-          <div>
-            <label className="block text-sm font-semibold text-ink mb-2">
-              Zadej téma nebo vlož text (stojí 10 🪙):
-            </label>
-            <input
-              type="text"
-              value={topic}
-              onChange={(e) => setTopic(e.target.value)}
-              placeholder="např. Kvantová fyzika, Základy SQL, Dějepis..."
-              className="w-full p-3 rounded-xl border border-edge bg-canvas text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-violet text-sm"
-            />
+      {step === 'setup' && (
+        <div className="rounded-[32px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-8 shadow-2xl">
+          <h1 className="text-2xl font-black text-white mb-6 flex items-center gap-3">
+            <BrainCircuit className="text-purple-400" /> AI Test
+          </h1>
+          <input
+            type="text"
+            value={topic}
+            onChange={(e) => setTopic(e.target.value)}
+            placeholder="Zadej téma testu (např. Dějepis, Biologie...)"
+            className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-sm text-white placeholder-slate-500 mb-6"
+          />
+          <div className="space-y-3 mb-8">
+            <label className="text-xs font-bold text-slate-400 uppercase">Počet otázek</label>
+            <div className="grid grid-cols-3 gap-3">
+              {[10, 20, 30].map((num) => (
+                <button
+                  key={num}
+                  onClick={() => setCount(num)}
+                  className={`p-4 rounded-2xl border ${count === num ? 'bg-purple-500/20 border-purple-500 text-white' : 'bg-white/5 border-white/10 text-slate-400'}`}
+                >
+                  {num} otázek
+                </button>
+              ))}
+            </div>
           </div>
-          <button
-            onClick={handleGenerateTest}
-            disabled={generating}
-            className="w-full py-3 bg-violet hover:brightness-110 text-ink font-medium rounded-xl text-sm transition-all shadow-lg shadow-violet/20 disabled:opacity-50"
-          >
-            {generating ? "Generuji AI test..." : "Vygenerovat test (10 🪙)"}
+          <button onClick={startTest} className="w-full py-4 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-2xl font-bold text-white cursor-pointer">
+            Generovat test
           </button>
         </div>
       )}
 
-      {test && (
+      {step === 'testing' && (
         <div className="space-y-6">
-          {test.map((q, index) => (
-            <div key={q.id} className="bg-surface p-6 rounded-2xl border border-edge shadow-sm space-y-3">
-              <div className="text-xs font-mono font-semibold text-violet">Otázka {index + 1}</div>
-              <div className="font-bold text-ink text-base">{q.question}</div>
-              <div className="space-y-2 pt-2">
-                {q.options.map((opt, optIdx) => {
-                  const isSelected = answers[q.id] === optIdx;
-                  let optionStyle = "border-edge hover:border-violet text-ink";
-
-                  if (submitted) {
-                    if (optIdx === q.correct) optionStyle = "bg-mint/10 border-mint text-mint";
-                    else if (isSelected) optionStyle = "bg-coral/10 border-coral text-coral";
-                  } else if (isSelected) {
-                    optionStyle = "bg-violet/10 border-violet text-violet";
-                  }
-
-                  return (
-                    <button
-                      key={optIdx}
-                      onClick={() => handleSelectOption(q.id, optIdx)}
-                      disabled={submitted}
-                      className={`w-full text-left p-3.5 rounded-xl border text-sm font-medium transition-all ${optionStyle}`}
-                    >
-                      {opt}
-                    </button>
-                  );
-                })}
+          {questions.map((q) => (
+            <div key={q.id} className="rounded-2xl bg-white/5 border border-white/10 p-6">
+              <p className="font-bold mb-4">{q.question}</p>
+              <div className="space-y-2">
+                {q.options.map((opt, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setAnswers({ ...answers, [q.id]: idx })}
+                    className={`w-full text-left p-3 rounded-xl border ${answers[q.id] === idx ? 'bg-purple-500/30 border-purple-500' : 'bg-black/20 border-white/5'}`}
+                  >
+                    {opt}
+                  </button>
+                ))}
               </div>
             </div>
           ))}
+          <button onClick={finishTest} className="w-full py-4 bg-emerald-500 hover:bg-emerald-600 rounded-2xl font-bold text-white cursor-pointer">
+            Odevzdat test
+          </button>
+        </div>
+      )}
 
-          {!submitted ? (
-            <button
-              onClick={handleSubmitTest}
-              className="w-full py-3.5 bg-mint hover:brightness-110 text-canvas font-semibold rounded-xl text-sm transition-all shadow-lg shadow-mint/20"
-            >
-              Vyhodnotit test
+      {step === 'result' && (
+        <div className="text-center rounded-[32px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-12 shadow-2xl">
+          <Trophy className="w-16 h-16 text-yellow-400 mx-auto mb-6" />
+          <h2 className="text-4xl font-black text-white mb-2">{result}%</h2>
+          <p className="text-slate-400 mb-8">Tvůj výsledek z testu: {topic}</p>
+          <div className="flex gap-3 justify-center">
+            <button onClick={saveResult} className="flex items-center gap-2 px-6 py-3 bg-white/10 rounded-xl font-bold cursor-pointer hover:bg-white/20">
+              <Save className="w-4 h-4" /> Uložit
             </button>
-          ) : (
-            <div className="bg-surface p-6 rounded-2xl border border-edge text-center space-y-4">
-              <div className="text-xl font-display font-bold text-ink">
-                Výsledek: {score} / {test.length} správně
-              </div>
-              <button
-                onClick={() => setTest(null)}
-                className="px-6 py-2.5 bg-violet hover:brightness-110 text-ink font-medium rounded-xl text-sm transition-all"
-              >
-                Vytvořit nový test
-              </button>
-            </div>
-          )}
+            <button onClick={() => setStep('setup')} className="px-6 py-3 bg-white/5 rounded-xl font-bold cursor-pointer">
+              Zpět na menu
+            </button>
+          </div>
         </div>
       )}
     </div>
   );
-              }
+      }
+                      
