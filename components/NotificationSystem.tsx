@@ -1,39 +1,73 @@
-"use client";
+'use client';
 
-import React from "react";
-import { useStore } from "@/store/useStore";
+import React, { createContext, useContext, useState, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X, CheckCircle, AlertCircle, Info, Zap } from 'lucide-react';
 
-const STYLES: Record<string, { bar: string; icon: string }> = {
-  success: { bar: "bg-mint", icon: "🏆" },
-  error: { bar: "bg-coral", icon: "⚠️" },
-  info: { bar: "bg-violet", icon: "✨" },
+type NotificationType = 'success' | 'error' | 'info';
+
+interface Notification {
+  id: string;
+  type: NotificationType;
+  message: string;
+}
+
+const NotificationContext = createContext<{
+  addNotification: (type: NotificationType, message: string) => void;
+} | null>(null);
+
+export const useNotification = () => {
+  const context = useContext(NotificationContext);
+  if (!context) throw new Error('useNotification musí být použit v rámci NotificationProvider');
+  return context;
 };
 
-export default function NotificationSystem() {
-  const { notifications, removeNotification } = useStore();
+export const NotificationProvider = ({ children }: { children: React.ReactNode }) => {
+  const [notifications, setNotifications] = useState<Notification[]>([]);
 
-  if (notifications.length === 0) return null;
+  const removeNotification = useCallback((id: string) => {
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+  }, []);
+
+  const addNotification = useCallback((type: NotificationType, message: string) => {
+    const id = Math.random().toString(36).substring(2, 9);
+    setNotifications((prev) => [...prev, { id, type, message }]);
+    setTimeout(() => removeNotification(id), 5000); // Automatické zmizení po 5s
+  }, [removeNotification]);
 
   return (
-    <div className="fixed bottom-20 md:bottom-4 right-4 z-50 flex flex-col-reverse gap-2 max-w-sm w-full pointer-events-none">
-      {notifications.map((n) => {
-        const style = STYLES[n.type] ?? STYLES.info;
-        return (
-          <div
-            key={n.id}
-            className="pointer-events-auto bg-surface border border-edge rounded-xl shadow-2xl shadow-black/40 overflow-hidden flex items-stretch animate-toast-in"
-          >
-            <div className={`w-1.5 ${style.bar}`} />
-            <div className="flex items-center gap-3 p-3.5 flex-1 min-w-0">
-              <span className="text-lg shrink-0">{style.icon}</span>
-              <span className="text-sm text-ink flex-1">{n.message}</span>
-              <button onClick={() => removeNotification(n.id)} className="text-muted hover:text-ink font-bold shrink-0">
-                ×
+    <NotificationContext.Provider value={{ addNotification }}>
+      {children}
+      <div className="fixed top-6 right-6 z-[100] flex flex-col gap-3 pointer-events-none">
+        <AnimatePresence>
+          {notifications.map((n) => (
+            <motion.div
+              key={n.id}
+              initial={{ opacity: 0, x: 20, scale: 0.95 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: 20, scale: 0.95 }}
+              className="pointer-events-auto bg-[#0A0C12]/90 backdrop-blur-xl border border-white/10 p-4 rounded-2xl shadow-2xl flex items-center gap-3 min-w-[300px]"
+            >
+              <div className={`p-2 rounded-full ${
+                n.type === 'success' ? 'bg-emerald-500/20 text-emerald-400' :
+                n.type === 'error' ? 'bg-pink-500/20 text-pink-400' :
+                'bg-cyan-500/20 text-cyan-400'
+              }`}>
+                {n.type === 'success' ? <CheckCircle className="w-5 h-5" /> :
+                 n.type === 'error' ? <AlertCircle className="w-5 h-5" /> :
+                 <Info className="w-5 h-5" />}
+              </div>
+              <p className="text-sm font-bold text-white flex-1">{n.message}</p>
+              <button 
+                onClick={() => removeNotification(n.id)}
+                className="text-slate-500 hover:text-white transition"
+              >
+                <X className="w-4 h-4" />
               </button>
-            </div>
-          </div>
-        );
-      })}
-    </div>
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
+    </NotificationContext.Provider>
   );
-            }
+};
