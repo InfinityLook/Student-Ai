@@ -1,76 +1,49 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from 'next/server';
 
-// Tato route bere hlasový dotaz od Kaira a pošle ho na Groq API.
-// Groq má zdarma API klíč bez nutnosti zadávat platební kartu:
-// 1. Jdi na https://console.groq.com/keys
-// 2. Zaregistruj se (stačí e-mail nebo Google účet)
-// 3. Vytvoř API klíč a vlož ho do .env.local jako GROQ_API_KEY=tvuj_klic
-//
-// Pokud klíč není nastavený, Kairo odpoví alespoň základní hláškou,
-// aby appka nespadla - hlasová navigace ("otevři úkoly" apod.) funguje
-// vždy, protože tu logiku řeší KairoCommands.ts a nepotřebuje žádné API.
-
-const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
-const GROQ_MODEL = "llama-3.1-8b-instant";
-
-const SYSTEM_PROMPT = `Jsi Kairo - přátelský studijní parťák a AI asistent uvnitř aplikace Student AI.
-Mluvíš vždy česky, neformálně a stručně (maximálně 2-3 věty), protože tvoje odpovědi
-se rovnou přehrávají nahlas přes hlasový syntetizátor. Pomáháš se školou, učením,
-motivací a organizací studia. Buď věcný, vstřícný a povzbuzující.`;
-
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   try {
     const { message } = await req.json();
+    const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
-    if (!message || typeof message !== "string") {
-      return NextResponse.json({ error: "Chybí zpráva." }, { status: 400 });
+    if (!GROQ_API_KEY) {
+      return NextResponse.json({ error: "Chybí GROQ API klíč v nastavení Vercelu" }, { status: 500 });
     }
 
-    const apiKey = process.env.GROQ_API_KEY;
-
-    if (!apiKey) {
-      return NextResponse.json({
-        reply:
-          "Tomuhle příkazu zatím nerozumím a nemám ještě nastavený AI klíč. Přidej prosím GROQ_API_KEY do souboru .env.local.",
-      });
-    }
-
-    const response = await fetch(GROQ_URL, {
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
+        "Authorization": `Bearer ${GROQ_API_KEY}`,
         "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: GROQ_MODEL,
-        max_tokens: 200,
-        temperature: 0.7,
+        model: "llama3-8b-8192", 
         messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          { role: "user", content: message },
+          {
+            role: "system",
+            content: `Jsi Kairo, 3D robůtek a chytrý studijní asistent. 
+            Tvé vlastnosti:
+            - Jsi přátelský, trpělivý a občas přidáš jemný vtip.
+            - Mluvíš přirozeně, srozumitelně a česky.
+            - Jsi konstruktivní – místo pouhého dodání řešení se snažíš studenta navést, aby na to přišel sám (pokud je to vhodné).
+            - Tvé odpovědi by měly být relativně stručné, aby se daly snadno poslouchat hlasovým výstupem (max 3-4 věty).`
+          },
+          { role: "user", content: message }
         ],
+        temperature: 0.7,
       }),
     });
 
+    const data = await response.json();
+    
     if (!response.ok) {
-      const errText = await response.text();
-      console.error("Groq API error:", errText);
-      return NextResponse.json({
-        reply: "Omlouvám se, teď se mi nepodařilo připojit na server. Zkus to prosím za chvíli znovu.",
-      });
+        throw new Error(data.error?.message || "Chyba při komunikaci s API");
     }
 
-    const data = await response.json();
-    const reply: string =
-      data?.choices?.[0]?.message?.content?.trim() ||
-      "Nejsem si jistý, jak na to odpovědět. Zkus se zeptat jinak.";
+    const reply = data.choices[0].message.content;
 
     return NextResponse.json({ reply });
-  } catch (err) {
-    console.error("Kairo API route error:", err);
-    return NextResponse.json(
-      { reply: "Něco se pokazilo při zpracování tvého požadavku." },
-      { status: 500 }
-    );
+  } catch (error) {
+    console.error("Chyba API Kairo:", error);
+    return NextResponse.json({ reply: "Promiň, moje obvody jsou teď nějaké zmatené. Zkus to za chvíli." }, { status: 500 });
   }
 }
