@@ -1,12 +1,15 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { ReactNode, Dispatch, SetStateAction } from 'react';
 import KairoAvatar from './KairoAvatar';
-import KairoModule from './modules/KairoModule';
 
-export default function DashboardShell() {
-  const [activeModule, setActiveModule] = useState<'kairo' | string>('kairo');
+interface DashboardShellProps {
+  children: ReactNode;
+  activeModule: string;
+  setActiveModule: Dispatch<SetStateAction<string>>;
+}
 
+export default function DashboardShell({ children, activeModule, setActiveModule }: DashboardShellProps) {
   return (
     <div className="flex h-screen bg-slate-950 text-white overflow-hidden">
       {/* Boční panel / Navigation */}
@@ -40,7 +43,7 @@ export default function DashboardShell() {
         </header>
 
         <div className="max-w-4xl mx-auto">
-          {activeModule === 'kairo' && <KairoModule />}
+          {children}
         </div>
       </main>
     </div>
