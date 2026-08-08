@@ -6,7 +6,7 @@ import { ArrowLeft, Camera, Upload, Sparkles, Image as ImageIcon, CheckCircle2, 
 export default function AiVisionModule({ onBack }: { onBack: () => void }) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [analysisResult, setAnalysisResult] = <any>useState(null);
+  const [analysisResult, setAnalysisResult] = useState<any>(null);
 
   const handleSimulateUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -155,5 +155,4 @@ export default function AiVisionModule({ onBack }: { onBack: () => void }) {
       </div>
     </div>
   );
-      }
-                
+}
