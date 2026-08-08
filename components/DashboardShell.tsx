@@ -20,7 +20,8 @@ import {
   FileText,
   BrainCircuit,
   Layers,
-  BarChart3
+  BarChart3,
+  Camera
 } from 'lucide-react';
 import CalendarModule from './modules/CalendarModule';
 import AiSolverModule from './modules/AiSolverModule';
@@ -31,6 +32,7 @@ import FlashcardsModule from './modules/FlashcardsModule';
 import SettingsModule from './modules/SettingsModule';
 import AnalyticsModule from './modules/AnalyticsModule';
 import StudyPlanModule from './modules/StudyPlanModule';
+import AiVisionModule from './modules/AiVisionModule';
 import LevelBadge from './LevelBadge';
 import PetModule from './modules/PetModule';
 
@@ -48,7 +50,7 @@ export default function DashboardShell() {
     { id: 'settings', label: 'Nastavení', icon: Settings },
   ];
 
-  const subViews = ['calendar', 'ai-solver', 'focus-timer', 'notes', 'ai-test', 'flashcards', 'analytics', 'study-plan'];
+  const subViews = ['calendar', 'ai-solver', 'focus-timer', 'notes', 'ai-test', 'flashcards', 'analytics', 'study-plan', 'ai-vision'];
 
   const renderView = () => {
     switch (activeView) {
@@ -98,6 +100,22 @@ export default function DashboardShell() {
                 </div>
                 <div className="mt-6 flex items-center gap-2 text-xs font-bold text-cyan-400 group-hover:translate-x-1 transition-transform">
                   <span>Spustit řešitel</span>
+                  <ArrowRight className="w-4 h-4" />
+                </div>
+              </div>
+
+              <div 
+                onClick={() => setActiveView('ai-vision')}
+                className="group relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-7 hover:border-cyan-500/50 transition-all duration-300 hover:scale-[1.01] cursor-pointer flex flex-col justify-between"
+              >
+                <div className="absolute top-0 right-0 w-40 h-40 bg-cyan-500/10 rounded-full blur-3xl group-hover:bg-cyan-500/25 transition-all" />
+                <div>
+                  <Camera className="w-9 h-9 text-cyan-400 mb-4" />
+                  <h3 className="text-xl font-bold text-white mb-1">AI Vision Scanner</h3>
+                  <p className="text-sm text-slate-400">Skenuj schémata, příklady a poznámky z fotky.</p>
+                </div>
+                <div className="mt-6 flex items-center gap-2 text-xs font-bold text-cyan-400 group-hover:translate-x-1 transition-transform">
+                  <span>Spustit scanner</span>
                   <ArrowRight className="w-4 h-4" />
                 </div>
               </div>
@@ -205,6 +223,8 @@ export default function DashboardShell() {
         return <CalendarModule onBack={() => setActiveView('workspace')} />;
       case 'ai-solver':
         return <AiSolverModule onBack={() => setActiveView('workspace')} />;
+      case 'ai-vision':
+        return <AiVisionModule onBack={() => setActiveView('workspace')} />;
       case 'focus-timer':
         return <FocusTimerModule onBack={() => setActiveView('workspace')} />;
       case 'notes':
@@ -332,18 +352,4 @@ export default function DashboardShell() {
             <button
               key={item.id}
               onClick={() => setActiveView(item.id)}
-              className={`relative flex items-center justify-center p-3.5 rounded-2xl transition-all duration-300 ease-out group cursor-pointer ${
-                isActive 
-                  ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg shadow-pink-500/25 scale-105' 
-                  : 'text-slate-400 hover:text-white hover:bg-white/5'
-              }`}
-              title={item.label}
-            >
-              <Icon className="w-5 h-5" />
-            </button>
-          );
-        })}
-      </nav>
-    </div>
-  );
-  }
+              className={`relative flex items-center justify-center p-3.5 rounded-2xl transition-all duration-300 ease-out group 
