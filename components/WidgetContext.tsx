@@ -35,16 +35,22 @@ const WidgetContext = createContext<WidgetContextType | undefined>(undefined);
 export function WidgetProvider({ children }: { children: React.ReactNode }) {
   const [widgets, setWidgets] = useState<WidgetConfig[]>(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('student_ai_widgets');
+      const saved = localStorage.getItem('student_ai_widgets_order');
       if (saved) {
-        try { return JSON.parse(saved); } catch (e) { /* fallback */ }
+        try { 
+          const parsed: WidgetConfig[] = JSON.parse(saved);
+          // Zajištění, že nově přidané widgety nebudou chybět
+          const parsedIds = new Set(parsed.map(w => w.id));
+          const missing = DEFAULT_WIDGETS.filter(w => !parsedIds.has(w.id));
+          return [...parsed, ...missing];
+        } catch (e) { /* fallback */ }
       }
     }
     return DEFAULT_WIDGETS;
   });
 
   useEffect(() => {
-    localStorage.setItem('student_ai_widgets', JSON.stringify(widgets));
+    localStorage.setItem('student_ai_widgets_order', JSON.stringify(widgets));
   }, [widgets]);
 
   const toggleWidget = (id: string) => {
