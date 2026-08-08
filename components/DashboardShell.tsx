@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Calculator, 
@@ -26,24 +26,27 @@ import {
   Bot
 } from 'lucide-react';
 import { AppProvider, useApp } from './AppContext';
-import CalendarModule from './modules/CalendarModule';
-import AiSolverModule from './modules/AiSolverModule';
-import AiVisionModule from './modules/AiVisionModule';
-import MindMapModule from './modules/MindMapModule';
-import FocusTimerModule from './modules/FocusTimerModule';
-import NotesModule from './modules/NotesModule';
-import AITestModule from './modules/AITestModule';
-import FlashcardsModule from './modules/FlashcardsModule';
-import SettingsModule from './modules/SettingsModule';
-import AnalyticsModule from './modules/AnalyticsModule';
-import StudyPlanModule from './modules/StudyPlanModule';
-import ProfileModule from './modules/ProfileModule';
-import PetModule from './modules/PetModule';
-import LanguageModule from './modules/LanguageModule';
-import StorageModule from './modules/StorageModule';
-import RewardsModule from './modules/RewardsModule';
-import StoreModule from './modules/StoreModule';
 import LevelBadge from './LevelBadge';
+import LoadingSkeleton from './LoadingSkeleton';
+
+// Dynamický import modulů (Code-Splitting)
+const CalendarModule = lazy(() => import('./modules/CalendarModule'));
+const AiSolverModule = lazy(() => import('./modules/AiSolverModule'));
+const AiVisionModule = lazy(() => import('./modules/AiVisionModule'));
+const MindMapModule = lazy(() => import('./modules/MindMapModule'));
+const FocusTimerModule = lazy(() => import('./modules/FocusTimerModule'));
+const NotesModule = lazy(() => import('./modules/NotesModule'));
+const AITestModule = lazy(() => import('./modules/AITestModule'));
+const FlashcardsModule = lazy(() => import('./modules/FlashcardsModule'));
+const SettingsModule = lazy(() => import('./modules/SettingsModule'));
+const AnalyticsModule = lazy(() => import('./modules/AnalyticsModule'));
+const StudyPlanModule = lazy(() => import('./modules/StudyPlanModule'));
+const ProfileModule = lazy(() => import('./modules/ProfileModule'));
+const PetModule = lazy(() => import('./modules/PetModule'));
+const LanguageModule = lazy(() => import('./modules/LanguageModule'));
+const StorageModule = lazy(() => import('./modules/StorageModule'));
+const RewardsModule = lazy(() => import('./modules/RewardsModule'));
+const StoreModule = lazy(() => import('./modules/StoreModule'));
 
 function DashboardContent() {
   const [activeView, setActiveView] = useState('workspace');
@@ -60,266 +63,90 @@ function DashboardContent() {
   ];
 
   const subViews = [
-    'calendar', 
-    'ai-solver', 
-    'focus-timer', 
-    'notes', 
-    'ai-test', 
-    'flashcards', 
-    'analytics', 
-    'study-plan', 
-    'ai-vision', 
-    'mind-map', 
-    'profile',
-    'language',
-    'store'
+    'calendar', 'ai-solver', 'focus-timer', 'notes', 'ai-test', 
+    'flashcards', 'analytics', 'study-plan', 'ai-vision', 'mind-map', 
+    'profile', 'language', 'store', 'pet', 'rewards', 'storage', 'settings'
   ];
 
   const renderView = () => {
-    switch (activeView) {
-      case 'workspace':
-        return (
-          <div className="space-y-6">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-              <div>
-                <span className="text-xs font-bold px-3 py-1 rounded-full bg-pink-500/10 text-pink-400 border border-pink-500/20 inline-flex items-center gap-1.5 mb-3">
-                  <Flame className="w-3.5 h-3.5 text-pink-400" /> {streak} denní streak! 🔥
-                </span>
-                <h1 className="text-3xl md:text-4xl font-black tracking-tight text-white">
-                  Studijní <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400">Workspace</span> ⚡
-                </h1>
-              </div>
-              <div className="w-full md:w-72">
-                <LevelBadge level={level} currentXp={xp} maxXp={100} />
-              </div>
-            </div>
+    return (
+      <Suspense fallback={<LoadingSkeleton />}>
+        {(() => {
+          switch (activeView) {
+            case 'workspace':
+              return (
+                <div className="space-y-6">
+                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                      <span className="text-xs font-bold px-3 py-1 rounded-full bg-pink-500/10 text-pink-400 border border-pink-500/20 inline-flex items-center gap-1.5 mb-3">
+                        <Flame className="w-3.5 h-3.5 text-pink-400" /> {streak} denní streak! 🔥
+                      </span>
+                      <h1 className="text-3xl md:text-4xl font-black tracking-tight text-white">
+                        Studijní <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400">Workspace</span> ⚡
+                      </h1>
+                    </div>
+                    <div className="w-full md:w-72">
+                      <LevelBadge level={level} currentXp={xp} maxXp={100} />
+                    </div>
+                  </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div 
-                onClick={() => setActiveView('language')}
-                className="group relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-7 hover:border-cyan-500/55 transition-all duration-300 hover:scale-[1.01] cursor-pointer flex flex-col justify-between"
-              >
-                <div className="absolute top-0 right-0 w-40 h-40 bg-cyan-500/10 rounded-full blur-3xl group-hover:bg-cyan-500/25 transition-all" />
-                <div>
-                  <Bot className="w-9 h-9 text-cyan-400 mb-4" />
-                  <h3 className="text-xl font-bold text-white mb-1">Cyber Jazykový Lektor</h3>
-                  <p className="text-sm text-slate-400">Trénuj konverzaci a výslovnost s AI společníkem.</p>
-                </div>
-                <div className="mt-6 flex items-center gap-2 text-xs font-bold text-cyan-400 group-hover:translate-x-1 transition-transform">
-                  <span>Spustit lektora</span>
-                  <ArrowRight className="w-4 h-4" />
-                </div>
-              </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div onClick={() => setActiveView('language')} className="group relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-7 hover:border-cyan-500/55 transition-all duration-300 hover:scale-[1.01] cursor-pointer flex flex-col justify-between">
+                      <Bot className="w-9 h-9 text-cyan-400 mb-4" />
+                      <h3 className="text-xl font-bold text-white mb-1">Cyber Jazykový Lektor</h3>
+                      <p className="text-sm text-slate-400">Trénuj konverzaci a výslovnost s AI společníkem.</p>
+                      <div className="mt-6 flex items-center gap-2 text-xs font-bold text-cyan-400"><span>Spustit lektora</span><ArrowRight className="w-4 h-4" /></div>
+                    </div>
 
-              <div 
-                onClick={() => setActiveView('mind-map')}
-                className="group relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-7 hover:border-indigo-500/50 transition-all duration-300 hover:scale-[1.01] cursor-pointer flex flex-col justify-between"
-              >
-                <div className="absolute top-0 right-0 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl group-hover:bg-indigo-500/25 transition-all" />
-                <div>
-                  <GitBranch className="w-9 h-9 text-indigo-400 mb-4" />
-                  <h3 className="text-xl font-bold text-white mb-1">Myšlenkové Mapy</h3>
-                  <p className="text-sm text-slate-400">Vizuální propojování konceptů a uzlů.</p>
-                </div>
-                <div className="mt-6 flex items-center gap-2 text-xs font-bold text-indigo-400 group-hover:translate-x-1 transition-transform">
-                  <span>Otevřít mapy</span>
-                  <ArrowRight className="w-4 h-4" />
-                </div>
-              </div>
+                    <div onClick={() => setActiveView('mind-map')} className="group relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-7 hover:border-indigo-500/50 transition-all duration-300 hover:scale-[1.01] cursor-pointer flex flex-col justify-between">
+                      <GitBranch className="w-9 h-9 text-indigo-400 mb-4" />
+                      <h3 className="text-xl font-bold text-white mb-1">Myšlenkové Mapy</h3>
+                      <p className="text-sm text-slate-400">Vizuální propojování konceptů a uzlů.</p>
+                      <div className="mt-6 flex items-center gap-2 text-xs font-bold text-indigo-400"><span>Otevřít mapy</span><ArrowRight className="w-4 h-4" /></div>
+                    </div>
 
-              <div 
-                onClick={() => setActiveView('calendar')}
-                className="group relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-7 hover:border-pink-500/50 transition-all duration-300 hover:scale-[1.01] cursor-pointer flex flex-col justify-between"
-              >
-                <div className="absolute top-0 right-0 w-40 h-40 bg-pink-500/10 rounded-full blur-3xl group-hover:bg-pink-500/20 transition-all" />
-                <div>
-                  <CalendarDays className="w-9 h-9 text-pink-400 mb-4" />
-                  <h3 className="text-xl font-bold text-white mb-1">Kalendář & Zkoušky</h3>
-                  <p className="text-sm text-slate-400">Správa termínů a zkoušek. 🚀</p>
-                </div>
-                <div className="mt-6 flex items-center gap-2 text-xs font-bold text-pink-400 group-hover:translate-x-1 transition-transform">
-                  <span>Otevřít kalendář</span>
-                  <ArrowRight className="w-4 h-4" />
-                </div>
-              </div>
+                    <div onClick={() => setActiveView('ai-solver')} className="group relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-7 hover:border-cyan-500/50 transition-all duration-300 hover:scale-[1.01] cursor-pointer flex flex-col justify-between">
+                      <Calculator className="w-9 h-9 text-cyan-400 mb-4" />
+                      <h3 className="text-xl font-bold text-white mb-1">AI Řešitel Úloh</h3>
+                      <p className="text-sm text-slate-400">Zasekl ses na příkladu? Nech si ho vysvětlit.</p>
+                      <div className="mt-6 flex items-center gap-2 text-xs font-bold text-cyan-400"><span>Spustit řešitel</span><ArrowRight className="w-4 h-4" /></div>
+                    </div>
 
-              <div 
-                onClick={() => setActiveView('ai-solver')}
-                className="group relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-7 hover:border-cyan-500/50 transition-all duration-300 hover:scale-[1.01] cursor-pointer flex flex-col justify-between"
-              >
-                <div className="absolute top-0 right-0 w-40 h-40 bg-cyan-500/10 rounded-full blur-3xl group-hover:bg-cyan-500/20 transition-all" />
-                <div>
-                  <Calculator className="w-9 h-9 text-cyan-400 mb-4" />
-                  <h3 className="text-xl font-bold text-white mb-1">AI Řešitel Úloh</h3>
-                  <p className="text-sm text-slate-400">Zasekl ses na příkladu? Nech si ho vysvětlit.</p>
+                    <div onClick={() => setActiveView('focus-timer')} className="group relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-7 hover:border-purple-500/50 transition-all duration-300 hover:scale-[1.01] cursor-pointer flex flex-col justify-between">
+                      <Timer className="w-9 h-9 text-purple-400 mb-4" />
+                      <h3 className="text-xl font-bold text-white mb-1">Focus Timer</h3>
+                      <p className="text-sm text-slate-400">Pomodoro časomíra pro soustředěné učení.</p>
+                      <div className="mt-6 flex items-center gap-2 text-xs font-bold text-purple-400"><span>Spustit timer</span><ArrowRight className="w-4 h-4" /></div>
+                    </div>
+                  </div>
                 </div>
-                <div className="mt-6 flex items-center gap-2 text-xs font-bold text-cyan-400 group-hover:translate-x-1 transition-transform">
-                  <span>Spustit řešitel</span>
-                  <ArrowRight className="w-4 h-4" />
-                </div>
-              </div>
-
-              <div 
-                onClick={() => setActiveView('ai-vision')}
-                className="group relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-7 hover:border-cyan-500/50 transition-all duration-300 hover:scale-[1.01] cursor-pointer flex flex-col justify-between"
-              >
-                <div className="absolute top-0 right-0 w-40 h-40 bg-cyan-500/10 rounded-full blur-3xl group-hover:bg-cyan-500/25 transition-all" />
-                <div>
-                  <Camera className="w-9 h-9 text-cyan-400 mb-4" />
-                  <h3 className="text-xl font-bold text-white mb-1">AI Vision Scanner</h3>
-                  <p className="text-sm text-slate-400">Skenuj schémata, příklady a poznámky z fotky.</p>
-                </div>
-                <div className="mt-6 flex items-center gap-2 text-xs font-bold text-cyan-400 group-hover:translate-x-1 transition-transform">
-                  <span>Spustit scanner</span>
-                  <ArrowRight className="w-4 h-4" />
-                </div>
-              </div>
-
-              <div 
-                onClick={() => setActiveView('focus-timer')}
-                className="group relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-7 hover:border-purple-500/50 transition-all duration-300 hover:scale-[1.01] cursor-pointer flex flex-col justify-between"
-              >
-                <div className="absolute top-0 right-0 w-40 h-40 bg-purple-500/10 rounded-full blur-3xl group-hover:bg-purple-500/20 transition-all" />
-                <div>
-                  <Timer className="w-9 h-9 text-purple-400 mb-4" />
-                  <h3 className="text-xl font-bold text-white mb-1">Focus Timer</h3>
-                  <p className="text-sm text-slate-400">Pomodoro časomíra pro soustředěné učení.</p>
-                </div>
-                <div className="mt-6 flex items-center gap-2 text-xs font-bold text-purple-400 group-hover:translate-x-1 transition-transform">
-                  <span>Spustit timer</span>
-                  <ArrowRight className="w-4 h-4" />
-                </div>
-              </div>
-
-              <div 
-                onClick={() => setActiveView('notes')}
-                className="group relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-7 hover:border-indigo-500/50 transition-all duration-300 hover:scale-[1.01] cursor-pointer flex flex-col justify-between"
-              >
-                <div className="absolute top-0 right-0 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl group-hover:bg-indigo-500/20 transition-all" />
-                <div>
-                  <FileText className="w-9 h-9 text-indigo-400 mb-4" />
-                  <h3 className="text-xl font-bold text-white mb-1">Poznámky & Taháky</h3>
-                  <p className="text-sm text-slate-400">Rychlé poznámky s automatickým uložením.</p>
-                </div>
-                <div className="mt-6 flex items-center gap-2 text-xs font-bold text-indigo-400 group-hover:translate-x-1 transition-transform">
-                  <span>Otevřít poznámky</span>
-                  <ArrowRight className="w-4 h-4" />
-                </div>
-              </div>
-
-              <div 
-                onClick={() => setActiveView('ai-test')}
-                className="group relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-7 hover:border-purple-500/50 transition-all duration-300 hover:scale-[1.01] cursor-pointer flex flex-col justify-between"
-              >
-                <div className="absolute top-0 right-0 w-40 h-40 bg-purple-500/10 rounded-full blur-3xl group-hover:bg-purple-500/20 transition-all" />
-                <div>
-                  <BrainCircuit className="w-9 h-9 text-purple-400 mb-4" />
-                  <h3 className="text-xl font-bold text-white mb-1">AI Testy</h3>
-                  <p className="text-sm text-slate-400">Otestuj své znalosti s procentuálním hodnocením.</p>
-                </div>
-                <div className="mt-6 flex items-center gap-2 text-xs font-bold text-purple-400 group-hover:translate-x-1 transition-transform">
-                  <span>Spustit test</span>
-                  <ArrowRight className="w-4 h-4" />
-                </div>
-              </div>
-
-              <div 
-                onClick={() => setActiveView('flashcards')}
-                className="group relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-7 hover:border-amber-500/50 transition-all duration-300 hover:scale-[1.01] cursor-pointer flex flex-col justify-between"
-              >
-                <div className="absolute top-0 right-0 w-40 h-40 bg-amber-500/10 rounded-full blur-3xl group-hover:bg-amber-500/20 transition-all" />
-                <div>
-                  <Layers className="w-9 h-9 text-amber-400 mb-4" />
-                  <h3 className="text-xl font-bold text-white mb-1">Kartičky (Flashcards)</h3>
-                  <p className="text-sm text-slate-400">Rychlé opakovací balíčky pro efektivní učení.</p>
-                </div>
-                <div className="mt-6 flex items-center gap-2 text-xs font-bold text-amber-400 group-hover:translate-x-1 transition-transform">
-                  <span>Otevřít kartičky</span>
-                  <ArrowRight className="w-4 h-4" />
-                </div>
-              </div>
-
-              <div 
-                onClick={() => setActiveView('analytics')}
-                className="group relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-7 hover:border-cyan-500/50 transition-all duration-300 hover:scale-[1.01] cursor-pointer flex flex-col justify-between"
-              >
-                <div className="absolute top-0 right-0 w-40 h-40 bg-cyan-500/10 rounded-full blur-3xl group-hover:bg-cyan-500/25 transition-all" />
-                <div>
-                  <BarChart3 className="w-9 h-9 text-cyan-400 mb-4" />
-                  <h3 className="text-xl font-bold text-white mb-1">Statistiky & Analytika</h3>
-                  <p className="text-sm text-slate-400">Sleduj svůj pokrok, průměrné skóre a čas v učení.</p>
-                </div>
-                <div className="mt-6 flex items-center gap-2 text-xs font-bold text-cyan-400 group-hover:translate-x-1 transition-transform">
-                  <span>Zobrazit statistiky</span>
-                  <ArrowRight className="w-4 h-4" />
-                </div>
-              </div>
-
-              <div 
-                onClick={() => setActiveView('study-plan')}
-                className="group relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-7 hover:border-pink-500/50 transition-all duration-300 hover:scale-[1.01] cursor-pointer flex flex-col justify-between"
-              >
-                <div className="absolute top-0 right-0 w-40 h-40 bg-pink-500/10 rounded-full blur-3xl group-hover:bg-pink-500/25 transition-all" />
-                <div>
-                  <Sparkles className="w-9 h-9 text-pink-400 mb-4" />
-                  <h3 className="text-xl font-bold text-white mb-1">AI Studijní Plánovač</h3>
-                  <p className="text-sm text-slate-400">Rozvrhni si přípravu na zkoušky a testy.</p>
-                </div>
-                <div className="mt-6 flex items-center gap-2 text-xs font-bold text-pink-400 group-hover:translate-x-1 transition-transform">
-                  <span>Otevřít plánovač</span>
-                  <ArrowRight className="w-4 h-4" />
-                </div>
-              </div>
-
-            </div>
-          </div>
-        );
-      case 'calendar':
-        return <CalendarModule onBack={() => setActiveView('workspace')} />;
-      case 'ai-solver':
-        return <AiSolverModule onBack={() => setActiveView('workspace')} />;
-      case 'ai-vision':
-        return <AiVisionModule onBack={() => setActiveView('workspace')} />;
-      case 'mind-map':
-        return <MindMapModule onBack={() => setActiveView('workspace')} />;
-      case 'focus-timer':
-        return <FocusTimerModule onBack={() => setActiveView('workspace')} />;
-      case 'notes':
-        return <NotesModule onBack={() => setActiveView('workspace')} />;
-      case 'ai-test':
-        return <AITestModule onBack={() => setActiveView('workspace')} />;
-      case 'flashcards':
-        return <FlashcardsModule onBack={() => setActiveView('workspace')} />;
-      case 'analytics':
-        return <AnalyticsModule onBack={() => setActiveView('workspace')} />;
-      case 'study-plan':
-        return <StudyPlanModule onBack={() => setActiveView('workspace')} />;
-      case 'settings':
-        return <SettingsModule onBack={() => setActiveView('workspace')} />;
-      case 'profile':
-        return <ProfileModule onBack={() => setActiveView('workspace')} />;
-      case 'pet':
-        return <PetModule onBack={() => setActiveView('workspace')} />;
-      case 'language':
-        return <LanguageModule onBack={() => setActiveView('workspace')} onAddCredits={addCredits} />;
-      case 'storage':
-        return <StorageModule onBack={() => setActiveView('workspace')} />;
-      case 'rewards':
-        return <RewardsModule onBack={() => setActiveView('workspace')} credits={userCredits} onAddCredits={addCredits} />;
-      case 'store':
-        return <StoreModule onBack={() => setActiveView('workspace')} userCredits={userCredits} onAddCredits={addCredits} />;
-      default:
-        return null;
-    }
+              );
+            case 'calendar': return <CalendarModule onBack={() => setActiveView('workspace')} />;
+            case 'ai-solver': return <AiSolverModule onBack={() => setActiveView('workspace')} />;
+            case 'ai-vision': return <AiVisionModule onBack={() => setActiveView('workspace')} />;
+            case 'mind-map': return <MindMapModule onBack={() => setActiveView('workspace')} />;
+            case 'focus-timer': return <FocusTimerModule onBack={() => setActiveView('workspace')} />;
+            case 'notes': return <NotesModule onBack={() => setActiveView('workspace')} />;
+            case 'ai-test': return <AITestModule onBack={() => setActiveView('workspace')} />;
+            case 'flashcards': return <FlashcardsModule onBack={() => setActiveView('workspace')} />;
+            case 'analytics': return <AnalyticsModule onBack={() => setActiveView('workspace')} />;
+            case 'study-plan': return <StudyPlanModule onBack={() => setActiveView('workspace')} />;
+            case 'settings': return <SettingsModule onBack={() => setActiveView('workspace')} />;
+            case 'profile': return <ProfileModule onBack={() => setActiveView('workspace')} />;
+            case 'pet': return <PetModule onBack={() => setActiveView('workspace')} />;
+            case 'language': return <LanguageModule onBack={() => setActiveView('workspace')} onAddCredits={addCredits} />;
+            case 'storage': return <StorageModule onBack={() => setActiveView('workspace')} />;
+            case 'rewards': return <RewardsModule onBack={() => setActiveView('workspace')} credits={userCredits} onAddCredits={addCredits} />;
+            case 'store': return <StoreModule onBack={() => setActiveView('workspace')} userCredits={userCredits} onAddCredits={addCredits} />;
+            default: return null;
+          }
+        })()}
+      </Suspense>
+    );
   };
 
   return (
     <div className="min-h-screen bg-[#07090E] text-white font-sans overflow-x-hidden selection:bg-pink-500/30 pb-36">
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-purple-600/15 rounded-full blur-[140px]" />
-        <div className="absolute bottom-[-10%] right-[10%] w-[500px] h-[500px] bg-pink-600/15 rounded-full blur-[140px]" />
-      </div>
-
       <header className="fixed top-0 w-full z-40 px-6 py-4 flex justify-between items-center bg-[#07090E]/80 backdrop-blur-xl border-b border-white/5">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-pink-500 to-purple-600 flex items-center justify-center font-black text-sm shadow-lg shadow-pink-500/20">
@@ -329,10 +156,7 @@ function DashboardContent() {
             STUDENT.AI
           </span>
         </div>
-        <div 
-          onClick={() => setActiveView('store')}
-          className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-1.5 rounded-full text-xs font-bold cursor-pointer transition-all shadow-sm"
-        >
+        <div onClick={() => setActiveView('store')} className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-1.5 rounded-full text-xs font-bold cursor-pointer transition-all shadow-sm">
           <Zap className="w-3.5 h-3.5 text-pink-400 fill-pink-400" />
           <span>{userCredits} Kreditů</span>
         </div>
@@ -382,4 +206,4 @@ export default function DashboardShell() {
       <DashboardContent />
     </AppProvider>
   );
-}
+      }
