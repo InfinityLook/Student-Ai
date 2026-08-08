@@ -220,26 +220,7 @@ export default function DashboardShell() {
       case 'settings':
         return <SettingsModule onBack={() => setActiveView('workspace')} />;
       case 'pet':
-        return (
-          <div className="rounded-[32px] bg-gradient-to-b from-purple-900/20 to-black/40 border border-purple-500/20 p-8 max-w-xl mx-auto text-center space-y-6 backdrop-blur-xl">
-            <div className="w-28 h-28 mx-auto bg-gradient-to-tr from-pink-500 to-purple-600 rounded-[32px] flex items-center justify-center shadow-2xl shadow-pink-500/30 animate-pulse">
-              <Heart className="w-14 h-14 text-white fill-white/20" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-black text-white">Tvůj AI Mazlíček</h2>
-              <p className="text-xs text-purple-300 mt-1">Nálada: Skvělá ✨ • Level 4</p>
-            </div>
-            <div className="bg-white/5 p-4 rounded-2xl border border-white/5 space-y-2 text-left">
-              <div className="flex justify-between text-xs font-bold text-slate-300">
-                <span>XP do dalšího levlu</span>
-                <span>85 / 100 XP</span>
-              </div>
-              <div className="w-full bg-white/10 h-3 rounded-full overflow-hidden p-0.5">
-                <div className="bg-gradient-to-r from-pink-500 to-purple-500 h-full rounded-full w-[85%]" />
-              </div>
-            </div>
-          </div>
-        );
+        return <PetModule onBack={() => setActiveView('workspace')} />;
       case 'rewards':
         return (
           <div className="rounded-[32px] bg-white/[0.03] border border-white/10 p-8 max-w-2xl mx-auto text-center space-y-6 backdrop-blur-xl">
@@ -365,4 +346,4 @@ export default function DashboardShell() {
       </nav>
     </div>
   );
-}
+  }
