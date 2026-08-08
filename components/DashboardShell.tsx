@@ -53,7 +53,19 @@ export default function DashboardShell() {
     { id: 'settings', label: 'Nastavení', icon: Settings },
   ];
 
-  const subViews = ['calendar', 'ai-solver', 'focus-timer', 'notes', 'ai-test', 'flashcards', 'analytics', 'study-plan', 'ai-vision', 'mind-map', 'profile'];
+  const subViews = [
+    'calendar', 
+    'ai-solver', 
+    'focus-timer', 
+    'notes', 
+    'ai-test', 
+    'flashcards', 
+    'analytics', 
+    'study-plan', 
+    'ai-vision', 
+    'mind-map', 
+    'profile'
+  ];
 
   const renderView = () => {
     switch (activeView) {
@@ -349,4 +361,29 @@ export default function DashboardShell() {
           >
             {renderView()}
           </motion.div>
-        </AnimatePrese
+        </AnimatePresence>
+      </main>
+
+      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1.5 p-2 rounded-[28px] bg-black/60 backdrop-blur-2xl border border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.8)]">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = activeView === item.id || (subViews.includes(activeView) && item.id === 'workspace');
+          return (
+            <button
+              key={item.id}
+              onClick={() => setActiveView(item.id)}
+              className={`relative flex items-center justify-center p-3.5 rounded-2xl transition-all duration-300 ease-out group cursor-pointer ${
+                isActive 
+                  ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg shadow-pink-500/25 scale-105' 
+                  : 'text-slate-400 hover:text-white hover:bg-white/5'
+              }`}
+              title={item.label}
+            >
+              <Icon className="w-5 h-5" />
+            </button>
+          );
+        })}
+      </nav>
+    </div>
+  );
+}
