@@ -32,6 +32,7 @@ import SettingsModule from './modules/SettingsModule';
 import AnalyticsModule from './modules/AnalyticsModule';
 import StudyPlanModule from './modules/StudyPlanModule';
 import LevelBadge from './LevelBadge';
+import PetModule from './modules/PetModule';
 
 export default function DashboardShell() {
   const [activeView, setActiveView] = useState('workspace');
