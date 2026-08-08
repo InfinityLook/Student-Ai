@@ -17,12 +17,17 @@ interface WidgetContextType {
 }
 
 const DEFAULT_WIDGETS: WidgetConfig[] = [
-  { id: 'streak', title: 'Streak & XP přehled', enabled: true, size: 'full' },
   { id: 'language', title: 'Cyber Jazykový Lektor', enabled: true, size: 'medium' },
   { id: 'mindmap', title: 'Myšlenkové Mapy', enabled: true, size: 'medium' },
   { id: 'solver', title: 'AI Řešitel Úloh', enabled: true, size: 'medium' },
   { id: 'timer', title: 'Focus Timer', enabled: true, size: 'medium' },
   { id: 'calendar', title: 'Studijní Kalendář', enabled: true, size: 'full' },
+  { id: 'notes', title: 'Inteligentní Poznámky', enabled: true, size: 'medium' },
+  { id: 'ai-test', title: 'AI Testy', enabled: true, size: 'medium' },
+  { id: 'flashcards', title: 'Kartičky', enabled: true, size: 'medium' },
+  { id: 'analytics', title: 'Analytika', enabled: true, size: 'medium' },
+  { id: 'study-plan', title: 'Studijní Plán', enabled: true, size: 'medium' },
+  { id: 'ai-vision', title: 'AI Vision Skener', enabled: true, size: 'medium' },
 ];
 
 const WidgetContext = createContext<WidgetContextType | undefined>(undefined);
@@ -65,4 +70,4 @@ export function useWidgets() {
   const context = useContext(WidgetContext);
   if (!context) throw new Error('useWidgets musí být použito uvnitř WidgetProvider');
   return context;
-    }
+}
