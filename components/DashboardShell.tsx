@@ -28,6 +28,7 @@ import {
 import { AppProvider, useApp } from './AppContext';
 import LevelBadge from './LevelBadge';
 import LoadingSkeleton from './LoadingSkeleton';
+import ErrorBoundary from './ErrorBoundary';
 
 // Dynamický import modulů (Code-Splitting)
 const CalendarModule = lazy(() => import('./modules/CalendarModule'));
@@ -70,78 +71,80 @@ function DashboardContent() {
 
   const renderView = () => {
     return (
-      <Suspense fallback={<LoadingSkeleton />}>
-        {(() => {
-          switch (activeView) {
-            case 'workspace':
-              return (
-                <div className="space-y-6">
-                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <div>
-                      <span className="text-xs font-bold px-3 py-1 rounded-full bg-pink-500/10 text-pink-400 border border-pink-500/20 inline-flex items-center gap-1.5 mb-3">
-                        <Flame className="w-3.5 h-3.5 text-pink-400" /> {streak} denní streak! 🔥
-                      </span>
-                      <h1 className="text-3xl md:text-4xl font-black tracking-tight text-white">
-                        Studijní <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400">Workspace</span> ⚡
-                      </h1>
+      <ErrorBoundary moduleName={activeView}>
+        <Suspense fallback={<LoadingSkeleton />}>
+          {(() => {
+            switch (activeView) {
+              case 'workspace':
+                return (
+                  <div className="space-y-6">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                      <div>
+                        <span className="text-xs font-bold px-3 py-1 rounded-full bg-pink-500/10 text-pink-400 border border-pink-500/20 inline-flex items-center gap-1.5 mb-3">
+                          <Flame className="w-3.5 h-3.5 text-pink-400" /> {streak} denní streak! 🔥
+                        </span>
+                        <h1 className="text-3xl md:text-4xl font-black tracking-tight text-white">
+                          Studijní <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400">Workspace</span> ⚡
+                        </h1>
+                      </div>
+                      <div className="w-full md:w-72">
+                        <LevelBadge level={level} currentXp={xp} maxXp={100} />
+                      </div>
                     </div>
-                    <div className="w-full md:w-72">
-                      <LevelBadge level={level} currentXp={xp} maxXp={100} />
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      <div onClick={() => setActiveView('language')} className="group relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-7 hover:border-cyan-500/55 transition-all duration-300 hover:scale-[1.01] cursor-pointer flex flex-col justify-between">
+                        <Bot className="w-9 h-9 text-cyan-400 mb-4" />
+                        <h3 className="text-xl font-bold text-white mb-1">Cyber Jazykový Lektor</h3>
+                        <p className="text-sm text-slate-400">Trénuj konverzaci a výslovnost s AI společníkem.</p>
+                        <div className="mt-6 flex items-center gap-2 text-xs font-bold text-cyan-400"><span>Spustit lektora</span><ArrowRight className="w-4 h-4" /></div>
+                      </div>
+
+                      <div onClick={() => setActiveView('mind-map')} className="group relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-7 hover:border-indigo-500/50 transition-all duration-300 hover:scale-[1.01] cursor-pointer flex flex-col justify-between">
+                        <GitBranch className="w-9 h-9 text-indigo-400 mb-4" />
+                        <h3 className="text-xl font-bold text-white mb-1">Myšlenkové Mapy</h3>
+                        <p className="text-sm text-slate-400">Vizuální propojování konceptů a uzlů.</p>
+                        <div className="mt-6 flex items-center gap-2 text-xs font-bold text-indigo-400"><span>Otevřít mapy</span><ArrowRight className="w-4 h-4" /></div>
+                      </div>
+
+                      <div onClick={() => setActiveView('ai-solver')} className="group relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-7 hover:border-cyan-500/50 transition-all duration-300 hover:scale-[1.01] cursor-pointer flex flex-col justify-between">
+                        <Calculator className="w-9 h-9 text-cyan-400 mb-4" />
+                        <h3 className="text-xl font-bold text-white mb-1">AI Řešitel Úloh</h3>
+                        <p className="text-sm text-slate-400">Zasekl ses na příkladu? Nech si ho vysvětlit.</p>
+                        <div className="mt-6 flex items-center gap-2 text-xs font-bold text-cyan-400"><span>Spustit řešitel</span><ArrowRight className="w-4 h-4" /></div>
+                      </div>
+
+                      <div onClick={() => setActiveView('focus-timer')} className="group relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-7 hover:border-purple-500/50 transition-all duration-300 hover:scale-[1.01] cursor-pointer flex flex-col justify-between">
+                        <Timer className="w-9 h-9 text-purple-400 mb-4" />
+                        <h3 className="text-xl font-bold text-white mb-1">Focus Timer</h3>
+                        <p className="text-sm text-slate-400">Pomodoro časomíra pro soustředěné učení.</p>
+                        <div className="mt-6 flex items-center gap-2 text-xs font-bold text-purple-400"><span>Spustit timer</span><ArrowRight className="w-4 h-4" /></div>
+                      </div>
                     </div>
                   </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div onClick={() => setActiveView('language')} className="group relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-7 hover:border-cyan-500/55 transition-all duration-300 hover:scale-[1.01] cursor-pointer flex flex-col justify-between">
-                      <Bot className="w-9 h-9 text-cyan-400 mb-4" />
-                      <h3 className="text-xl font-bold text-white mb-1">Cyber Jazykový Lektor</h3>
-                      <p className="text-sm text-slate-400">Trénuj konverzaci a výslovnost s AI společníkem.</p>
-                      <div className="mt-6 flex items-center gap-2 text-xs font-bold text-cyan-400"><span>Spustit lektora</span><ArrowRight className="w-4 h-4" /></div>
-                    </div>
-
-                    <div onClick={() => setActiveView('mind-map')} className="group relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-7 hover:border-indigo-500/50 transition-all duration-300 hover:scale-[1.01] cursor-pointer flex flex-col justify-between">
-                      <GitBranch className="w-9 h-9 text-indigo-400 mb-4" />
-                      <h3 className="text-xl font-bold text-white mb-1">Myšlenkové Mapy</h3>
-                      <p className="text-sm text-slate-400">Vizuální propojování konceptů a uzlů.</p>
-                      <div className="mt-6 flex items-center gap-2 text-xs font-bold text-indigo-400"><span>Otevřít mapy</span><ArrowRight className="w-4 h-4" /></div>
-                    </div>
-
-                    <div onClick={() => setActiveView('ai-solver')} className="group relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-7 hover:border-cyan-500/50 transition-all duration-300 hover:scale-[1.01] cursor-pointer flex flex-col justify-between">
-                      <Calculator className="w-9 h-9 text-cyan-400 mb-4" />
-                      <h3 className="text-xl font-bold text-white mb-1">AI Řešitel Úloh</h3>
-                      <p className="text-sm text-slate-400">Zasekl ses na příkladu? Nech si ho vysvětlit.</p>
-                      <div className="mt-6 flex items-center gap-2 text-xs font-bold text-cyan-400"><span>Spustit řešitel</span><ArrowRight className="w-4 h-4" /></div>
-                    </div>
-
-                    <div onClick={() => setActiveView('focus-timer')} className="group relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-7 hover:border-purple-500/50 transition-all duration-300 hover:scale-[1.01] cursor-pointer flex flex-col justify-between">
-                      <Timer className="w-9 h-9 text-purple-400 mb-4" />
-                      <h3 className="text-xl font-bold text-white mb-1">Focus Timer</h3>
-                      <p className="text-sm text-slate-400">Pomodoro časomíra pro soustředěné učení.</p>
-                      <div className="mt-6 flex items-center gap-2 text-xs font-bold text-purple-400"><span>Spustit timer</span><ArrowRight className="w-4 h-4" /></div>
-                    </div>
-                  </div>
-                </div>
-              );
-            case 'calendar': return <CalendarModule onBack={() => setActiveView('workspace')} />;
-            case 'ai-solver': return <AiSolverModule onBack={() => setActiveView('workspace')} />;
-            case 'ai-vision': return <AiVisionModule onBack={() => setActiveView('workspace')} />;
-            case 'mind-map': return <MindMapModule onBack={() => setActiveView('workspace')} />;
-            case 'focus-timer': return <FocusTimerModule onBack={() => setActiveView('workspace')} />;
-            case 'notes': return <NotesModule onBack={() => setActiveView('workspace')} />;
-            case 'ai-test': return <AITestModule onBack={() => setActiveView('workspace')} />;
-            case 'flashcards': return <FlashcardsModule onBack={() => setActiveView('workspace')} />;
-            case 'analytics': return <AnalyticsModule onBack={() => setActiveView('workspace')} />;
-            case 'study-plan': return <StudyPlanModule onBack={() => setActiveView('workspace')} />;
-            case 'settings': return <SettingsModule onBack={() => setActiveView('workspace')} />;
-            case 'profile': return <ProfileModule onBack={() => setActiveView('workspace')} />;
-            case 'pet': return <PetModule onBack={() => setActiveView('workspace')} />;
-            case 'language': return <LanguageModule onBack={() => setActiveView('workspace')} onAddCredits={addCredits} />;
-            case 'storage': return <StorageModule onBack={() => setActiveView('workspace')} />;
-            case 'rewards': return <RewardsModule onBack={() => setActiveView('workspace')} credits={userCredits} onAddCredits={addCredits} />;
-            case 'store': return <StoreModule onBack={() => setActiveView('workspace')} userCredits={userCredits} onAddCredits={addCredits} />;
-            default: return null;
-          }
-        })()}
-      </Suspense>
+                );
+              case 'calendar': return <CalendarModule onBack={() => setActiveView('workspace')} />;
+              case 'ai-solver': return <AiSolverModule onBack={() => setActiveView('workspace')} />;
+              case 'ai-vision': return <AiVisionModule onBack={() => setActiveView('workspace')} />;
+              case 'mind-map': return <MindMapModule onBack={() => setActiveView('workspace')} />;
+              case 'focus-timer': return <FocusTimerModule onBack={() => setActiveView('workspace')} />;
+              case 'notes': return <NotesModule onBack={() => setActiveView('workspace')} />;
+              case 'ai-test': return <AITestModule onBack={() => setActiveView('workspace')} />;
+              case 'flashcards': return <FlashcardsModule onBack={() => setActiveView('workspace')} />;
+              case 'analytics': return <AnalyticsModule onBack={() => setActiveView('workspace')} />;
+              case 'study-plan': return <StudyPlanModule onBack={() => setActiveView('workspace')} />;
+              case 'settings': return <SettingsModule onBack={() => setActiveView('workspace')} />;
+              case 'profile': return <ProfileModule onBack={() => setActiveView('workspace')} />;
+              case 'pet': return <PetModule onBack={() => setActiveView('workspace')} />;
+              case 'language': return <LanguageModule onBack={() => setActiveView('workspace')} onAddCredits={addCredits} />;
+              case 'storage': return <StorageModule onBack={() => setActiveView('workspace')} />;
+              case 'rewards': return <RewardsModule onBack={() => setActiveView('workspace')} credits={userCredits} onAddCredits={addCredits} />;
+              case 'store': return <StoreModule onBack={() => setActiveView('workspace')} userCredits={userCredits} onAddCredits={addCredits} />;
+              default: return null;
+            }
+          })()}
+        </Suspense>
+      </ErrorBoundary>
     );
   };
 
@@ -206,4 +209,4 @@ export default function DashboardShell() {
       <DashboardContent />
     </AppProvider>
   );
-      }
+            }
