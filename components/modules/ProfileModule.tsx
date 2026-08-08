@@ -1,22 +1,25 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ArrowLeft, User, Mail, GraduationCap, Save } from 'lucide-react';
-import { useNotification } from '../NotificationSystem';
+import { ArrowLeft, User, Mail, BookOpen, Shield, Award, Edit3, Save, Sparkles } from 'lucide-react';
 
 export default function ProfileModule({ onBack }: { onBack: () => void }) {
-  const { addNotification } = useNotification();
-  const [name, setName] = useState('Hustler Student');
-  const [email, setEmail] = useState('student@skola.cz');
-  const [major, setMajor] = useState('Informatika & Kybernetika');
+  const [isEditing, setIsEditing] = useState(false);
+  const [profile, setProfile] = useState({
+    name: 'Hustler Student',
+    email: 'student@skola.cz',
+    school: 'Univerzita Karlova',
+    program: 'Umělá inteligence a datová věda',
+    bio: 'Budoucí AI engineer & cyberpunk enthusiast ⚡',
+  });
 
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
-    addNotification('success', 'Profil byl úspěšně aktualizován! ✨');
+  const handleSave = () => {
+    setIsEditing(false);
   };
 
   return (
     <div className="space-y-6 max-w-3xl mx-auto">
+      {/* Zpět tlačítko */}
       <button 
         onClick={onBack}
         className="flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-white transition cursor-pointer bg-white/5 px-4 py-2 rounded-xl border border-white/10"
@@ -24,79 +27,162 @@ export default function ProfileModule({ onBack }: { onBack: () => void }) {
         <ArrowLeft className="w-4 h-4" /> Zpět do Workspace
       </button>
 
-      <div className="flex items-center gap-3">
-        <User className="w-8 h-8 text-pink-400" />
-        <h1 className="text-3xl font-black text-white">Uživatelský profil</h1>
+      {/* Hlavička */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-pink-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-pink-500/20">
+            <User className="w-6 h-6" />
+          </div>
+          <div>
+            <h1 className="text-2xl md:text-3xl font-black text-white">Profil studenta</h1>
+            <p className="text-xs text-slate-400">Správa osobních údajů a nastavení účtu</p>
+          </div>
+        </div>
+        <button
+          onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
+          className="bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold text-xs px-5 py-2.5 rounded-2xl transition cursor-pointer flex items-center gap-2 shadow-sm"
+        >
+          {isEditing ? (
+            <>
+              <Save className="w-4 h-4 text-emerald-400" /> Uložit změny
+            </>
+          ) : (
+            <>
+              <Edit3 className="w-4 h-4 text-pink-400" /> Upravit profil
+            </>
+          )}
+        </button>
       </div>
 
-      {/* Profile Card Header */}
-      <div className="bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-indigo-500/10 border border-white/10 p-6 rounded-3xl flex flex-col md:flex-row items-center gap-6 backdrop-blur-xl">
-        <div className="w-24 h-24 rounded-3xl bg-gradient-to-tr from-pink-500 to-indigo-500 flex items-center justify-center font-black text-white text-3xl shadow-xl shadow-pink-500/20">
-          ST
+      {/* Hlavní karta profilu */}
+      <div className="bg-white/[0.03] border border-white/10 rounded-[32px] p-6 md:p-8 backdrop-blur-xl space-y-6 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-pink-500/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-slate-400 flex items-center gap-1.5">
+              <User className="w-3.5 h-3.5 text-pink-400" /> Celé jméno
+            </label>
+            {isEditing ? (
+              <input
+                type="text"
+                value={profile.name}
+                onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+                className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white text-sm focus:outline-none focus:border-pink-500 transition"
+              />
+            ) : (
+              <div className="bg-white/5 border border-white/5 rounded-2xl px-4 py-3 text-white text-sm font-semibold">
+                {profile.name}
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-slate-400 flex items-center gap-1.5">
+              <Mail className="w-3.5 h-3.5 text-cyan-400" /> E-mailová adresa
+            </label>
+            {isEditing ? (
+              <input
+                type="email"
+                value={profile.email}
+                onChange={(e) => setProfile({ ...profile, email: e.target.value })}
+                className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white text-sm focus:outline-none focus:border-pink-500 transition"
+              />
+            ) : (
+              <div className="bg-white/5 border border-white/5 rounded-2xl px-4 py-3 text-white text-sm font-semibold">
+                {profile.email}
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-slate-400 flex items-center gap-1.5">
+              <BookOpen className="w-3.5 h-3.5 text-purple-400" /> Škola / Univerzita
+            </label>
+            {isEditing ? (
+              <input
+                type="text"
+                value={profile.school}
+                onChange={(e) => setProfile({ ...profile, school: e.target.value })}
+                className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white text-sm focus:outline-none focus:border-pink-500 transition"
+              />
+            ) : (
+              <div className="bg-white/5 border border-white/5 rounded-2xl px-4 py-3 text-white text-sm font-semibold">
+                {profile.school}
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-slate-400 flex items-center gap-1.5">
+              <Shield className="w-3.5 h-3.5 text-amber-400" /> Studijní program
+            </label>
+            {isEditing ? (
+              <input
+                type="text"
+                value={profile.program}
+                onChange={(e) => setProfile({ ...profile, program: e.target.value })}
+                className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white text-sm focus:outline-none focus:border-pink-500 transition"
+              />
+            ) : (
+              <div className="bg-white/5 border border-white/5 rounded-2xl px-4 py-3 text-white text-sm font-semibold">
+                {profile.program}
+              </div>
+            )}
+          </div>
         </div>
-        <div className="text-center md:text-left space-y-1">
-          <h2 className="text-xl font-bold text-white">{name}</h2>
-          <p className="text-xs text-slate-400">{email}</p>
-          <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 pt-2">
-            <span className="text-xs font-bold px-3 py-1 rounded-full bg-pink-500/20 text-pink-300 border border-pink-500/30">
-              Level 4 ⚡
-            </span>
-            <span className="text-xs font-bold px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
-              VIP Student 🛡️
-            </span>
+
+        <div className="space-y-2">
+          <label className="text-xs font-bold text-slate-400 flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-indigo-400" /> Bio / Motto
+          </label>
+          {isEditing ? (
+            <textarea
+              value={profile.bio}
+              onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
+              rows={2}
+              className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white text-sm focus:outline-none focus:border-pink-500 transition resize-none"
+            />
+          ) : (
+            <div className="bg-white/5 border border-white/5 rounded-2xl px-4 py-3 text-white text-sm">
+              {profile.bio}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Rychlé statistiky účtu */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-white/[0.03] border border-white/10 p-5 rounded-3xl backdrop-blur-xl flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-pink-500/20 text-pink-400 flex items-center justify-center font-bold">
+            🔥
+          </div>
+          <div>
+            <p className="text-xs text-slate-400">Aktuální streak</p>
+            <h4 className="text-lg font-black text-white">3 dny</h4>
+          </div>
+        </div>
+
+        <div className="bg-white/[0.03] border border-white/10 p-5 rounded-3xl backdrop-blur-xl flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold">
+            ⭐
+          </div>
+          <div>
+            <p className="text-xs text-slate-400">Úroveň účtu</p>
+            <h4 className="text-lg font-black text-white">Level 4</h4>
+          </div>
+        </div>
+
+        <div className="bg-white/[0.03] border border-white/10 p-5 rounded-3xl backdrop-blur-xl flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold">
+            ⚡
+          </div>
+          <div>
+            <p className="text-xs text-slate-400">AI Kredity</p>
+            <h4 className="text-lg font-black text-white">250 krystalů</h4>
           </div>
         </div>
       </div>
-
-      {/* Edit Form */}
-      <form onSubmit={handleSave} className="bg-white/5 border border-white/10 p-8 rounded-3xl space-y-5 backdrop-blur-xl">
-        <h3 className="text-lg font-bold text-white mb-2">Osobní údaje</h3>
-
-        <div className="space-y-2">
-          <label className="text-xs font-bold text-slate-300 flex items-center gap-2">
-            <User className="w-3.5 h-3.5 text-pink-400" /> Uživatelské jméno
-          </label>
-          <input 
-            type="text" 
-            value={name} 
-            onChange={(e) => setName(e.target.value)}
-            className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-white text-sm focus:outline-none focus:border-pink-500 transition"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-xs font-bold text-slate-300 flex items-center gap-2">
-            <Mail className="w-3.5 h-3.5 text-purple-400" /> E-mailová adresa
-          </label>
-          <input 
-            type="email" 
-            value={email} 
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-white text-sm focus:outline-none focus:border-purple-500 transition"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-xs font-bold text-slate-300 flex items-center gap-2">
-            <GraduationCap className="w-3.5 h-3.5 text-cyan-400" /> Studijní obor / Škola
-          </label>
-          <input 
-            type="text" 
-            value={major} 
-            onChange={(e) => setMajor(e.target.value)}
-            className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-white text-sm focus:outline-none focus:border-cyan-500 transition"
-          />
-        </div>
-
-        <div className="pt-2">
-          <button 
-            type="submit"
-            className="w-full py-3.5 bg-gradient-to-r from-pink-500 to-purple-600 hover:opacity-90 text-white font-bold rounded-2xl text-xs transition shadow-lg shadow-pink-500/25 flex items-center justify-center gap-2 cursor-pointer"
-          >
-            <Save className="w-4 h-4" /> Uložit změny
-          </button>
-        </div>
-      </form>
     </div>
   );
-          }
+}
