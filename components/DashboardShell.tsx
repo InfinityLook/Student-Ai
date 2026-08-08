@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import CalendarModule from './modules/CalendarModule';
 import AiSolverModule from './modules/AiSolverModule';
+import AiVisionModule from './modules/AiVisionModule';
 import FocusTimerModule from './modules/FocusTimerModule';
 import NotesModule from './modules/NotesModule';
 import AITestModule from './modules/AITestModule';
@@ -32,9 +33,9 @@ import FlashcardsModule from './modules/FlashcardsModule';
 import SettingsModule from './modules/SettingsModule';
 import AnalyticsModule from './modules/AnalyticsModule';
 import StudyPlanModule from './modules/StudyPlanModule';
-import AiVisionModule from './modules/AiVisionModule';
-import LevelBadge from './LevelBadge';
+import ProfileModule from './modules/ProfileModule';
 import PetModule from './modules/PetModule';
+import LevelBadge from './LevelBadge';
 
 export default function DashboardShell() {
   const [activeView, setActiveView] = useState('workspace');
@@ -50,7 +51,7 @@ export default function DashboardShell() {
     { id: 'settings', label: 'Nastavení', icon: Settings },
   ];
 
-  const subViews = ['calendar', 'ai-solver', 'focus-timer', 'notes', 'ai-test', 'flashcards', 'analytics', 'study-plan', 'ai-vision'];
+  const subViews = ['calendar', 'ai-solver', 'focus-timer', 'notes', 'ai-test', 'flashcards', 'analytics', 'study-plan', 'ai-vision', 'profile'];
 
   const renderView = () => {
     switch (activeView) {
@@ -239,6 +240,8 @@ export default function DashboardShell() {
         return <StudyPlanModule onBack={() => setActiveView('workspace')} />;
       case 'settings':
         return <SettingsModule onBack={() => setActiveView('workspace')} />;
+      case 'profile':
+        return <ProfileModule onBack={() => setActiveView('workspace')} />;
       case 'pet':
         return <PetModule onBack={() => setActiveView('workspace')} />;
       case 'rewards':
@@ -252,21 +255,6 @@ export default function DashboardShell() {
                   🔥
                 </div>
               ))}
-            </div>
-          </div>
-        );
-      case 'profile':
-        return (
-          <div className="rounded-[32px] bg-white/[0.03] border border-white/10 p-8 max-w-xl mx-auto space-y-6 backdrop-blur-xl">
-            <h2 className="text-2xl font-black text-white">Profil</h2>
-            <div className="flex items-center gap-4 bg-white/5 p-4 rounded-2xl border border-white/10">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-pink-500 to-indigo-500 flex items-center justify-center font-bold text-white text-lg">
-                ST
-              </div>
-              <div>
-                <h3 className="font-bold text-white text-base">Hustler Student</h3>
-                <p className="text-xs text-slate-400">student@skola.cz</p>
-              </div>
             </div>
           </div>
         );
@@ -352,4 +340,19 @@ export default function DashboardShell() {
             <button
               key={item.id}
               onClick={() => setActiveView(item.id)}
-              className={`relative flex items-center justify-center p-3.5 rounded-2xl transition-all duration-300 ease-out group 
+              className={`relative flex items-center justify-center p-3.5 rounded-2xl transition-all duration-300 ease-out group cursor-pointer ${
+                isActive 
+                  ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg shadow-pink-500/25 scale-105' 
+                  : 'text-slate-400 hover:text-white hover:bg-white/5'
+              }`}
+              title={item.label}
+            >
+              <Icon className="w-5 h-5" />
+            </button>
+          );
+        })}
+      </nav>
+    </div>
+  );
+}
+
