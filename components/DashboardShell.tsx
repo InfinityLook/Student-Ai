@@ -38,11 +38,12 @@ import StudyPlanModule from './modules/StudyPlanModule';
 import ProfileModule from './modules/ProfileModule';
 import PetModule from './modules/PetModule';
 import StorageModule from './modules/StorageModule';
+import RewardsModule from './modules/RewardsModule';
 import LevelBadge from './LevelBadge';
 
 export default function DashboardShell() {
   const [activeView, setActiveView] = useState('workspace');
-  const [userCredits] = useState(250);
+  const [userCredits, setUserCredits] = useState(250);
 
   const navItems = [
     { id: 'workspace', label: 'Workspace', icon: LayoutGrid },
@@ -281,17 +282,11 @@ export default function DashboardShell() {
         return <StorageModule onBack={() => setActiveView('workspace')} />;
       case 'rewards':
         return (
-          <div className="rounded-[32px] bg-white/[0.03] border border-white/10 p-8 max-w-2xl mx-auto text-center space-y-6 backdrop-blur-xl">
-            <Trophy className="w-16 h-16 text-yellow-400 mx-auto animate-bounce" />
-            <h2 className="text-2xl font-black text-white">Síň slávy & Odměny</h2>
-            <div className="grid grid-cols-3 gap-4">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="aspect-square rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-3xl hover:bg-white/10 transition cursor-pointer">
-                  🔥
-                </div>
-              ))}
-            </div>
-          </div>
+          <RewardsModule 
+            onBack={() => setActiveView('workspace')} 
+            credits={userCredits} 
+            onAddCredits={(amount) => setUserCredits(prev => prev + amount)} 
+          />
         );
       case 'store':
         return (
@@ -300,7 +295,10 @@ export default function DashboardShell() {
             <div className="bg-gradient-to-br from-pink-500/10 via-purple-500/10 to-indigo-500/10 border border-pink-500/30 p-6 rounded-[28px] space-y-4">
               <h3 className="font-bold text-white text-lg">Mega Boost Pack</h3>
               <p className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400">500 kreditů</p>
-              <button className="w-full py-3.5 bg-gradient-to-r from-pink-500 to-purple-600 hover:opacity-90 text-white font-bold rounded-2xl text-xs transition shadow-lg shadow-pink-500/25 cursor-pointer">
+              <button 
+                onClick={() => setUserCredits(prev => prev + 500)}
+                className="w-full py-3.5 bg-gradient-to-r from-pink-500 to-purple-600 hover:opacity-90 text-white font-bold rounded-2xl text-xs transition shadow-lg shadow-pink-500/25 cursor-pointer"
+              >
                 Koupit za 199 Kč 🚀
               </button>
             </div>
