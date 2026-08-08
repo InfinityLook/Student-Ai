@@ -25,6 +25,7 @@ import {
   GitBranch,
   Bot
 } from 'lucide-react';
+import { AppProvider, useApp } from './AppContext';
 import CalendarModule from './modules/CalendarModule';
 import AiSolverModule from './modules/AiSolverModule';
 import AiVisionModule from './modules/AiVisionModule';
@@ -44,9 +45,9 @@ import RewardsModule from './modules/RewardsModule';
 import StoreModule from './modules/StoreModule';
 import LevelBadge from './LevelBadge';
 
-export default function DashboardShell() {
+function DashboardContent() {
   const [activeView, setActiveView] = useState('workspace');
-  const [userCredits, setUserCredits] = useState(250);
+  const { userCredits, addCredits, streak, level, xp } = useApp();
 
   const navItems = [
     { id: 'workspace', label: 'Workspace', icon: LayoutGrid },
@@ -82,21 +83,21 @@ export default function DashboardShell() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div>
                 <span className="text-xs font-bold px-3 py-1 rounded-full bg-pink-500/10 text-pink-400 border border-pink-500/20 inline-flex items-center gap-1.5 mb-3">
-                  <Flame className="w-3.5 h-3.5 text-pink-400" /> 3 denní streak! 🔥
+                  <Flame className="w-3.5 h-3.5 text-pink-400" /> {streak} denní streak! 🔥
                 </span>
                 <h1 className="text-3xl md:text-4xl font-black tracking-tight text-white">
                   Studijní <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400">Workspace</span> ⚡
                 </h1>
               </div>
               <div className="w-full md:w-72">
-                <LevelBadge level={4} currentXp={85} maxXp={100} />
+                <LevelBadge level={level} currentXp={xp} maxXp={100} />
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div 
                 onClick={() => setActiveView('language')}
-                className="group relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-7 hover:border-cyan-500/50 transition-all duration-300 hover:scale-[1.01] cursor-pointer flex flex-col justify-between"
+                className="group relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-7 hover:border-cyan-500/55 transition-all duration-300 hover:scale-[1.01] cursor-pointer flex flex-col justify-between"
               >
                 <div className="absolute top-0 right-0 w-40 h-40 bg-cyan-500/10 rounded-full blur-3xl group-hover:bg-cyan-500/25 transition-all" />
                 <div>
@@ -300,30 +301,13 @@ export default function DashboardShell() {
       case 'pet':
         return <PetModule onBack={() => setActiveView('workspace')} />;
       case 'language':
-        return (
-          <LanguageModule 
-            onBack={() => setActiveView('workspace')} 
-            onAddCredits={(amount) => setUserCredits(prev => prev + amount)} 
-          />
-        );
+        return <LanguageModule onBack={() => setActiveView('workspace')} onAddCredits={addCredits} />;
       case 'storage':
         return <StorageModule onBack={() => setActiveView('workspace')} />;
       case 'rewards':
-        return (
-          <RewardsModule 
-            onBack={() => setActiveView('workspace')} 
-            credits={userCredits} 
-            onAddCredits={(amount) => setUserCredits(prev => prev + amount)} 
-          />
-        );
+        return <RewardsModule onBack={() => setActiveView('workspace')} credits={userCredits} onAddCredits={addCredits} />;
       case 'store':
-        return (
-          <StoreModule 
-            onBack={() => setActiveView('workspace')} 
-            userCredits={userCredits} 
-            onAddCredits={(amount) => setUserCredits(prev => prev + amount)} 
-          />
-        );
+        return <StoreModule onBack={() => setActiveView('workspace')} userCredits={userCredits} onAddCredits={addCredits} />;
       default:
         return null;
     }
@@ -389,5 +373,13 @@ export default function DashboardShell() {
         })}
       </nav>
     </div>
+  );
+}
+
+export default function DashboardShell() {
+  return (
+    <AppProvider>
+      <DashboardContent />
+    </AppProvider>
   );
 }
