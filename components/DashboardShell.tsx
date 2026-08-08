@@ -20,7 +20,7 @@ import ErrorBoundary from './ErrorBoundary';
 import WidgetCustomizerModal from './WidgetCustomizerModal';
 import WorkspaceView from './WorkspaceView';
 
-// Dynamický import ostatních modulů
+// Dynamický import ostatních modulů včetně Spatial Learning 3.0
 const CalendarModule = lazy(() => import('./modules/CalendarModule'));
 const AiSolverModule = lazy(() => import('./modules/AiSolverModule'));
 const AiVisionModule = lazy(() => import('./modules/AiVisionModule'));
@@ -38,6 +38,7 @@ const LanguageModule = lazy(() => import('./modules/LanguageModule'));
 const StorageModule = lazy(() => import('./modules/StorageModule'));
 const RewardsModule = lazy(() => import('./modules/RewardsModule'));
 const StoreModule = lazy(() => import('./modules/StoreModule'));
+const SpatialLearningModule = lazy(() => import('./modules/SpatialLearningModule'));
 
 function DashboardContent() {
   const [activeView, setActiveView] = useState('workspace');
@@ -57,7 +58,8 @@ function DashboardContent() {
   const subViews = [
     'calendar', 'ai-solver', 'focus-timer', 'notes', 'ai-test', 
     'flashcards', 'analytics', 'study-plan', 'ai-vision', 'mind-map', 
-    'profile', 'language', 'store', 'pet', 'rewards', 'storage', 'settings'
+    'profile', 'language', 'store', 'pet', 'rewards', 'storage', 'settings',
+    'spatial-learning'
   ];
 
   const renderView = () => {
@@ -85,6 +87,7 @@ function DashboardContent() {
               case 'storage': return <StorageModule onBack={() => setActiveView('workspace')} />;
               case 'rewards': return <RewardsModule onBack={() => setActiveView('workspace')} credits={userCredits} onAddCredits={addCredits} />;
               case 'store': return <StoreModule onBack={() => setActiveView('workspace')} userCredits={userCredits} onAddCredits={addCredits} />;
+              case 'spatial-learning': return <SpatialLearningModule onBack={() => setActiveView('workspace')} />;
               default: return null;
             }
           })()}
@@ -158,4 +161,4 @@ export default function DashboardShell() {
       </WidgetProvider>
     </AppProvider>
   );
-      }
+}
