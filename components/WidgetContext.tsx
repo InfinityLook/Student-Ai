@@ -1,0 +1,68 @@
+'use client';
+
+import React, { createContext, useContext, useState, useEffect } from 'react';
+
+export interface WidgetConfig {
+  id: string;
+  title: string;
+  enabled: boolean;
+  size: 'small' | 'medium' | 'large' | 'full';
+}
+
+interface WidgetContextType {
+  widgets: WidgetConfig[];
+  toggleWidget: (id: string) => void;
+  reorderWidgets: (newWidgets: WidgetConfig[]) => void;
+  resetWidgets: () => void;
+}
+
+const DEFAULT_WIDGETS: WidgetConfig[] = [
+  { id: 'streak', title: 'Streak & XP přehled', enabled: true, size: 'full' },
+  { id: 'language', title: 'Cyber Jazykový Lektor', enabled: true, size: 'medium' },
+  { id: 'mindmap', title: 'Myšlenkové Mapy', enabled: true, size: 'medium' },
+  { id: 'solver', title: 'AI Řešitel Úloh', enabled: true, size: 'medium' },
+  { id: 'timer', title: 'Focus Timer', enabled: true, size: 'medium' },
+  { id: 'calendar', title: 'Studijní Kalendář', enabled: true, size: 'full' },
+];
+
+const WidgetContext = createContext<WidgetContextType | undefined>(undefined);
+
+export function WidgetProvider({ children }: { children: React.ReactNode }) {
+  const [widgets, setWidgets] = useState<WidgetConfig[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('student_ai_widgets');
+      if (saved) {
+        try { return JSON.parse(saved); } catch (e) { /* fallback */ }
+      }
+    }
+    return DEFAULT_WIDGETS;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('student_ai_widgets', JSON.stringify(widgets));
+  }, [widgets]);
+
+  const toggleWidget = (id: string) => {
+    setWidgets(prev => prev.map(w => w.id === id ? { ...w, enabled: !w.enabled } : w));
+  };
+
+  const reorderWidgets = (newWidgets: WidgetConfig[]) => {
+    setWidgets(newWidgets);
+  };
+
+  const resetWidgets = () => {
+    setWidgets(DEFAULT_WIDGETS);
+  };
+
+  return (
+    <WidgetContext.Provider value={{ widgets, toggleWidget, reorderWidgets, resetWidgets }}>
+      {children}
+    </WidgetContext.Provider>
+  );
+}
+
+export function useWidgets() {
+  const context = useContext(WidgetContext);
+  if (!context) throw new Error('useWidgets musí být použito uvnitř WidgetProvider');
+  return context;
+    }
