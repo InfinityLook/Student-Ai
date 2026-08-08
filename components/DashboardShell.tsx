@@ -21,11 +21,13 @@ import {
   BrainCircuit,
   Layers,
   BarChart3,
-  Camera
+  Camera,
+  GitBranch
 } from 'lucide-react';
 import CalendarModule from './modules/CalendarModule';
 import AiSolverModule from './modules/AiSolverModule';
 import AiVisionModule from './modules/AiVisionModule';
+import MindMapModule from './modules/MindMapModule';
 import FocusTimerModule from './modules/FocusTimerModule';
 import NotesModule from './modules/NotesModule';
 import AITestModule from './modules/AITestModule';
@@ -51,7 +53,7 @@ export default function DashboardShell() {
     { id: 'settings', label: 'Nastavení', icon: Settings },
   ];
 
-  const subViews = ['calendar', 'ai-solver', 'focus-timer', 'notes', 'ai-test', 'flashcards', 'analytics', 'study-plan', 'ai-vision', 'profile'];
+  const subViews = ['calendar', 'ai-solver', 'focus-timer', 'notes', 'ai-test', 'flashcards', 'analytics', 'study-plan', 'ai-vision', 'mind-map', 'profile'];
 
   const renderView = () => {
     switch (activeView) {
@@ -73,6 +75,22 @@ export default function DashboardShell() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div 
+                onClick={() => setActiveView('mind-map')}
+                className="group relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-7 hover:border-indigo-500/50 transition-all duration-300 hover:scale-[1.01] cursor-pointer flex flex-col justify-between"
+              >
+                <div className="absolute top-0 right-0 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl group-hover:bg-indigo-500/25 transition-all" />
+                <div>
+                  <GitBranch className="w-9 h-9 text-indigo-400 mb-4" />
+                  <h3 className="text-xl font-bold text-white mb-1">Myšlenkové Mapy</h3>
+                  <p className="text-sm text-slate-400">Vizuální propojování konceptů a uzlů.</p>
+                </div>
+                <div className="mt-6 flex items-center gap-2 text-xs font-bold text-indigo-400 group-hover:translate-x-1 transition-transform">
+                  <span>Otevřít mapy</span>
+                  <ArrowRight className="w-4 h-4" />
+                </div>
+              </div>
+
               <div 
                 onClick={() => setActiveView('calendar')}
                 className="group relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-7 hover:border-pink-500/50 transition-all duration-300 hover:scale-[1.01] cursor-pointer flex flex-col justify-between"
@@ -226,6 +244,8 @@ export default function DashboardShell() {
         return <AiSolverModule onBack={() => setActiveView('workspace')} />;
       case 'ai-vision':
         return <AiVisionModule onBack={() => setActiveView('workspace')} />;
+      case 'mind-map':
+        return <MindMapModule onBack={() => setActiveView('workspace')} />;
       case 'focus-timer':
         return <FocusTimerModule onBack={() => setActiveView('workspace')} />;
       case 'notes':
@@ -329,30 +349,4 @@ export default function DashboardShell() {
           >
             {renderView()}
           </motion.div>
-        </AnimatePresence>
-      </main>
-
-      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1.5 p-2 rounded-[28px] bg-black/60 backdrop-blur-2xl border border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.8)]">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = activeView === item.id || (subViews.includes(activeView) && item.id === 'workspace');
-          return (
-            <button
-              key={item.id}
-              onClick={() => setActiveView(item.id)}
-              className={`relative flex items-center justify-center p-3.5 rounded-2xl transition-all duration-300 ease-out group cursor-pointer ${
-                isActive 
-                  ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg shadow-pink-500/25 scale-105' 
-                  : 'text-slate-400 hover:text-white hover:bg-white/5'
-              }`}
-              title={item.label}
-            >
-              <Icon className="w-5 h-5" />
-            </button>
-          );
-        })}
-      </nav>
-    </div>
-  );
-}
-
+        </AnimatePrese
