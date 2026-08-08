@@ -37,6 +37,7 @@ import AnalyticsModule from './modules/AnalyticsModule';
 import StudyPlanModule from './modules/StudyPlanModule';
 import ProfileModule from './modules/ProfileModule';
 import PetModule from './modules/PetModule';
+import StorageModule from './modules/StorageModule';
 import LevelBadge from './LevelBadge';
 
 export default function DashboardShell() {
@@ -276,6 +277,8 @@ export default function DashboardShell() {
         return <ProfileModule onBack={() => setActiveView('workspace')} />;
       case 'pet':
         return <PetModule onBack={() => setActiveView('workspace')} />;
+      case 'storage':
+        return <StorageModule onBack={() => setActiveView('workspace')} />;
       case 'rewards':
         return (
           <div className="rounded-[32px] bg-white/[0.03] border border-white/10 p-8 max-w-2xl mx-auto text-center space-y-6 backdrop-blur-xl">
@@ -300,23 +303,6 @@ export default function DashboardShell() {
               <button className="w-full py-3.5 bg-gradient-to-r from-pink-500 to-purple-600 hover:opacity-90 text-white font-bold rounded-2xl text-xs transition shadow-lg shadow-pink-500/25 cursor-pointer">
                 Koupit za 199 Kč 🚀
               </button>
-            </div>
-          </div>
-        );
-      case 'storage':
-        return (
-          <div className="rounded-[32px] bg-white/[0.03] border border-white/10 p-8 max-w-xl mx-auto space-y-6 backdrop-blur-xl">
-            <h2 className="text-2xl font-black text-white flex items-center gap-3">
-              <Database className="text-cyan-400" /> Úložiště souborů
-            </h2>
-            <div className="bg-white/5 rounded-2xl p-6 border border-white/10 space-y-3">
-              <div className="flex justify-between text-xs text-slate-300 font-bold">
-                <span>Využitý prostor</span>
-                <span>1.2 GB / 5 GB</span>
-              </div>
-              <div className="w-full bg-white/10 h-3 rounded-full overflow-hidden p-0.5">
-                <div className="bg-gradient-to-r from-cyan-400 to-indigo-500 h-full rounded-full w-[24%]" />
-              </div>
             </div>
           </div>
         );
