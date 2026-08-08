@@ -41,6 +41,7 @@ import PetModule from './modules/PetModule';
 import LanguageModule from './modules/LanguageModule';
 import StorageModule from './modules/StorageModule';
 import RewardsModule from './modules/RewardsModule';
+import StoreModule from './modules/StoreModule';
 import LevelBadge from './LevelBadge';
 
 export default function DashboardShell() {
@@ -69,7 +70,8 @@ export default function DashboardShell() {
     'ai-vision', 
     'mind-map', 
     'profile',
-    'language'
+    'language',
+    'store'
   ];
 
   const renderView = () => {
@@ -316,19 +318,11 @@ export default function DashboardShell() {
         );
       case 'store':
         return (
-          <div className="rounded-[32px] bg-white/[0.03] border border-white/10 p-8 max-w-xl mx-auto text-center space-y-6 backdrop-blur-xl">
-            <h2 className="text-2xl font-black text-white">Obchod s kredity</h2>
-            <div className="bg-gradient-to-br from-pink-500/10 via-purple-500/10 to-indigo-500/10 border border-pink-500/30 p-6 rounded-[28px] space-y-4">
-              <h3 className="font-bold text-white text-lg">Mega Boost Pack</h3>
-              <p className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400">500 kreditů</p>
-              <button 
-                onClick={() => setUserCredits(prev => prev + 500)}
-                className="w-full py-3.5 bg-gradient-to-r from-pink-500 to-purple-600 hover:opacity-90 text-white font-bold rounded-2xl text-xs transition shadow-lg shadow-pink-500/25 cursor-pointer"
-              >
-                Koupit za 199 Kč 🚀
-              </button>
-            </div>
-          </div>
+          <StoreModule 
+            onBack={() => setActiveView('workspace')} 
+            userCredits={userCredits} 
+            onAddCredits={(amount) => setUserCredits(prev => prev + amount)} 
+          />
         );
       default:
         return null;
