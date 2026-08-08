@@ -22,7 +22,8 @@ import {
   Layers,
   BarChart3,
   Camera,
-  GitBranch
+  GitBranch,
+  Bot
 } from 'lucide-react';
 import CalendarModule from './modules/CalendarModule';
 import AiSolverModule from './modules/AiSolverModule';
@@ -37,6 +38,7 @@ import AnalyticsModule from './modules/AnalyticsModule';
 import StudyPlanModule from './modules/StudyPlanModule';
 import ProfileModule from './modules/ProfileModule';
 import PetModule from './modules/PetModule';
+import LanguageModule from './modules/LanguageModule';
 import StorageModule from './modules/StorageModule';
 import RewardsModule from './modules/RewardsModule';
 import LevelBadge from './LevelBadge';
@@ -66,7 +68,8 @@ export default function DashboardShell() {
     'study-plan', 
     'ai-vision', 
     'mind-map', 
-    'profile'
+    'profile',
+    'language'
   ];
 
   const renderView = () => {
@@ -89,6 +92,22 @@ export default function DashboardShell() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div 
+                onClick={() => setActiveView('language')}
+                className="group relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-7 hover:border-cyan-500/50 transition-all duration-300 hover:scale-[1.01] cursor-pointer flex flex-col justify-between"
+              >
+                <div className="absolute top-0 right-0 w-40 h-40 bg-cyan-500/10 rounded-full blur-3xl group-hover:bg-cyan-500/25 transition-all" />
+                <div>
+                  <Bot className="w-9 h-9 text-cyan-400 mb-4" />
+                  <h3 className="text-xl font-bold text-white mb-1">Cyber Jazykový Lektor</h3>
+                  <p className="text-sm text-slate-400">Trénuj konverzaci a výslovnost s AI společníkem.</p>
+                </div>
+                <div className="mt-6 flex items-center gap-2 text-xs font-bold text-cyan-400 group-hover:translate-x-1 transition-transform">
+                  <span>Spustit lektora</span>
+                  <ArrowRight className="w-4 h-4" />
+                </div>
+              </div>
+
               <div 
                 onClick={() => setActiveView('mind-map')}
                 className="group relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-7 hover:border-indigo-500/50 transition-all duration-300 hover:scale-[1.01] cursor-pointer flex flex-col justify-between"
@@ -278,6 +297,13 @@ export default function DashboardShell() {
         return <ProfileModule onBack={() => setActiveView('workspace')} />;
       case 'pet':
         return <PetModule onBack={() => setActiveView('workspace')} />;
+      case 'language':
+        return (
+          <LanguageModule 
+            onBack={() => setActiveView('workspace')} 
+            onAddCredits={(amount) => setUserCredits(prev => prev + amount)} 
+          />
+        );
       case 'storage':
         return <StorageModule onBack={() => setActiveView('workspace')} />;
       case 'rewards':
